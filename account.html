@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>訂單查詢｜品牌名稱</title>
+  <meta name="theme-color" content="#FBF7F4">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,500;1,600&family=Noto+Serif+TC:wght@500;600;700&family=Nunito:ital,wght@0,300..800;1,400..700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .account-page {
+      max-width: 560px;
+      margin: 0 auto;
+      padding: 120px 20px 80px;
+    }
+    @media (min-width: 768px) { .account-page { padding: 140px 48px 100px; } }
+
+    .page-title {
+      font-family: 'Noto Serif TC', serif;
+      font-size: clamp(22px, 4vw, 28px);
+      font-weight: 600;
+      color: var(--c-ft-dark);
+      margin-bottom: 8px;
+    }
+    .page-sub {
+      font-size: 14px; color: var(--c-secondary);
+      line-height: 1.7; margin-bottom: 32px;
+    }
+
+    .query-card {
+      background: var(--c-surface);
+      border-radius: var(--r-card);
+      padding: 32px;
+      margin-bottom: 24px;
+    }
+    .query-card-title {
+      font-weight: 700; font-size: 15px;
+      color: var(--c-on-surface);
+      margin-bottom: 16px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .query-card-title .material-symbols-outlined { color: var(--c-primary); font-size: 20px; }
+
+    .query-row { display: flex; gap: 10px; }
+    .query-input {
+      flex: 1;
+      padding: 11px 14px;
+      border: 1.5px solid rgba(143,89,53,.2);
+      border-radius: var(--r-input);
+      background: #fff; font-family: inherit;
+      font-size: 14px; color: var(--c-on-surface);
+      outline: none; transition: border-color .2s;
+    }
+    .query-input:focus { border-color: var(--c-primary); }
+
+    .btn-query {
+      padding: 11px 20px;
+      background: var(--c-primary); color: #fff;
+      border: none; border-radius: var(--r-input);
+      font-family: inherit; font-size: 14px; font-weight: 700;
+      cursor: pointer; white-space: nowrap;
+      transition: background .2s;
+    }
+    .btn-query:hover { background: var(--c-primary-dark); }
+    .btn-query:disabled { opacity: .55; cursor: not-allowed; }
+
+    /* 訂單結果 */
+    .order-card {
+      background: var(--c-surface);
+      border-radius: 16px;
+      padding: 20px 24px;
+      margin-bottom: 12px;
+      cursor: pointer;
+      transition: box-shadow .2s;
+      text-decoration: none; display: block; color: inherit;
+    }
+    .order-card:hover { box-shadow: 0 4px 20px rgba(74,43,39,.1); }
+
+    .order-card-head {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 6px;
+    }
+    .order-no { font-size: 13px; font-weight: 700; }
+    .order-date { font-size: 12px; color: var(--c-secondary); }
+
+    .status-pill {
+      display: inline-block; padding: 2px 10px;
+      border-radius: var(--r-pill);
+      font-size: 12px; font-weight: 700;
+    }
+    .status-pending  { background: rgba(230,126,34,.15); color: #c0772a; }
+    .status-paid     { background: rgba(39,174,96,.15);  color: #1e8449; }
+    .status-shipped  { background: rgba(41,128,185,.15); color: #1a5e8a; }
+    .status-done     { background: rgba(39,174,96,.15);  color: #1e8449; }
+    .status-cancelled{ background: rgba(192,57,43,.15);  color: #922b21; }
+
+    .order-items { font-size: 13px; color: var(--c-secondary); margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .order-total { font-size: 15px; font-weight: 700; color: var(--c-primary); margin-top: 6px; }
+
+    .result-msg { font-size: 14px; color: var(--c-secondary); text-align: center; padding: 28px 0; }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header id="site-header">
+  <nav class="header-nav">
+    <a href="index.html" class="header-logo" aria-label="品牌首頁">
+      <span class="logo-text">BRAND</span>
+    </a>
+    <div class="header-actions">
+      <a href="index.html" class="icon-btn" aria-label="回首頁">
+        <span class="material-symbols-outlined">home</span>
+      </a>
+      <button type="button" class="icon-btn" aria-label="購物車" onclick="Cart.open()">
+        <span class="material-symbols-outlined">shopping_cart</span>
+        <span id="cart-badge"></span>
+      </button>
+    </div>
+  </nav>
+</header>
+
+<!-- CART DRAWER -->
+<div id="cart-overlay" onclick="Cart.close()"></div>
+<div id="cart-drawer">
+  <div class="cart-head">
+    <span class="cart-title">購物車</span>
+    <button class="icon-btn" onclick="Cart.close()"><span class="material-symbols-outlined">close</span></button>
+  </div>
+  <div id="cart-items"></div>
+  <div class="cart-foot">
+    <div class="cart-total-row">
+      <span>小計</span><span id="cart-subtotal">NT$0</span>
+    </div>
+    <a href="checkout.html" class="btn-cart" style="text-decoration:none;margin-top:12px">
+      前往結帳
+    </a>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<main class="account-page">
+  <h1 class="page-title">訂單查詢</h1>
+  <p class="page-sub">輸入您下單時填寫的手機號碼，即可查詢所有歷史訂單。</p>
+
+  <!-- 手機查詢 -->
+  <div class="query-card">
+    <p class="query-card-title">
+      <span class="material-symbols-outlined">phone</span>以手機號碼查詢
+    </p>
+    <div class="query-row">
+      <input class="query-input" type="tel" id="input-phone"
+             placeholder="09xx-xxxxxx"
+             onkeydown="if(event.key==='Enter') queryByPhone()">
+      <button class="btn-query" id="btn-phone" onclick="queryByPhone()">查詢</button>
+    </div>
+    <div id="phone-results"></div>
+  </div>
+
+  <!-- 訂單編號查詢 -->
+  <div class="query-card">
+    <p class="query-card-title">
+      <span class="material-symbols-outlined">receipt_long</span>以訂單編號查詢
+    </p>
+    <div class="query-row">
+      <input class="query-input" type="text" id="input-order-no"
+             placeholder="ORD-20260908-XXXX"
+             onkeydown="if(event.key==='Enter') queryByOrderNo()">
+      <button class="btn-query" id="btn-order-no" onclick="queryByOrderNo()">查詢</button>
+    </div>
+    <div id="orderno-results"></div>
+  </div>
+</main>
+
+<!-- footer 由 script.js renderFooter() 動態插入 -->
+
+<script src="script.js"></script>
+<script>
+  const API = 'https://brand-api.crazyfunlife8.workers.dev';
+
+  const STATUS_LABEL = {
+    pending:'待付款', paid:'已付款',
+    shipped:'已出貨', done:'已完成', cancelled:'已取消',
+  };
+
+  async function queryByPhone() {
+    const phone = document.getElementById('input-phone').value.trim();
+    if (!phone) return;
+    const btn = document.getElementById('btn-phone');
+    btn.disabled = true; btn.textContent = '查詢中…';
+
+    try {
+      const res  = await fetch(`${API}/api/orders?phone=${encodeURIComponent(phone)}`);
+      const data = await res.json();
+      renderResults('phone-results', data.orders || []);
+    } catch {
+      document.getElementById('phone-results').innerHTML =
+        '<p class="result-msg">查詢失敗，請稍後再試。</p>';
+    } finally {
+      btn.disabled = false; btn.textContent = '查詢';
+    }
+  }
+
+  async function queryByOrderNo() {
+    const no = document.getElementById('input-order-no').value.trim();
+    if (!no) return;
+    const btn = document.getElementById('btn-order-no');
+    btn.disabled = true; btn.textContent = '查詢中…';
+
+    try {
+      const res  = await fetch(`${API}/api/orders/${no}`);
+      const data = await res.json();
+      if (data.ok) renderResults('orderno-results', [data.order]);
+      else document.getElementById('orderno-results').innerHTML =
+        '<p class="result-msg">找不到此訂單編號。</p>';
+    } catch {
+      document.getElementById('orderno-results').innerHTML =
+        '<p class="result-msg">查詢失敗，請稍後再試。</p>';
+    } finally {
+      btn.disabled = false; btn.textContent = '查詢';
+    }
+  }
+
+  function renderResults(containerId, orders) {
+    const el = document.getElementById(containerId);
+    if (!orders.length) {
+      el.innerHTML = '<p class="result-msg">查無訂單紀錄。</p>';
+      return;
+    }
+    el.innerHTML = orders.map(o => `
+      <a class="order-card" href="order.html?no=${o.order_no}">
+        <div class="order-card-head">
+          <span class="order-no">${o.order_no}</span>
+          <span class="status-pill status-${o.status}">${STATUS_LABEL[o.status] || o.status}</span>
+        </div>
+        <p class="order-date">${o.created_at?.slice(0,16) || ''}</p>
+        <p class="order-items">${o.items.map(i => i.name).join('、')}</p>
+        <p class="order-total">NT$${o.total.toLocaleString()}</p>
+      </a>`).join('');
+  }
+
+  // 若從 URL 帶入訂單編號，自動填入並查詢
+  const urlNo = new URLSearchParams(location.search).get('no');
+  if (urlNo) {
+    document.getElementById('input-order-no').value = urlNo;
+    queryByOrderNo();
+  }
+</script>
+</body>
+</html>

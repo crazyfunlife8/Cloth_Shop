@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>結帳｜品牌名稱</title>
+  <meta name="theme-color" content="#FBF7F4">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,500;1,600&family=Noto+Serif+TC:wght@500;600;700&family=Nunito:ital,wght@0,300..800;1,400..700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .checkout-page {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 120px 20px 80px;
+    }
+    @media (min-width: 768px) { .checkout-page { padding: 140px 48px 100px; } }
+
+    .page-title {
+      font-family: 'Noto Serif TC', serif;
+      font-size: clamp(22px, 4vw, 28px);
+      font-weight: 600;
+      color: var(--c-ft-dark);
+      margin-bottom: 36px;
+    }
+
+    .checkout-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 32px;
+    }
+    @media (min-width: 768px) {
+      .checkout-grid { grid-template-columns: 1fr 400px; }
+    }
+
+    /* ── Form card ── */
+    .form-card {
+      background: var(--c-surface);
+      border-radius: var(--r-card);
+      padding: 32px;
+    }
+    .form-section-title {
+      font-weight: 700;
+      font-size: 15px;
+      color: var(--c-on-surface);
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(143,89,53,.12);
+    }
+
+    .form-row { display: flex; flex-direction: column; gap: 16px; margin-bottom: 16px; }
+    @media (min-width: 480px) { .form-row { flex-direction: row; } }
+    .form-field { display: flex; flex-direction: column; gap: 6px; flex: 1; }
+    .form-field label { font-size: 13px; font-weight: 600; color: var(--c-on-surface); }
+    .form-field input,
+    .form-field textarea {
+      padding: 11px 14px;
+      border: 1.5px solid rgba(143,89,53,.2);
+      border-radius: var(--r-input);
+      background: #fff;
+      font-family: inherit;
+      font-size: 14px;
+      color: var(--c-on-surface);
+      outline: none;
+      transition: border-color .2s;
+    }
+    .form-field input:focus,
+    .form-field textarea:focus { border-color: var(--c-primary); }
+    .form-field textarea { resize: vertical; min-height: 80px; }
+    .form-field .hint { font-size: 12px; color: var(--c-secondary); }
+    .required::after { content: ' *'; color: var(--c-primary); }
+
+    /* ── Order summary card ── */
+    .summary-card {
+      background: var(--c-surface);
+      border-radius: var(--r-card);
+      padding: 28px;
+      position: sticky;
+      top: 110px;
+      align-self: start;
+    }
+    .summary-title { font-weight: 700; font-size: 15px; color: var(--c-on-surface); margin-bottom: 20px; }
+
+    .summary-items { display: flex; flex-direction: column; gap: 14px; margin-bottom: 20px; }
+    .summary-item { display: flex; align-items: center; gap: 12px; }
+    .summary-item-img {
+      width: 64px; height: 80px;
+      border-radius: 10px;
+      object-fit: cover;
+      background: var(--c-body);
+      flex-shrink: 0;
+    }
+    .summary-item-info { flex: 1; min-width: 0; }
+    .summary-item-name { font-size: 13px; font-weight: 600; line-height: 1.4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .summary-item-meta { font-size: 12px; color: var(--c-secondary); margin-top: 2px; }
+    .summary-item-price { font-size: 14px; font-weight: 700; color: var(--c-primary); white-space: nowrap; }
+
+    .summary-divider { border: none; border-top: 1px solid rgba(143,89,53,.12); margin: 16px 0; }
+
+    .summary-fee-row { display: flex; justify-content: space-between; font-size: 13px; color: var(--c-secondary); margin-bottom: 8px; }
+    .summary-total-row { display: flex; justify-content: space-between; font-size: 17px; font-weight: 700; color: var(--c-ft-dark); margin-top: 8px; }
+
+    .btn-submit {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      width: 100%;
+      padding: 15px;
+      background: var(--c-primary); color: #fff;
+      border: none; border-radius: var(--r-btn);
+      font-size: 15px; font-weight: 700;
+      cursor: pointer;
+      margin-top: 20px;
+      transition: background .2s;
+    }
+    .btn-submit:hover { background: var(--c-primary-dark); }
+    .btn-submit:disabled { opacity: .55; cursor: not-allowed; }
+
+    .empty-cart-msg {
+      text-align: center; padding: 60px 20px;
+      color: var(--c-secondary); font-size: 15px;
+    }
+    .empty-cart-msg a { color: var(--c-primary); font-weight: 600; text-decoration: none; }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header id="site-header">
+  <nav class="header-nav">
+    <a href="/" class="header-logo" aria-label="品牌首頁">
+      <span class="logo-text">BRAND</span>
+    </a>
+    <div class="header-actions">
+      <a href="/" class="icon-btn" aria-label="回首頁">
+        <span class="material-symbols-outlined">home</span>
+      </a>
+      <a href="/account.html" class="icon-btn" aria-label="會員中心">
+        <span class="material-symbols-outlined">person</span>
+      </a>
+    </div>
+  </nav>
+</header>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<main class="checkout-page">
+  <h1 class="page-title">結帳</h1>
+
+  <div id="empty-msg" class="empty-cart-msg" style="display:none">
+    購物車是空的，<a href="/#shop">繼續選購</a>
+  </div>
+
+  <div class="checkout-grid" id="checkout-grid">
+    <!-- 表單 -->
+    <div class="form-card">
+      <p class="form-section-title">收件資訊</p>
+      <form id="checkout-form" onsubmit="submitOrder(event)">
+        <div class="form-row">
+          <div class="form-field">
+            <label class="required">姓名</label>
+            <input type="text" id="f-name" placeholder="收件人姓名" required>
+          </div>
+          <div class="form-field">
+            <label class="required">手機</label>
+            <input type="tel" id="f-phone" placeholder="09xx-xxxxxx" required>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-field">
+            <label>Email</label>
+            <input type="email" id="f-email" placeholder="選填，用於訂單通知">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-field">
+            <label class="required">收件地址</label>
+            <input type="text" id="f-address" placeholder="縣市＋鄉鎮區＋路段門號" required>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-field">
+            <label>備註</label>
+            <textarea id="f-note" placeholder="指定配送時間、顏色說明等…"></textarea>
+          </div>
+        </div>
+
+        <p class="form-section-title" style="margin-top:24px">付款說明</p>
+        <div style="font-size:14px;line-height:1.8;color:var(--c-secondary);background:rgba(143,89,53,.06);border-radius:12px;padding:16px;">
+          <strong style="color:var(--c-on-surface)">LINE Pay QR Code 付款</strong><br>
+          確認訂單後，請在訂單確認頁面掃描 QR Code 完成付款。<br>
+          付款完成後請截圖傳送至 LINE 客服，以利核對。
+        </div>
+
+        <!-- 手機版才顯示送出按鈕 -->
+        <button type="submit" class="btn-submit" id="btn-submit-form" style="display:none">
+          確認訂單
+        </button>
+      </form>
+    </div>
+
+    <!-- 訂單摘要 -->
+    <div class="summary-card">
+      <p class="summary-title">訂單摘要</p>
+      <div class="summary-items" id="summary-items"></div>
+      <hr class="summary-divider">
+      <div class="summary-fee-row"><span>商品小計</span><span id="sum-subtotal">NT$0</span></div>
+      <div class="summary-fee-row"><span>運費</span><span id="sum-shipping">NT$60</span></div>
+      <hr class="summary-divider">
+      <div class="summary-total-row"><span>合計</span><span id="sum-total">NT$0</span></div>
+      <button type="submit" form="checkout-form" class="btn-submit" id="btn-submit">
+        <span class="material-symbols-outlined">check_circle</span>確認訂單
+      </button>
+    </div>
+  </div>
+</main>
+
+<!-- footer 由 script.js renderFooter() 動態插入 -->
+
+<script src="script.js"></script>
+<script>
+  const API = 'https://brand-api.crazyfunlife8.workers.dev';
+
+  function renderSummary() {
+    const items = Cart._items;
+    if (!items.length) {
+      document.getElementById('empty-msg').style.display = '';
+      document.getElementById('checkout-grid').style.display = 'none';
+      return;
+    }
+
+    const el = document.getElementById('summary-items');
+    el.innerHTML = '';
+    items.forEach(item => {
+      const imgSrc = item.image ? `${API}/images/${item.image}` : '/placeholder.jpg';
+      el.innerHTML += `
+        <div class="summary-item">
+          <img class="summary-item-img" src="${imgSrc}" alt="${item.name}">
+          <div class="summary-item-info">
+            <p class="summary-item-name">${item.name}</p>
+            <p class="summary-item-meta">${[item.color,item.size].filter(Boolean).join(' / ')} × ${item.qty}</p>
+          </div>
+          <span class="summary-item-price">NT$${(item.price * item.qty).toLocaleString()}</span>
+        </div>`;
+    });
+
+    const subtotal = items.reduce((s, i) => s + i.price * i.qty, 0);
+    const shipping = subtotal >= 5000 ? 0 : 60;
+    document.getElementById('sum-subtotal').textContent = `NT$${subtotal.toLocaleString()}`;
+    document.getElementById('sum-shipping').textContent = shipping === 0 ? '免運' : `NT$${shipping}`;
+    document.getElementById('sum-total').textContent    = `NT$${(subtotal + shipping).toLocaleString()}`;
+
+    // 手機版按鈕
+    if (window.innerWidth < 768)
+      document.getElementById('btn-submit-form').style.display = 'flex';
+  }
+
+  async function submitOrder(e) {
+    e.preventDefault();
+    const btn = document.getElementById('btn-submit');
+    btn.disabled = true; btn.textContent = '處理中…';
+
+    const items = Cart._items.map(i => ({
+      id: i.id, name: i.name, price: i.price,
+      color: i.color, size: i.size, qty: i.qty,
+    }));
+
+    const body = {
+      name:    document.getElementById('f-name').value.trim(),
+      phone:   document.getElementById('f-phone').value.trim(),
+      email:   document.getElementById('f-email').value.trim(),
+      address: document.getElementById('f-address').value.trim(),
+      note:    document.getElementById('f-note').value.trim(),
+      items,
+    };
+
+    try {
+      const res  = await fetch(`${API}/api/orders`, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify(body),
+      });
+      const data = await res.json();
+      if (!data.ok) throw new Error(data.error);
+      Cart.clear();
+      location.href = `/order.html?no=${data.order_no}`;
+    } catch (err) {
+      Toast.show(err.message || '下單失敗，請稍後再試');
+      btn.disabled = false;
+      btn.innerHTML = '<span class="material-symbols-outlined">check_circle</span>確認訂單';
+    }
+  }
+
+  renderSummary();
+</script>
+</body>
+</html>

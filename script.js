@@ -174,3 +174,70 @@ const ro = new IntersectionObserver(entries => {
   entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
 }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
 document.querySelectorAll('.reveal').forEach(el => ro.observe(el));
+
+
+/* ── Shared Footer ── */
+(function renderFooter() {
+  const footer = document.createElement('footer');
+  footer.innerHTML = `
+  <div class="footer-wrap">
+    <div class="footer-grid">
+
+      <div>
+        <div class="footer-brand-text">BRAND</div>
+        <p class="footer-blurb">品牌介紹文字。在這裡描述你的品牌故事與理念，讓顧客感受到你的用心與溫度。</p>
+
+        <div class="footer-social">
+          <a href="#" target="_blank" rel="noopener">
+            <span class="material-symbols-outlined">forum</span>
+            <b>LINE 社群</b><i>New in · Live</i>
+          </a>
+          <a href="#" target="_blank" rel="noopener">
+            <span class="material-symbols-outlined">photo_camera</span>
+            <b>賣場 IG</b><i>Daily New</i>
+          </a>
+          <a href="#" target="_blank" rel="noopener">
+            <span class="material-symbols-outlined">alternate_email</span>
+            <b>Threads</b><i>Threads</i>
+          </a>
+        </div>
+
+        <a class="footer-store" href="#" target="_blank" rel="noopener">
+          <span class="material-symbols-outlined">storefront</span>
+          <span>
+            <span class="footer-store-addr">實體店地址（選填）</span>
+            <span class="footer-store-hours">營業時間　·　點我開地圖</span>
+          </span>
+        </a>
+      </div>
+
+      <div class="footer-cols">
+        <div class="footer-col">
+          <h5>Shop · 逛逛</h5>
+          <a href="index.html#new-zone">新品專區</a>
+          <a href="index.html#shop">全部商品</a>
+          <a href="account.html">會員中心</a>
+          <a href="checkout.html">購物車</a>
+        </div>
+        <div class="footer-col">
+          <h5>About · 品牌</h5>
+          <a href="#">品牌理念</a>
+          <a href="#">聯絡我們</a>
+        </div>
+        <div class="footer-col">
+          <h5>Care · 服務</h5>
+          <a href="#">購物須知</a>
+          <a href="#">隱私權政策</a>
+          <a href="account.html">我的訂單</a>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="footer-bar">
+      <span class="ft-copy">© 2026 品牌名稱</span>
+      <span class="ft-tagline">你的品牌英文標語</span>
+    </div>
+  </div>`;
+  document.body.appendChild(footer);
+})();

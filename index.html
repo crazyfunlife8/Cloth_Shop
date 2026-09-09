@@ -32,7 +32,7 @@
       <button type="button" class="icon-btn" aria-label="搜尋" onclick="Search.toggle()">
         <span class="material-symbols-outlined">search</span>
       </button>
-      <a href="/account" class="icon-btn" aria-label="會員中心">
+      <a href="/account.html" class="icon-btn" aria-label="會員中心">
         <span class="material-symbols-outlined">person</span>
       </a>
       <button type="button" class="icon-btn" aria-label="購物車" onclick="Cart.open()">
@@ -86,7 +86,7 @@
         <span class="drawer-en">Shop All</span>
       </a>
       <span class="drawer-sep"></span>
-      <a class="drawer-link" href="/account">
+      <a class="drawer-link" href="/account.html">
         <span class="drawer-zh">會員登入</span>
         <span class="drawer-en">Member</span>
       </a>
@@ -216,7 +216,7 @@
         <div class="product-grid" id="product-grid">
 
       <!-- ─ 範例卡片 1 ─ 替換成真實商品 ─ -->
-      <a class="product-card" href="/product/001" data-cat="new top">
+      <a class="product-card" href="product.html?id=001" data-cat="new top">
         <div class="product-img-wrap">
           <!-- <img src="/products/001.jpg" alt="商品名稱"> -->
           <div class="product-img-placeholder">
@@ -233,7 +233,7 @@
       </a>
 
       <!-- ─ 範例卡片 2 ─ -->
-      <a class="product-card" href="/product/002" data-cat="top">
+      <a class="product-card" href="product.html?id=002" data-cat="top">
         <div class="product-img-wrap">
           <div class="product-img-placeholder">
             <span class="material-symbols-outlined">checkroom</span>
@@ -249,7 +249,7 @@
       </a>
 
       <!-- ─ 範例卡片 3 ─ -->
-      <a class="product-card" href="/product/003" data-cat="bottom">
+      <a class="product-card" href="product.html?id=003" data-cat="bottom">
         <div class="product-img-wrap">
           <div class="product-img-placeholder">
             <span class="material-symbols-outlined">checkroom</span>
@@ -262,7 +262,7 @@
       </a>
 
       <!-- ─ 範例卡片 4 ─ -->
-      <a class="product-card" href="/product/004" data-cat="outer">
+      <a class="product-card" href="product.html?id=004" data-cat="outer">
         <div class="product-img-wrap">
           <div class="product-img-placeholder">
             <span class="material-symbols-outlined">checkroom</span>
@@ -304,73 +304,7 @@
 </main>
 
 
-<!-- ══════════════════════════════════════════
-     FOOTER
-══════════════════════════════════════════ -->
-<footer>
-  <div class="footer-wrap">
-    <div class="footer-grid">
-
-      <!-- Brand column -->
-      <div>
-        <!-- Logo: 替換成 <img src="/brand/logo-light.png" alt="品牌名稱" class="footer-logo"> -->
-        <div class="footer-brand-text">BRAND</div>
-        <p class="footer-blurb">品牌介紹文字。在這裡描述你的品牌故事與理念，讓顧客感受到你的用心與溫度。</p>
-
-        <div class="footer-social">
-          <a href="#" target="_blank" rel="noopener">
-            <span class="material-symbols-outlined">forum</span>
-            <b>LINE 社群</b><i>New in · Live</i>
-          </a>
-          <a href="#" target="_blank" rel="noopener">
-            <span class="material-symbols-outlined">photo_camera</span>
-            <b>賣場 IG</b><i>Daily New</i>
-          </a>
-          <a href="#" target="_blank" rel="noopener">
-            <span class="material-symbols-outlined">alternate_email</span>
-            <b>Threads</b><i>Threads</i>
-          </a>
-        </div>
-
-        <a class="footer-store" href="#" target="_blank" rel="noopener">
-          <span class="material-symbols-outlined">storefront</span>
-          <span>
-            <span class="footer-store-addr">實體店地址（選填）</span>
-            <span class="footer-store-hours">營業時間　·　點我開地圖</span>
-          </span>
-        </a>
-      </div>
-
-      <!-- Link columns -->
-      <div class="footer-cols">
-        <div class="footer-col">
-          <h5>Shop · 逛逛</h5>
-          <a href="#new-zone">新品專區</a>
-          <a href="#shop">全部商品</a>
-          <a href="/account">會員中心</a>
-          <a href="/cart">購物車</a>
-        </div>
-        <div class="footer-col">
-          <h5>About · 品牌</h5>
-          <a href="/about">品牌理念</a>
-          <a href="/contact">聯絡我們</a>
-        </div>
-        <div class="footer-col">
-          <h5>Care · 服務</h5>
-          <a href="/notice">購物須知</a>
-          <a href="/privacy">隱私權政策</a>
-          <a href="/account">我的訂單</a>
-        </div>
-      </div>
-
-    </div><!-- /footer-grid -->
-
-    <div class="footer-bar">
-      <span class="ft-copy">© 2026 品牌名稱</span>
-      <span class="ft-tagline">你的品牌英文標語</span>
-    </div>
-  </div>
-</footer>
+<!-- footer 由 script.js renderFooter() 動態插入 -->
 
 
 <!-- ══════════════════════════════════════════
@@ -430,7 +364,7 @@
       </div>
       <p class="cart-total-note">運費將於結帳時計算</p>
     </div>
-    <a href="/checkout" class="cart-btn-checkout">前往結帳</a>
+    <a href="/checkout.html" class="cart-btn-checkout">前往結帳</a>
     <button class="cart-btn-continue" onclick="Cart.close()">繼續購物</button>
     <div class="cart-perks">
       <div class="cart-perk">

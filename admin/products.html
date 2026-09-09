@@ -1,0 +1,1077 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>商品管理｜後台</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@300,0&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --c-primary: #8f5935;
+      --c-primary-dk: #754122;
+      --c-surface: #FBF7F4;
+      --c-body: #F5EFE6;
+      --c-border: rgba(143,89,53,.18);
+      --c-text: #3a2e24;
+      --c-muted: #9E8B84;
+      --c-danger: #c0392b;
+      --c-success: #27ae60;
+      --sidebar-w: 220px;
+      --header-h: 60px;
+    }
+    html, body { height: 100%; }
+    body {
+      font-family: 'Nunito', 'Noto Sans TC', sans-serif;
+      background: var(--c-body);
+      color: var(--c-text);
+      font-size: 14px;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; text-decoration: none; }
+    button { font-family: inherit; cursor: pointer; }
+    img { display: block; max-width: 100%; }
+    .material-symbols-outlined { font-variation-settings: 'FILL' 0,'wght' 300,'GRAD' 0,'opsz' 24; vertical-align: middle; font-size: 20px; }
+
+    /* ── Layout ── */
+    .admin-header {
+      position: fixed; top: 0; left: 0; right: 0; height: var(--header-h);
+      background: #fff; border-bottom: 1px solid var(--c-border);
+      display: flex; align-items: center; padding: 0 24px;
+      gap: 16px; z-index: 100;
+    }
+    .admin-brand { font-weight: 800; font-size: 18px; color: var(--c-primary); }
+    .admin-brand span { font-weight: 400; font-size: 13px; color: var(--c-muted); margin-left: 8px; }
+    .header-spacer { flex: 1; }
+
+    .admin-sidebar {
+      position: fixed; top: var(--header-h); left: 0; bottom: 0;
+      width: var(--sidebar-w);
+      background: #fff; border-right: 1px solid var(--c-border);
+      padding: 20px 12px;
+      display: flex; flex-direction: column; gap: 4px;
+    }
+    .sidebar-label {
+      font-size: 11px; font-weight: 700; letter-spacing: .08em;
+      color: var(--c-muted); text-transform: uppercase;
+      padding: 8px 12px 4px;
+    }
+    .sidebar-link {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 12px; border-radius: 10px;
+      font-weight: 600; color: var(--c-text);
+      transition: background .15s;
+    }
+    .sidebar-link:hover { background: var(--c-body); }
+    .sidebar-link.active { background: rgba(143,89,53,.1); color: var(--c-primary); }
+
+    .admin-main {
+      margin-top: var(--header-h);
+      margin-left: var(--sidebar-w);
+      padding: 28px;
+      min-height: calc(100vh - var(--header-h));
+    }
+
+    /* ── Page header ── */
+    .page-head {
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 24px;
+    }
+    .page-title { font-size: 20px; font-weight: 800; }
+    .page-head-spacer { flex: 1; }
+
+    /* ── Search & filter bar ── */
+    .toolbar {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 20px; flex-wrap: wrap;
+    }
+    .search-input {
+      padding: 9px 14px 9px 36px;
+      border: 1.5px solid var(--c-border);
+      border-radius: 10px; background: #fff;
+      font-family: inherit; font-size: 14px; color: var(--c-text);
+      outline: none; width: 240px;
+      transition: border-color .2s;
+      position: relative;
+    }
+    .search-input:focus { border-color: var(--c-primary); }
+    .search-wrap { position: relative; }
+    .search-wrap .material-symbols-outlined {
+      position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+      color: var(--c-muted); pointer-events: none;
+    }
+    .filter-select {
+      padding: 9px 12px;
+      border: 1.5px solid var(--c-border); border-radius: 10px;
+      background: #fff; font-family: inherit; font-size: 14px;
+      color: var(--c-text); outline: none; cursor: pointer;
+    }
+    .filter-select:focus { border-color: var(--c-primary); }
+
+    /* ── Btn ── */
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 9px 18px; border-radius: 10px;
+      font-size: 14px; font-weight: 700; border: none;
+      transition: opacity .15s, transform .1s;
+    }
+    .btn:hover { opacity: .88; }
+    .btn:active { transform: scale(.97); }
+    .btn-primary { background: var(--c-primary); color: #fff; }
+    .btn-outline { background: #fff; color: var(--c-text); border: 1.5px solid var(--c-border); }
+    .btn-danger  { background: var(--c-danger); color: #fff; }
+    .btn-sm { padding: 6px 12px; font-size: 13px; border-radius: 8px; }
+
+    /* ── Product table ── */
+    .table-wrap {
+      background: #fff; border-radius: 16px;
+      border: 1px solid var(--c-border);
+      overflow: hidden;
+    }
+    table { width: 100%; border-collapse: collapse; }
+    thead tr { background: var(--c-body); }
+    th {
+      text-align: left; padding: 12px 16px;
+      font-size: 12px; font-weight: 700; letter-spacing: .05em;
+      color: var(--c-muted); text-transform: uppercase;
+      border-bottom: 1px solid var(--c-border);
+    }
+    td { padding: 12px 16px; border-bottom: 1px solid rgba(143,89,53,.07); vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--c-body); }
+
+    .td-thumb {
+      width: 52px; height: 64px;
+      border-radius: 8px; object-fit: cover;
+      background: var(--c-body);
+    }
+    .td-thumb-placeholder {
+      width: 52px; height: 64px;
+      border-radius: 8px; background: var(--c-body);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--c-muted);
+    }
+    .td-name { font-weight: 700; }
+    .td-cat  { font-size: 12px; color: var(--c-muted); margin-top: 2px; }
+
+    /* Toggle switch */
+    .toggle { position: relative; width: 44px; height: 24px; flex-shrink: 0; }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider {
+      position: absolute; inset: 0;
+      background: #ddd; border-radius: 99px; cursor: pointer;
+      transition: background .2s;
+    }
+    .toggle-slider::before {
+      content: ''; position: absolute;
+      width: 18px; height: 18px; border-radius: 50%; background: #fff;
+      top: 3px; left: 3px; transition: transform .2s;
+      box-shadow: 0 1px 4px rgba(0,0,0,.2);
+    }
+    .toggle input:checked + .toggle-slider { background: var(--c-success); }
+    .toggle input:checked + .toggle-slider::before { transform: translateX(20px); }
+
+    .action-btns { display: flex; gap: 6px; align-items: center; }
+
+    .empty-state {
+      text-align: center; padding: 60px 20px;
+      color: var(--c-muted);
+    }
+    .empty-state .material-symbols-outlined { font-size: 48px; display: block; margin-bottom: 12px; }
+
+    /* ── Modal ── */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.45);
+      z-index: 200; display: none;
+      align-items: flex-start; justify-content: center;
+      padding: 40px 16px;
+      overflow-y: auto;
+    }
+    .modal-overlay.open { display: flex; }
+
+    .modal {
+      background: #fff; border-radius: 20px;
+      width: 100%; max-width: 680px;
+      padding: 32px;
+      position: relative;
+      margin: auto;
+    }
+    .modal-head {
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 28px;
+    }
+    .modal-title { font-size: 18px; font-weight: 800; }
+    .modal-close {
+      margin-left: auto; background: none; border: none;
+      color: var(--c-muted); cursor: pointer; padding: 4px;
+      border-radius: 8px; transition: background .15s;
+    }
+    .modal-close:hover { background: var(--c-body); }
+
+    /* Form */
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .form-grid .full { grid-column: 1 / -1; }
+    .form-field { display: flex; flex-direction: column; gap: 6px; }
+    .form-label { font-size: 13px; font-weight: 700; color: var(--c-text); }
+    .form-label .req { color: var(--c-danger); }
+    .form-input {
+      padding: 10px 12px;
+      border: 1.5px solid var(--c-border); border-radius: 10px;
+      background: var(--c-surface); font-family: inherit;
+      font-size: 14px; color: var(--c-text); outline: none;
+      transition: border-color .2s;
+    }
+    .form-input:focus { border-color: var(--c-primary); }
+    textarea.form-input { resize: vertical; min-height: 80px; }
+    select.form-input { cursor: pointer; }
+
+    /* Tag input */
+    .tag-input-wrap {
+      display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
+      padding: 8px 10px;
+      border: 1.5px solid var(--c-border); border-radius: 10px;
+      background: var(--c-surface); cursor: text;
+      min-height: 44px;
+      transition: border-color .2s;
+    }
+    .tag-input-wrap:focus-within { border-color: var(--c-primary); }
+    .tag {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 3px 10px; border-radius: 99px;
+      background: rgba(143,89,53,.12); color: var(--c-primary);
+      font-size: 12px; font-weight: 700;
+    }
+    .tag-del {
+      background: none; border: none; color: var(--c-primary);
+      cursor: pointer; padding: 0; line-height: 1; font-size: 14px;
+    }
+    .tag-input {
+      border: none; outline: none; background: none;
+      font-family: inherit; font-size: 13px; min-width: 60px; flex: 1;
+    }
+    .form-hint { font-size: 12px; color: var(--c-muted); margin-top: 2px; }
+
+    /* Image upload */
+    .upload-area {
+      border: 2px dashed var(--c-border); border-radius: 14px;
+      padding: 28px; text-align: center;
+      cursor: pointer; transition: border-color .2s, background .2s;
+      background: var(--c-surface);
+    }
+    .upload-area:hover, .upload-area.drag-over {
+      border-color: var(--c-primary);
+      background: rgba(143,89,53,.04);
+    }
+    .upload-area .material-symbols-outlined { font-size: 36px; color: var(--c-muted); margin-bottom: 8px; display: block; }
+    .upload-area p { font-size: 14px; color: var(--c-muted); }
+    .upload-area strong { color: var(--c-primary); }
+    #file-input { display: none; }
+
+    .img-previews {
+      display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px;
+    }
+    .img-preview-item {
+      position: relative; width: 88px; height: 110px;
+      border-radius: 10px; overflow: hidden;
+      border: 2px solid var(--c-border); background: var(--c-body);
+    }
+    .img-preview-item img { width: 100%; height: 100%; object-fit: cover; }
+    .img-preview-del {
+      position: absolute; top: 4px; right: 4px;
+      background: rgba(0,0,0,.55); color: #fff; border: none;
+      border-radius: 50%; width: 22px; height: 22px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; font-size: 14px; line-height: 1;
+    }
+    .img-preview-del:hover { background: var(--c-danger); }
+    .img-preview-uploading {
+      position: absolute; inset: 0;
+      background: rgba(255,255,255,.75);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .spinner {
+      width: 22px; height: 22px;
+      border: 3px solid rgba(143,89,53,.2);
+      border-top-color: var(--c-primary);
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Modal footer */
+    .modal-foot {
+      display: flex; gap: 10px; justify-content: flex-end;
+      margin-top: 28px; padding-top: 20px;
+      border-top: 1px solid var(--c-border);
+    }
+
+    /* Toast */
+    /* ── Category dropdown ── */
+    .cat-dropdown { position: relative; }
+    .cat-trigger {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 12px;
+      border: 1.5px solid var(--c-border); border-radius: 10px;
+      background: var(--c-surface); cursor: pointer;
+      font-family: inherit; font-size: 14px; color: var(--c-text);
+      width: 100%; text-align: left;
+      transition: border-color .2s;
+    }
+    .cat-trigger:focus, .cat-trigger.open { border-color: var(--c-primary); outline: none; }
+    .cat-trigger-label { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .cat-trigger .material-symbols-outlined { font-size: 18px; color: var(--c-muted); transition: transform .2s; flex-shrink: 0; }
+    .cat-trigger.open .material-symbols-outlined { transform: rotate(180deg); }
+
+    .cat-panel {
+      display: none; position: absolute; top: calc(100% + 6px); left: 0; right: 0;
+      background: #fff; border: 1.5px solid var(--c-border); border-radius: 12px;
+      padding: 12px; z-index: 50;
+      box-shadow: 0 8px 24px rgba(0,0,0,.1);
+      max-height: 320px; overflow-y: auto;
+    }
+    .cat-panel.open { display: block; }
+
+    .cat-group { margin-bottom: 6px; }
+    .cat-parent-row {
+      display: flex; align-items: center; gap: 8px;
+      padding: 7px 8px; border-radius: 8px; cursor: pointer;
+      font-weight: 700; font-size: 13px;
+      transition: background .15s;
+    }
+    .cat-parent-row:hover { background: var(--c-body); }
+    .cat-children { padding-left: 28px; }
+    .cat-child-row {
+      display: flex; align-items: center; gap: 8px;
+      padding: 5px 8px; border-radius: 6px; cursor: pointer;
+      font-size: 13px; color: var(--c-muted);
+      transition: background .15s;
+    }
+    .cat-child-row:hover { background: var(--c-body); color: var(--c-text); }
+    .cat-standalone {
+      display: flex; align-items: center; gap: 8px;
+      padding: 7px 8px; border-radius: 8px; cursor: pointer;
+      font-weight: 700; font-size: 13px;
+      transition: background .15s; margin-bottom: 4px;
+    }
+    .cat-standalone:hover { background: var(--c-body); }
+    .cat-divider { border: none; border-top: 1px solid var(--c-border); margin: 8px 0; }
+    .cat-cb { width: 16px; height: 16px; accent-color: var(--c-primary); cursor: pointer; flex-shrink: 0; }
+
+    #toast {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
+      background: var(--c-text); color: #fff;
+      padding: 12px 20px; border-radius: 12px; font-size: 14px; font-weight: 600;
+      z-index: 999; transition: transform .3s, opacity .3s; opacity: 0;
+      white-space: nowrap;
+    }
+    #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+    #toast.error { background: var(--c-danger); }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="admin-header">
+  <div class="admin-brand">BRAND <span>後台管理</span></div>
+  <div class="header-spacer"></div>
+  <a href="../index.html" target="_blank" style="display:flex;align-items:center;gap:6px;color:var(--c-muted);font-size:13px">
+    <span class="material-symbols-outlined" style="font-size:16px">open_in_new</span>前台預覽
+  </a>
+</header>
+
+<!-- SIDEBAR -->
+<nav class="admin-sidebar">
+  <span class="sidebar-label">管理</span>
+  <a class="sidebar-link active" href="products.html">
+    <span class="material-symbols-outlined">checkroom</span>商品管理
+  </a>
+  <a class="sidebar-link" href="orders.html">
+    <span class="material-symbols-outlined">receipt_long</span>訂單管理
+  </a>
+</nav>
+
+<!-- MAIN -->
+<main class="admin-main">
+  <div class="page-head">
+    <div>
+      <h1 class="page-title">商品管理</h1>
+    </div>
+    <div class="page-head-spacer"></div>
+    <button class="btn btn-primary" onclick="openModal()">
+      <span class="material-symbols-outlined">add</span>新增商品
+    </button>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <div class="search-wrap">
+      <span class="material-symbols-outlined">search</span>
+      <input class="search-input" type="search" placeholder="搜尋商品名稱…"
+             oninput="filterTable(this.value)">
+    </div>
+    <select class="filter-select" onchange="filterStatus(this.value)">
+      <option value="all">全部狀態</option>
+      <option value="1">上架中</option>
+      <option value="0">已下架</option>
+    </select>
+    <span id="product-count" style="font-size:13px;color:var(--c-muted);margin-left:4px"></span>
+  </div>
+
+  <!-- Table -->
+  <div class="table-wrap">
+    <table id="product-table">
+      <thead>
+        <tr>
+          <th>圖片</th>
+          <th>商品名稱</th>
+          <th>售價</th>
+          <th>原價</th>
+          <th>分類</th>
+          <th>排序</th>
+          <th>上架</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody id="product-tbody">
+        <tr>
+          <td colspan="8">
+            <div class="empty-state">
+              <span class="material-symbols-outlined">hourglass_empty</span>
+              載入中…
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</main>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal-overlay" onclick="handleOverlayClick(event)">
+  <div class="modal" id="modal">
+    <div class="modal-head">
+      <h2 class="modal-title" id="modal-title">新增商品</h2>
+      <button class="modal-close" onclick="closeModal()">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+
+    <form id="product-form" onsubmit="saveProduct(event)">
+      <div class="form-grid">
+
+        <!-- 商品名稱 -->
+        <div class="form-field full">
+          <label class="form-label">商品名稱 <span class="req">*</span></label>
+          <input class="form-input" type="text" id="f-name" placeholder="例：軟糯針織上衣" required>
+        </div>
+
+        <!-- 價格 -->
+        <div class="form-field">
+          <label class="form-label">售價 <span class="req">*</span></label>
+          <input class="form-input" type="number" id="f-price" min="0" required>
+        </div>
+        <div class="form-field">
+          <label class="form-label">原價（劃線用，選填）</label>
+          <input class="form-input" type="number" id="f-original-price" min="0">
+        </div>
+
+        <!-- 分類 -->
+        <div class="form-field">
+          <label class="form-label">分類標籤</label>
+          <div class="cat-dropdown" id="cat-dropdown">
+            <button type="button" class="cat-trigger" id="cat-trigger" onclick="toggleCatPanel()">
+              <span class="cat-trigger-label" id="cat-trigger-label">請選擇分類…</span>
+              <span class="material-symbols-outlined">expand_more</span>
+            </button>
+            <div class="cat-panel" id="cat-panel">
+
+              <!-- 新品 -->
+              <label class="cat-standalone">
+                <input type="checkbox" class="cat-cb" value="new" onchange="onCatChange()"> 新品 .ᐟ.ᐟ
+              </label>
+              <hr class="cat-divider">
+
+              <!-- TOP 上衣 -->
+              <div class="cat-group">
+                <label class="cat-parent-row">
+                  <input type="checkbox" class="cat-cb cat-parent" data-group="top" value="top" onchange="onParentChange(this)"> TOP 上衣
+                </label>
+                <div class="cat-children">
+                  <label class="cat-child-row"><input type="checkbox" class="cat-cb cat-child" data-parent="top" value="tshirt"     onchange="onChildChange(this)"> 短袖上衣</label>
+                  <label class="cat-child-row"><input type="checkbox" class="cat-cb cat-child" data-parent="top" value="blouse"     onchange="onChildChange(this)"> 小吊帶</label>
+                  <label class="cat-child-row"><input type="checkbox" class="cat-cb cat-child" data-parent="top" value="shortsleeve" onchange="onChildChange(this)"> 短版上衣</label>
+                  <label class="cat-child-row"><input type="checkbox" class="cat-cb cat-child" data-parent="top" value="longsleeve" onchange="onChildChange(this)"> 長袖上衣</label>
+                </div>
+              </div>
+              <hr class="cat-divider">
+
+              <!-- BOTTOM 下著 -->
+              <div class="cat-group">
+                <label class="cat-parent-row">
+                  <input type="checkbox" class="cat-cb cat-parent" data-group="bottom" value="bottom" onchange="onParentChange(this)"> BOTTOM 下著
+                </label>
+                <div class="cat-children">
+                  <label class="cat-child-row"><input type="checkbox" class="cat-cb cat-child" data-parent="bottom" value="pants"    onchange="onChildChange(this)"> 長褲</label>
+                  <label class="cat-child-row"><input type="checkbox" class="cat-cb cat-child" data-parent="bottom" value="shorts"   onchange="onChildChange(this)"> 短褲</label>
+                  <label class="cat-child-row"><input type="checkbox" class="cat-cb cat-child" data-parent="bottom" value="skirt"    onchange="onChildChange(this)"> 短裙</label>
+                  <label class="cat-child-row"><input type="checkbox" class="cat-cb cat-child" data-parent="bottom" value="longskirt" onchange="onChildChange(this)"> 長裙</label>
+                </div>
+              </div>
+              <hr class="cat-divider">
+
+              <!-- ACCESSORIES 配件 -->
+              <div class="cat-group">
+                <label class="cat-parent-row">
+                  <input type="checkbox" class="cat-cb cat-parent" data-group="accessories" value="accessories" onchange="onParentChange(this)"> ACCESSORIES 配件
+                </label>
+                <div class="cat-children">
+                  <label class="cat-child-row"><input type="checkbox" class="cat-cb cat-child" data-parent="accessories" value="cap"       onchange="onChildChange(this)"> 帽子</label>
+                  <label class="cat-child-row"><input type="checkbox" class="cat-cb cat-child" data-parent="accessories" value="shoes"     onchange="onChildChange(this)"> 鞋子</label>
+                  <label class="cat-child-row"><input type="checkbox" class="cat-cb cat-child" data-parent="accessories" value="necklace"  onchange="onChildChange(this)"> 項鍊</label>
+                  <label class="cat-child-row"><input type="checkbox" class="cat-cb cat-child" data-parent="accessories" value="bracelet"  onchange="onChildChange(this)"> 手鍊</label>
+                  <label class="cat-child-row"><input type="checkbox" class="cat-cb cat-child" data-parent="accessories" value="accessory" onchange="onChildChange(this)"> 小物</label>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- Badge -->
+        <div class="form-field">
+          <label class="form-label">標籤徽章</label>
+          <select class="form-input" id="f-badge">
+            <option value="">無</option>
+            <option value="new">NEW（新品）</option>
+            <option value="hot">HOT（熱賣）</option>
+          </select>
+        </div>
+
+        <!-- 排序 -->
+        <div class="form-field">
+          <label class="form-label">排序權重</label>
+          <input class="form-input" type="number" id="f-sort" value="0" min="0">
+          <p class="form-hint">數字越大越前面</p>
+        </div>
+
+        <!-- 上架 -->
+        <div class="form-field" style="justify-content:flex-end;padding-bottom:4px">
+          <label class="form-label">上架狀態</label>
+          <div style="display:flex;align-items:center;gap:10px;margin-top:8px">
+            <label class="toggle">
+              <input type="checkbox" id="f-active" checked>
+              <span class="toggle-slider"></span>
+            </label>
+            <span id="active-label" style="font-size:13px;color:var(--c-muted)">上架中</span>
+          </div>
+        </div>
+
+        <!-- 顏色 -->
+        <div class="form-field full">
+          <label class="form-label">顏色選項</label>
+          <div class="tag-input-wrap" id="color-tags" onclick="focusTagInput('color-input')">
+            <input class="tag-input" id="color-input" type="text"
+                   placeholder="輸入顏色後按 Enter"
+                   onkeydown="addTag(event,'color')">
+          </div>
+          <p class="form-hint">例：黑色、白色、米白（每個顏色按 Enter 新增）</p>
+        </div>
+
+        <!-- 尺寸 -->
+        <div class="form-field full">
+          <label class="form-label">尺寸選項</label>
+          <div class="tag-input-wrap" id="size-tags" onclick="focusTagInput('size-input')">
+            <input class="tag-input" id="size-input" type="text"
+                   placeholder="輸入尺寸後按 Enter"
+                   onkeydown="addTag(event,'size')">
+          </div>
+          <p class="form-hint">例：S、M、L、XL、F（自由填寫）</p>
+        </div>
+
+        <!-- 商品描述 -->
+        <div class="form-field full">
+          <label class="form-label">商品描述</label>
+          <textarea class="form-input" id="f-desc" placeholder="材質、版型、穿搭建議等…"></textarea>
+        </div>
+
+        <!-- 圖片上傳 -->
+        <div class="form-field full">
+          <label class="form-label">商品圖片</label>
+          <div class="upload-area" id="upload-area"
+               onclick="document.getElementById('file-input').click()"
+               ondragover="handleDragOver(event)"
+               ondragleave="handleDragLeave(event)"
+               ondrop="handleDrop(event)">
+            <span class="material-symbols-outlined">cloud_upload</span>
+            <p><strong>點擊選擇</strong> 或拖放圖片至此</p>
+            <p style="font-size:12px;margin-top:4px">支援 JPG、PNG、WEBP，可多選</p>
+          </div>
+          <input type="file" id="file-input" accept="image/*" multiple
+                 onchange="handleFileSelect(this.files)">
+          <div class="img-previews" id="img-previews"></div>
+        </div>
+
+      </div>
+
+      <div class="modal-foot">
+        <button type="button" class="btn btn-outline" onclick="closeModal()">取消</button>
+        <button type="submit" class="btn btn-primary" id="save-btn">
+          <span class="material-symbols-outlined">save</span>儲存商品
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<script>
+  const API = 'https://brand-api.crazyfunlife8.workers.dev';  // ← 換成實際 Worker URL
+
+  // ─────────────────────────────────────
+  //  State
+  // ─────────────────────────────────────
+  let products = [];
+  let editingId = null;
+  let uploadedImages = [];   // [{ key, url }]
+  let colorTags = [];
+  let sizeTags  = [];
+
+  // ─────────────────────────────────────
+  //  Category dropdown
+  // ─────────────────────────────────────
+  function toggleCatPanel() {
+    const panel   = document.getElementById('cat-panel');
+    const trigger = document.getElementById('cat-trigger');
+    const isOpen  = panel.classList.contains('open');
+    panel.classList.toggle('open', !isOpen);
+    trigger.classList.toggle('open', !isOpen);
+  }
+
+  // 點外部關閉
+  document.addEventListener('click', e => {
+    const dd = document.getElementById('cat-dropdown');
+    if (dd && !dd.contains(e.target)) {
+      document.getElementById('cat-panel').classList.remove('open');
+      document.getElementById('cat-trigger').classList.remove('open');
+    }
+  });
+
+  function onParentChange(cb) {
+    if (cb.checked) {
+      // 勾選某父項時，取消其他父項及其子項
+      document.querySelectorAll('.cat-parent').forEach(p => {
+        if (p !== cb) {
+          p.checked = false;
+          document.querySelectorAll(`.cat-child[data-parent="${p.dataset.group}"]`)
+            .forEach(c => c.checked = false);
+        }
+      });
+    } else {
+      // 取消父項時一併取消自己的子項
+      document.querySelectorAll(`.cat-child[data-parent="${cb.dataset.group}"]`)
+        .forEach(c => c.checked = false);
+    }
+    updateCatTrigger();
+  }
+
+  function onChildChange(cb) {
+    if (cb.checked) {
+      // 勾選子項時，先清掉其他父項及其子項
+      document.querySelectorAll('.cat-parent').forEach(p => {
+        if (p.dataset.group !== cb.dataset.parent) {
+          p.checked = false;
+          document.querySelectorAll(`.cat-child[data-parent="${p.dataset.group}"]`)
+            .forEach(c => c.checked = false);
+        }
+      });
+      // 再勾選自己的父項
+      const parent = document.querySelector(`.cat-parent[data-group="${cb.dataset.parent}"]`);
+      if (parent) parent.checked = true;
+    }
+    updateCatTrigger();
+  }
+
+  function onCatChange() {
+    updateCatTrigger();
+  }
+
+  function updateCatTrigger() {
+    const selected = getSelectedCatLabels();
+    const label    = document.getElementById('cat-trigger-label');
+    label.textContent = selected.length ? selected.join('、') : '請選擇分類…';
+  }
+
+  function getSelectedCatLabels() {
+    const labels = { new:'新品', top:'上衣', tshirt:'短袖上衣', blouse:'小吊帶', shortsleeve:'短版上衣', longsleeve:'長袖上衣', bottom:'下著', pants:'長褲', shorts:'短褲', skirt:'短裙', longskirt:'長裙', accessories:'配件', cap:'帽子', shoes:'鞋子', necklace:'項鍊', bracelet:'手鍊', accessory:'小物' };
+    return Array.from(document.querySelectorAll('.cat-cb:checked')).map(cb => labels[cb.value] || cb.value);
+  }
+
+  function getCatString() {
+    return Array.from(document.querySelectorAll('.cat-cb:checked')).map(cb => cb.value).join(' ');
+  }
+
+  function setCatFromString(catStr) {
+    const tags = (catStr || '').split(/\s+/).filter(Boolean);
+    document.querySelectorAll('.cat-cb').forEach(cb => {
+      cb.checked = tags.includes(cb.value);
+    });
+    updateCatTrigger();
+  }
+
+  function resetCatPanel() {
+    document.querySelectorAll('.cat-cb').forEach(cb => cb.checked = false);
+    document.getElementById('cat-trigger-label').textContent = '請選擇分類…';
+    document.getElementById('cat-panel').classList.remove('open');
+    document.getElementById('cat-trigger').classList.remove('open');
+  }
+
+  // ─────────────────────────────────────
+  //  Load products
+  // ─────────────────────────────────────
+  async function loadProducts() {
+    try {
+      const res  = await fetch(`${API}/api/admin/products`, { credentials: 'include' });
+      const data = await res.json();
+      products = data.products || [];
+      renderTable(products);
+    } catch {
+      showToast('載入失敗，請重新整理', true);
+    }
+  }
+
+  function renderTable(list) {
+    const tbody = document.getElementById('product-tbody');
+    document.getElementById('product-count').textContent = `共 ${list.length} 件`;
+
+    if (!list.length) {
+      tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state">
+        <span class="material-symbols-outlined">checkroom</span>
+        還沒有商品，點右上角「新增商品」開始建立
+      </div></td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = list.map(p => {
+      const thumb = p.images[0]
+        ? `<img class="td-thumb" src="${API}/images/${p.images[0]}" alt="${p.name}">`
+        : `<div class="td-thumb-placeholder"><span class="material-symbols-outlined">image</span></div>`;
+      return `
+        <tr data-id="${p.id}" data-active="${p.active}" data-name="${p.name.toLowerCase()}">
+          <td>${thumb}</td>
+          <td>
+            <p class="td-name">${p.name}</p>
+            <p class="td-cat">${p.cat || '—'}</p>
+          </td>
+          <td>NT$${p.price.toLocaleString()}</td>
+          <td>${p.original_price ? 'NT$'+p.original_price.toLocaleString() : '—'}</td>
+          <td>${p.cat || '—'}</td>
+          <td>${p.sort_order}</td>
+          <td>
+            <label class="toggle">
+              <input type="checkbox" ${p.active ? 'checked' : ''}
+                     onchange="toggleActive(${p.id}, this.checked)">
+              <span class="toggle-slider"></span>
+            </label>
+          </td>
+          <td>
+            <div class="action-btns">
+              <button class="btn btn-outline btn-sm" onclick="openModal(${p.id})">
+                <span class="material-symbols-outlined" style="font-size:16px">edit</span>編輯
+              </button>
+            </div>
+          </td>
+        </tr>`;
+    }).join('');
+  }
+
+  // ─────────────────────────────────────
+  //  Filter
+  // ─────────────────────────────────────
+  let _statusFilter = 'all';
+  let _searchQuery  = '';
+
+  function filterTable(q) {
+    _searchQuery = q.toLowerCase();
+    applyFilters();
+  }
+  function filterStatus(val) {
+    _statusFilter = val;
+    applyFilters();
+  }
+  function applyFilters() {
+    const rows = document.querySelectorAll('#product-tbody tr[data-id]');
+    rows.forEach(tr => {
+      const nameMatch   = tr.dataset.name.includes(_searchQuery);
+      const statusMatch = _statusFilter === 'all' || tr.dataset.active === _statusFilter;
+      tr.style.display  = (nameMatch && statusMatch) ? '' : 'none';
+    });
+  }
+
+  // ─────────────────────────────────────
+  //  Toggle active
+  // ─────────────────────────────────────
+  async function toggleActive(id, active) {
+    const p = products.find(x => x.id === id);
+    if (!p) return;
+    const body = {
+      name: p.name, description: p.description, price: p.price,
+      original_price: p.original_price, images: p.images, cat: p.cat,
+      colors: p.colors, sizes: p.sizes, badge: p.badge,
+      sort_order: p.sort_order, active: active ? 1 : 0,
+    };
+    try {
+      await fetch(`${API}/api/admin/products/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(body),
+      });
+      p.active = active ? 1 : 0;
+      showToast(active ? '已上架' : '已下架');
+    } catch {
+      showToast('操作失敗', true);
+    }
+  }
+
+  // ─────────────────────────────────────
+  //  Modal open / close
+  // ─────────────────────────────────────
+  function openModal(id = null) {
+    editingId     = id;
+    uploadedImages = [];
+    colorTags     = [];
+    sizeTags      = [];
+
+    document.getElementById('product-form').reset();
+    resetCatPanel();
+    document.getElementById('f-active').checked = true;
+    document.getElementById('active-label').textContent = '上架中';
+    document.getElementById('img-previews').innerHTML = '';
+    document.getElementById('color-tags').querySelectorAll('.tag').forEach(t => t.remove());
+    document.getElementById('size-tags').querySelectorAll('.tag').forEach(t => t.remove());
+
+    if (id) {
+      const p = products.find(x => x.id === id);
+      document.getElementById('modal-title').textContent = '編輯商品';
+      document.getElementById('f-name').value  = p.name;
+      document.getElementById('f-price').value = p.price;
+      document.getElementById('f-original-price').value = p.original_price || '';
+      setCatFromString(p.cat);
+      document.getElementById('f-badge').value = p.badge;
+      document.getElementById('f-sort').value  = p.sort_order;
+      document.getElementById('f-desc').value  = p.description;
+      document.getElementById('f-active').checked = !!p.active;
+      document.getElementById('active-label').textContent = p.active ? '上架中' : '已下架';
+
+      uploadedImages = p.images.map(key => ({ key, url: `${API}/images/${key}` }));
+      p.colors.forEach(c => addTagValue(c, 'color'));
+      p.sizes.forEach(s  => addTagValue(s,  'size'));
+      renderPreviews();
+    } else {
+      document.getElementById('modal-title').textContent = '新增商品';
+    }
+
+    document.getElementById('modal-overlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeModal() {
+    document.getElementById('modal-overlay').classList.remove('open');
+    document.body.style.overflow = '';
+    editingId = null;
+  }
+
+  function handleOverlayClick(e) {
+    if (e.target === document.getElementById('modal-overlay')) closeModal();
+  }
+
+  // Active toggle label
+  document.getElementById('f-active').addEventListener('change', function() {
+    document.getElementById('active-label').textContent = this.checked ? '上架中' : '已下架';
+  });
+
+  // ─────────────────────────────────────
+  //  Tag input
+  // ─────────────────────────────────────
+  function focusTagInput(inputId) {
+    document.getElementById(inputId).focus();
+  }
+
+  function addTag(e, type) {
+    if (e.key !== 'Enter' && e.key !== ',') return;
+    e.preventDefault();
+    const val = e.target.value.trim().replace(/,+$/, '');
+    if (!val) return;
+    addTagValue(val, type);
+    e.target.value = '';
+  }
+
+  function addTagValue(val, type) {
+    const arr = type === 'color' ? colorTags : sizeTags;
+    if (arr.includes(val)) return;
+    arr.push(val);
+
+    const containerId = type === 'color' ? 'color-tags' : 'size-tags';
+    const inputId     = type === 'color' ? 'color-input' : 'size-input';
+    const container   = document.getElementById(containerId);
+    const input       = document.getElementById(inputId);
+
+    const tag = document.createElement('span');
+    tag.className = 'tag';
+    tag.innerHTML = `${val}<button class="tag-del" type="button" onclick="removeTag(this,'${type}','${val}')">×</button>`;
+    container.insertBefore(tag, input);
+  }
+
+  function removeTag(btn, type, val) {
+    const arr = type === 'color' ? colorTags : sizeTags;
+    const idx = arr.indexOf(val);
+    if (idx > -1) arr.splice(idx, 1);
+    btn.parentElement.remove();
+  }
+
+  // ─────────────────────────────────────
+  //  Image upload
+  // ─────────────────────────────────────
+  function handleDragOver(e) {
+    e.preventDefault();
+    document.getElementById('upload-area').classList.add('drag-over');
+  }
+  function handleDragLeave(e) {
+    document.getElementById('upload-area').classList.remove('drag-over');
+  }
+  function handleDrop(e) {
+    e.preventDefault();
+    document.getElementById('upload-area').classList.remove('drag-over');
+    handleFileSelect(e.dataTransfer.files);
+  }
+  function handleFileSelect(files) {
+    Array.from(files).forEach(uploadFile);
+  }
+
+  async function uploadFile(file) {
+    // 建立預覽佔位
+    const id  = 'img-' + Date.now() + Math.random().toString(36).slice(2, 6);
+    const div = document.createElement('div');
+    div.className = 'img-preview-item';
+    div.id = id;
+    div.innerHTML = `
+      <img src="${URL.createObjectURL(file)}" alt="">
+      <div class="img-preview-uploading"><div class="spinner"></div></div>`;
+    document.getElementById('img-previews').appendChild(div);
+
+    try {
+      const form = new FormData();
+      form.append('file', file);
+      const res  = await fetch(`${API}/api/admin/upload`, {
+        method: 'POST', body: form, credentials: 'include',
+      });
+      const data = await res.json();
+      if (!data.ok) throw new Error(data.error);
+
+      uploadedImages.push({ key: data.key, url: data.url });
+      // 移除 loading overlay
+      div.querySelector('.img-preview-uploading').remove();
+      // 加刪除按鈕
+      const delBtn = document.createElement('button');
+      delBtn.className = 'img-preview-del';
+      delBtn.type = 'button';
+      delBtn.innerHTML = '×';
+      delBtn.onclick = () => removeImage(id, data.key);
+      div.appendChild(delBtn);
+    } catch (err) {
+      div.remove();
+      showToast('圖片上傳失敗：' + (err.message || ''), true);
+    }
+  }
+
+  function renderPreviews() {
+    const el = document.getElementById('img-previews');
+    el.innerHTML = '';
+    uploadedImages.forEach(img => {
+      const id  = 'img-' + img.key.replace(/\//g, '-');
+      const div = document.createElement('div');
+      div.className = 'img-preview-item'; div.id = id;
+      div.innerHTML = `
+        <img src="${img.url}" alt="">
+        <button class="img-preview-del" type="button" onclick="removeImage('${id}','${img.key}')">×</button>`;
+      el.appendChild(div);
+    });
+  }
+
+  function removeImage(domId, key) {
+    uploadedImages = uploadedImages.filter(i => i.key !== key);
+    document.getElementById(domId)?.remove();
+  }
+
+  // ─────────────────────────────────────
+  //  Save product
+  // ─────────────────────────────────────
+  async function saveProduct(e) {
+    e.preventDefault();
+    const btn = document.getElementById('save-btn');
+    btn.disabled = true; btn.textContent = '儲存中…';
+
+    const body = {
+      name:           document.getElementById('f-name').value.trim(),
+      price:          Number(document.getElementById('f-price').value),
+      original_price: Number(document.getElementById('f-original-price').value) || null,
+      description:    document.getElementById('f-desc').value.trim(),
+      cat:            getCatString(),
+      badge:          document.getElementById('f-badge').value,
+      sort_order:     Number(document.getElementById('f-sort').value),
+      active:         document.getElementById('f-active').checked ? 1 : 0,
+      images:         uploadedImages.map(i => i.key),
+      colors:         [...colorTags],
+      sizes:          [...sizeTags],
+    };
+
+    try {
+      const url    = editingId
+        ? `${API}/api/admin/products/${editingId}`
+        : `${API}/api/admin/products`;
+      const method = editingId ? 'PUT' : 'POST';
+
+      const res  = await fetch(url, {
+        method, credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json();
+      if (!data.ok) throw new Error(data.error);
+
+      showToast(editingId ? '商品已更新' : '商品已新增');
+      closeModal();
+      await loadProducts();
+    } catch (err) {
+      showToast(err.message || '儲存失敗', true);
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '<span class="material-symbols-outlined">save</span>儲存商品';
+    }
+  }
+
+  // ─────────────────────────────────────
+  //  Toast
+  // ─────────────────────────────────────
+  let _toastTimer;
+  function showToast(msg, isError = false) {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.className = 'show' + (isError ? ' error' : '');
+    clearTimeout(_toastTimer);
+    _toastTimer = setTimeout(() => el.className = '', 2500);
+  }
+
+  // ─────────────────────────────────────
+  //  Init
+  // ─────────────────────────────────────
+  loadProducts();
+</script>
+</body>
+</html>

@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>商品詳情｜品牌名稱</title>
+  <meta name="theme-color" content="#FBF7F4">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,500;1,600&family=Noto+Serif+TC:wght@500;600;700&family=Nunito:ital,wght@0,300..800;1,400..700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* ── Product page layout ── */
+    .product-page {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 120px 20px 80px;
+    }
+    @media (min-width: 768px) { .product-page { padding: 140px 48px 100px; } }
+
+    .breadcrumb {
+      font-size: 13px;
+      color: var(--c-secondary);
+      margin-bottom: 28px;
+    }
+    .breadcrumb a { text-decoration: none; }
+    .breadcrumb a:hover { color: var(--c-primary); }
+    .breadcrumb span { margin: 0 6px; }
+
+    .product-detail {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 40px;
+    }
+    @media (min-width: 768px) {
+      .product-detail { grid-template-columns: 1fr 1fr; gap: 56px; }
+    }
+
+    /* ── Gallery ── */
+    .gallery-main {
+      aspect-ratio: 3/4;
+      border-radius: var(--r-card);
+      overflow: hidden;
+      background: var(--c-surface);
+      cursor: zoom-in;
+    }
+    .gallery-main img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      transition: transform .4s ease;
+    }
+    .gallery-main:hover img { transform: scale(1.04); }
+
+    .gallery-thumbs {
+      display: flex;
+      gap: 10px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+    .thumb {
+      width: 72px; height: 90px;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: border-color .2s;
+      background: var(--c-surface);
+      flex-shrink: 0;
+    }
+    .thumb.active { border-color: var(--c-primary); }
+    .thumb img { width: 100%; height: 100%; object-fit: cover; }
+
+    /* ── Info panel ── */
+    .product-info { display: flex; flex-direction: column; gap: 20px; }
+
+    .product-badge {
+      display: inline-block;
+      font-size: 11px; font-weight: 700; letter-spacing: .08em;
+      padding: 3px 10px;
+      border-radius: var(--r-pill);
+      background: var(--c-accent); color: #fff;
+      text-transform: uppercase;
+    }
+    .badge-hot { background: #c0392b; }
+
+    .product-name {
+      font-family: 'Noto Serif TC', serif;
+      font-size: clamp(22px, 4vw, 30px);
+      font-weight: 600;
+      line-height: 1.35;
+      color: var(--c-ft-dark);
+    }
+
+    .product-price-row { display: flex; align-items: baseline; gap: 12px; }
+    .price-now {
+      font-size: 26px; font-weight: 700;
+      color: var(--c-primary);
+    }
+    .price-orig {
+      font-size: 16px; color: var(--c-secondary);
+      text-decoration: line-through;
+    }
+
+    .product-desc {
+      font-size: 14px; line-height: 1.85;
+      color: var(--c-secondary);
+      white-space: pre-line;
+    }
+
+    /* ── Selector groups ── */
+    .selector-group { display: flex; flex-direction: column; gap: 10px; }
+    .selector-label {
+      font-size: 13px; font-weight: 600;
+      color: var(--c-on-surface);
+      letter-spacing: .04em;
+    }
+    .selector-label em { font-style: normal; color: var(--c-primary); margin-left: 6px; }
+
+    .color-swatches { display: flex; gap: 8px; flex-wrap: wrap; }
+    .swatch {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      outline: 2px solid transparent;
+      cursor: pointer;
+      transition: outline-color .2s, transform .15s;
+      position: relative;
+    }
+    .swatch.active {
+      outline-color: var(--c-primary);
+      outline-offset: 3px;
+      transform: scale(1.15);
+    }
+    .swatch[title] { /* tooltip via title attr */ }
+
+    .size-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+    .size-chip {
+      padding: 6px 16px;
+      border-radius: var(--r-btn);
+      border: 1.5px solid rgba(143,89,53,.25);
+      background: transparent;
+      font-size: 13px; font-weight: 600;
+      color: var(--c-on-surface);
+      cursor: pointer;
+      transition: background .2s, border-color .2s, color .2s;
+    }
+    .size-chip:hover { border-color: var(--c-primary); color: var(--c-primary); }
+    .size-chip.active { background: var(--c-primary); border-color: var(--c-primary); color: #fff; }
+    .size-chip.soldout { opacity: .4; cursor: not-allowed; text-decoration: line-through; }
+
+    /* ── Qty ── */
+    .qty-row { display: flex; align-items: center; gap: 16px; }
+    .qty-ctrl {
+      display: flex; align-items: center;
+      border: 1.5px solid rgba(143,89,53,.25);
+      border-radius: var(--r-btn);
+      overflow: hidden;
+    }
+    .qty-btn {
+      width: 40px; height: 40px;
+      background: none; border: none;
+      font-size: 20px; font-weight: 600;
+      color: var(--c-on-surface);
+      cursor: pointer;
+      transition: background .2s;
+    }
+    .qty-btn:hover { background: rgba(143,89,53,.08); }
+    #qty-val {
+      width: 44px; text-align: center;
+      font-size: 16px; font-weight: 600;
+      color: var(--c-on-surface);
+    }
+
+    /* ── Action buttons ── */
+    .product-actions { display: flex; flex-direction: column; gap: 12px; }
+    .btn-cart {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 15px 28px;
+      background: var(--c-primary); color: #fff;
+      border: none; border-radius: var(--r-btn);
+      font-size: 15px; font-weight: 700;
+      cursor: pointer;
+      transition: background .2s, transform .15s;
+    }
+    .btn-cart:hover { background: var(--c-primary-dark); transform: translateY(-1px); }
+    .btn-cart:active { transform: translateY(0); }
+
+    .btn-buy {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 15px 28px;
+      background: transparent; color: var(--c-primary);
+      border: 2px solid var(--c-primary); border-radius: var(--r-btn);
+      font-size: 15px; font-weight: 700;
+      cursor: pointer;
+      transition: background .2s, color .2s;
+    }
+    .btn-buy:hover { background: var(--c-primary); color: #fff; }
+
+    /* ── Info accordion ── */
+    .info-tabs { margin-top: 8px; border-top: 1px solid rgba(143,89,53,.12); }
+    .info-tab { border-bottom: 1px solid rgba(143,89,53,.12); }
+    .info-tab-btn {
+      width: 100%; background: none; border: none;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 0;
+      font-size: 14px; font-weight: 600; color: var(--c-on-surface);
+      cursor: pointer;
+    }
+    .info-tab-btn .material-symbols-outlined { font-size: 20px; transition: transform .25s; }
+    .info-tab-btn.open .material-symbols-outlined { transform: rotate(180deg); }
+    .info-tab-body { display: none; font-size: 14px; line-height: 1.85; color: var(--c-secondary); padding-bottom: 14px; }
+    .info-tab-body.open { display: block; }
+
+    /* ── Loading skeleton ── */
+    .skel { background: linear-gradient(90deg,#ece4d8 25%,#f5eee5 50%,#ece4d8 75%); background-size:200% 100%; animation:skel 1.4s infinite; border-radius:8px; }
+    @keyframes skel { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header id="site-header">
+  <nav class="header-nav">
+    <a href="/" class="header-logo" aria-label="品牌首頁">
+      <span class="logo-text">BRAND</span>
+    </a>
+    <div class="header-actions">
+      <a href="/" class="icon-btn" aria-label="回首頁">
+        <span class="material-symbols-outlined">home</span>
+      </a>
+      <a href="/account.html" class="icon-btn" aria-label="會員中心">
+        <span class="material-symbols-outlined">person</span>
+      </a>
+      <button type="button" class="icon-btn" aria-label="購物車" onclick="Cart.open()">
+        <span class="material-symbols-outlined">shopping_cart</span>
+        <span id="cart-badge"></span>
+      </button>
+    </div>
+  </nav>
+</header>
+
+<!-- CART DRAWER -->
+<div id="cart-overlay" onclick="Cart.close()"></div>
+<div id="cart-drawer">
+  <div class="cart-head">
+    <span class="cart-title">購物車</span>
+    <button class="icon-btn" onclick="Cart.close()"><span class="material-symbols-outlined">close</span></button>
+  </div>
+  <div id="cart-items"></div>
+  <div class="cart-foot">
+    <div class="cart-total-row">
+      <span>小計</span><span id="cart-subtotal">NT$0</span>
+    </div>
+    <a href="/checkout.html" class="btn-cart" style="text-decoration:none;margin-top:12px">
+      前往結帳
+    </a>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- MAIN -->
+<main class="product-page">
+  <p class="breadcrumb">
+    <a href="/">首頁</a><span>›</span>
+    <a href="/#shop">商品</a><span>›</span>
+    <span id="breadcrumb-name">商品名稱</span>
+  </p>
+
+  <div class="product-detail">
+    <!-- Gallery -->
+    <div>
+      <div class="gallery-main" id="gallery-main">
+        <img id="gallery-img" src="" alt="商品圖片">
+      </div>
+      <div class="gallery-thumbs" id="gallery-thumbs"></div>
+    </div>
+
+    <!-- Info -->
+    <div class="product-info">
+      <span id="product-badge" class="product-badge" style="display:none"></span>
+      <h1 class="product-name" id="product-name">載入中…</h1>
+      <div class="product-price-row">
+        <span class="price-now" id="price-now"></span>
+        <span class="price-orig" id="price-orig" style="display:none"></span>
+      </div>
+      <p class="product-desc" id="product-desc"></p>
+
+      <!-- Color -->
+      <div class="selector-group" id="color-group">
+        <p class="selector-label">顏色 <em id="color-selected"></em></p>
+        <div class="color-swatches" id="color-swatches"></div>
+      </div>
+
+      <!-- Size -->
+      <div class="selector-group" id="size-group">
+        <p class="selector-label">尺寸 <em id="size-selected"></em></p>
+        <div class="size-chips" id="size-chips"></div>
+      </div>
+
+      <!-- Qty -->
+      <div class="qty-row">
+        <div class="qty-ctrl">
+          <button class="qty-btn" onclick="adjustQty(-1)">−</button>
+          <span id="qty-val">1</span>
+          <button class="qty-btn" onclick="adjustQty(1)">+</button>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="product-actions">
+        <button class="btn-cart" onclick="addToCart()">
+          <span class="material-symbols-outlined">shopping_cart</span>加入購物車
+        </button>
+        <button class="btn-buy" onclick="buyNow()">
+          立即購買
+        </button>
+      </div>
+
+      <!-- Accordion -->
+      <div class="info-tabs">
+        <div class="info-tab">
+          <button class="info-tab-btn" onclick="toggleTab(this)">
+            商品說明 <span class="material-symbols-outlined">expand_more</span>
+          </button>
+          <div class="info-tab-body" id="tab-desc"></div>
+        </div>
+        <div class="info-tab">
+          <button class="info-tab-btn" onclick="toggleTab(this)">
+            尺寸說明 <span class="material-symbols-outlined">expand_more</span>
+          </button>
+          <div class="info-tab-body">
+            請參考標籤尺寸，如有疑問歡迎透過 LINE 聯繫客服。
+          </div>
+        </div>
+        <div class="info-tab">
+          <button class="info-tab-btn" onclick="toggleTab(this)">
+            運費與付款 <span class="material-symbols-outlined">expand_more</span>
+          </button>
+          <div class="info-tab-body">
+            訂單滿 NT$5,000 免運費，未滿收運費 NT$60。<br>
+            付款方式：LINE Pay QR Code（下單後頁面提供）。
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- footer 由 script.js renderFooter() 動態插入 -->
+
+<script src="script.js"></script>
+<script>
+  const API = 'https://brand-api.crazyfunlife8.workers.dev';  // ← 換成實際 Worker URL
+
+  // ── 讀 URL 參數取得商品 ID ──
+  const productId = new URLSearchParams(location.search).get('id');
+
+  let product  = null;
+  let selectedColor = '';
+  let selectedSize  = '';
+  let qty = 1;
+
+  const COLOR_MAP = {
+    '黑色':'#222','白色':'#f5f5f5','米白':'#f0e9d6','卡其':'#b8a68a',
+    '棕色':'#8B6347','紅色':'#c0392b','粉紅':'#f4a0a0','橘色':'#e67e22',
+    '黃色':'#f1c40f','綠色':'#27ae60','藍色':'#2980b9','深藍':'#1a3a5c',
+    '灰色':'#95a5a6','深灰':'#555','紫色':'#8e44ad',
+  };
+
+  async function loadProduct() {
+    if (!productId) { location.href = '/'; return; }
+    try {
+      const res  = await fetch(`${API}/api/products/${productId}`);
+      const data = await res.json();
+      if (!data.ok) { alert('商品不存在'); location.href = '/'; return; }
+      product = data.product;
+      renderProduct();
+    } catch {
+      document.getElementById('product-name').textContent = '載入失敗，請重新整理';
+    }
+  }
+
+  function renderProduct() {
+    const p = product;
+
+    document.title = `${p.name}｜品牌名稱`;
+    document.getElementById('breadcrumb-name').textContent = p.name;
+    document.getElementById('product-name').textContent = p.name;
+    document.getElementById('price-now').textContent = `NT$${p.price.toLocaleString()}`;
+    document.getElementById('product-desc').textContent = p.description;
+    document.getElementById('tab-desc').textContent = p.description;
+
+    if (p.original_price) {
+      const el = document.getElementById('price-orig');
+      el.textContent = `NT$${p.original_price.toLocaleString()}`;
+      el.style.display = '';
+    }
+
+    if (p.badge) {
+      const el = document.getElementById('product-badge');
+      el.textContent = p.badge === 'new' ? 'NEW' : p.badge === 'hot' ? '熱賣' : p.badge;
+      el.style.display = '';
+      if (p.badge === 'hot') el.classList.add('badge-hot');
+    }
+
+    // Gallery
+    const imgs = p.images.length ? p.images : [''];
+    const mainImg  = document.getElementById('gallery-img');
+    const thumbsEl = document.getElementById('gallery-thumbs');
+
+    function setMainImg(src) {
+      mainImg.src = src ? `${API}/images/${src}` : '/placeholder.jpg';
+    }
+    setMainImg(imgs[0]);
+
+    imgs.forEach((key, i) => {
+      const div = document.createElement('div');
+      div.className = 'thumb' + (i === 0 ? ' active' : '');
+      div.innerHTML = `<img src="${key ? `${API}/images/${key}` : '/placeholder.jpg'}" alt="">`;
+      div.onclick = () => {
+        document.querySelectorAll('.thumb').forEach(t => t.classList.remove('active'));
+        div.classList.add('active');
+        setMainImg(key);
+      };
+      thumbsEl.appendChild(div);
+    });
+
+    // Colors
+    const swatchEl = document.getElementById('color-swatches');
+    if (p.colors.length) {
+      p.colors.forEach((c, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'swatch' + (i === 0 ? ' active' : '');
+        btn.title = c;
+        btn.style.background = COLOR_MAP[c] || '#ccc';
+        btn.onclick = () => {
+          document.querySelectorAll('.swatch').forEach(s => s.classList.remove('active'));
+          btn.classList.add('active');
+          selectedColor = c;
+          document.getElementById('color-selected').textContent = c;
+        };
+        swatchEl.appendChild(btn);
+      });
+      selectedColor = p.colors[0];
+      document.getElementById('color-selected').textContent = p.colors[0];
+    } else {
+      document.getElementById('color-group').style.display = 'none';
+    }
+
+    // Sizes
+    const sizeEl = document.getElementById('size-chips');
+    if (p.sizes.length) {
+      p.sizes.forEach((s, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'size-chip' + (i === 0 ? ' active' : '');
+        btn.textContent = s;
+        btn.onclick = () => {
+          if (btn.classList.contains('soldout')) return;
+          document.querySelectorAll('.size-chip').forEach(c => c.classList.remove('active'));
+          btn.classList.add('active');
+          selectedSize = s;
+          document.getElementById('size-selected').textContent = s;
+        };
+        sizeEl.appendChild(btn);
+      });
+      selectedSize = p.sizes[0];
+      document.getElementById('size-selected').textContent = p.sizes[0];
+    } else {
+      document.getElementById('size-group').style.display = 'none';
+    }
+  }
+
+  function adjustQty(delta) {
+    qty = Math.max(1, qty + delta);
+    document.getElementById('qty-val').textContent = qty;
+  }
+
+  function addToCart() {
+    if (!product) return;
+    if (product.colors.length && !selectedColor) { Toast.show('請選擇顏色'); return; }
+    if (product.sizes.length  && !selectedSize)  { Toast.show('請選擇尺寸'); return; }
+    Cart.add({
+      id:    product.id,
+      name:  product.name,
+      price: product.price,
+      color: selectedColor,
+      size:  selectedSize,
+      image: product.images[0] || '',
+      qty,
+    });
+    Cart.open();
+  }
+
+  function buyNow() {
+    addToCart();
+    location.href = '/checkout.html';
+  }
+
+  function toggleTab(btn) {
+    const body = btn.nextElementSibling;
+    const isOpen = body.classList.contains('open');
+    document.querySelectorAll('.info-tab-body').forEach(b => b.classList.remove('open'));
+    document.querySelectorAll('.info-tab-btn').forEach(b => b.classList.remove('open'));
+    if (!isOpen) { body.classList.add('open'); btn.classList.add('open'); }
+  }
+
+  loadProduct();
+</script>
+</body>
+</html>

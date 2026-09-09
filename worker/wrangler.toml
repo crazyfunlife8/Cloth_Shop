@@ -1,0 +1,32 @@
+name            = "brand-api"
+main            = "index.js"
+compatibility_date = "2025-01-01"
+
+# ── Cloudflare D1（資料庫）──
+[[d1_databases]]
+binding       = "DB"
+database_name = "brand-store"
+database_id   = "b6d18650-0c57-4a1c-9b8e-64e7e929120e"
+
+# ── Cloudflare R2（圖片儲存）──
+[[r2_buckets]]
+binding     = "BUCKET"
+bucket_name = "brand-images"
+
+# ── Cloudflare KV（Session 儲存）──
+[[kv_namespaces]]
+binding      = "SESSIONS"
+id           = "8c93f5db13fa40969ebffc3d07e7555c"
+
+# ── 環境變數 ──
+[vars]
+ALLOWED_ORIGIN = "https://cloth-shop.pages.dev"
+R2_PUBLIC_URL  = ""    # R2 custom domain（選填，空白則圖片走 Worker 代理）
+
+# ── Cloudflare Access 保護 /api/admin/* ──
+# 在 Cloudflare Dashboard → Access → Applications 設定
+# Path: /api/admin/*  Policy: 公司 Email 或 Google 登入
+
+# ── 本地開發 ──
+[dev]
+port = 8787

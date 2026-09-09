@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>訂單管理｜後台</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@300,0&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --c-primary: #8f5935; --c-primary-dk: #754122;
+      --c-surface: #FBF7F4; --c-body: #F5EFE6;
+      --c-border: rgba(143,89,53,.18); --c-text: #3a2e24; --c-muted: #9E8B84;
+      --c-danger: #c0392b; --c-success: #27ae60;
+      --sidebar-w: 220px; --header-h: 60px;
+    }
+    html, body { height: 100%; }
+    body { font-family: 'Nunito','Noto Sans TC',sans-serif; background: var(--c-body); color: var(--c-text); font-size: 14px; -webkit-font-smoothing: antialiased; }
+    a { color: inherit; text-decoration: none; }
+    button { font-family: inherit; cursor: pointer; }
+    .material-symbols-outlined { font-variation-settings:'FILL' 0,'wght' 300,'GRAD' 0,'opsz' 24; vertical-align: middle; font-size: 20px; }
+
+    .admin-header {
+      position: fixed; top: 0; left: 0; right: 0; height: var(--header-h);
+      background: #fff; border-bottom: 1px solid var(--c-border);
+      display: flex; align-items: center; padding: 0 24px; gap: 16px; z-index: 100;
+    }
+    .admin-brand { font-weight: 800; font-size: 18px; color: var(--c-primary); }
+    .admin-brand span { font-weight: 400; font-size: 13px; color: var(--c-muted); margin-left: 8px; }
+
+    .admin-sidebar {
+      position: fixed; top: var(--header-h); left: 0; bottom: 0;
+      width: var(--sidebar-w); background: #fff; border-right: 1px solid var(--c-border);
+      padding: 20px 12px; display: flex; flex-direction: column; gap: 4px;
+    }
+    .sidebar-label { font-size: 11px; font-weight: 700; letter-spacing: .08em; color: var(--c-muted); text-transform: uppercase; padding: 8px 12px 4px; }
+    .sidebar-link { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; font-weight: 600; color: var(--c-text); transition: background .15s; }
+    .sidebar-link:hover { background: var(--c-body); }
+    .sidebar-link.active { background: rgba(143,89,53,.1); color: var(--c-primary); }
+
+    .admin-main { margin-top: var(--header-h); margin-left: var(--sidebar-w); padding: 28px; }
+    .page-head { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; }
+    .page-title { font-size: 20px; font-weight: 800; }
+
+    .toolbar { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+    .filter-select { padding: 9px 12px; border: 1.5px solid var(--c-border); border-radius: 10px; background: #fff; font-family: inherit; font-size: 14px; color: var(--c-text); outline: none; cursor: pointer; }
+    .filter-select:focus { border-color: var(--c-primary); }
+    .search-wrap { position: relative; }
+    .search-wrap .material-symbols-outlined { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--c-muted); pointer-events: none; }
+    .search-input { padding: 9px 14px 9px 36px; border: 1.5px solid var(--c-border); border-radius: 10px; background: #fff; font-family: inherit; font-size: 14px; color: var(--c-text); outline: none; width: 240px; }
+    .search-input:focus { border-color: var(--c-primary); }
+
+    .table-wrap { background: #fff; border-radius: 16px; border: 1px solid var(--c-border); overflow: hidden; }
+    table { width: 100%; border-collapse: collapse; }
+    thead tr { background: var(--c-body); }
+    th { text-align: left; padding: 12px 16px; font-size: 12px; font-weight: 700; letter-spacing: .05em; color: var(--c-muted); text-transform: uppercase; border-bottom: 1px solid var(--c-border); }
+    td { padding: 12px 16px; border-bottom: 1px solid rgba(143,89,53,.07); vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--c-body); }
+
+    .status-select {
+      padding: 5px 10px; border-radius: 8px; border: 1.5px solid var(--c-border);
+      font-family: inherit; font-size: 13px; font-weight: 700; cursor: pointer; outline: none;
+    }
+    .status-pending  { background: rgba(230,126,34,.12); color: #c0772a; border-color: rgba(230,126,34,.3); }
+    .status-paid     { background: rgba(39,174,96,.12);  color: #1e8449; border-color: rgba(39,174,96,.3); }
+    .status-shipped  { background: rgba(41,128,185,.12); color: #1a5e8a; border-color: rgba(41,128,185,.3); }
+    .status-done     { background: rgba(39,174,96,.12);  color: #1e8449; border-color: rgba(39,174,96,.3); }
+    .status-cancelled{ background: rgba(192,57,43,.12);  color: #922b21; border-color: rgba(192,57,43,.3); }
+
+    .item-list { font-size: 12px; color: var(--c-muted); max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    .btn { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 8px; font-size: 13px; font-weight: 700; border: none; transition: opacity .15s; cursor: pointer; }
+    .btn:hover { opacity: .85; }
+    .btn-outline { background: #fff; color: var(--c-text); border: 1.5px solid var(--c-border); }
+
+    .empty-state { text-align: center; padding: 60px 20px; color: var(--c-muted); }
+    .empty-state .material-symbols-outlined { font-size: 48px; display: block; margin-bottom: 12px; }
+
+    /* Detail drawer */
+    .drawer-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 200; display: none; }
+    .drawer-overlay.open { display: block; }
+    .order-drawer {
+      position: fixed; top: 0; right: -480px; bottom: 0; width: 460px;
+      background: #fff; z-index: 201; padding: 28px;
+      overflow-y: auto; transition: right .3s ease;
+      box-shadow: -4px 0 24px rgba(0,0,0,.1);
+    }
+    .order-drawer.open { right: 0; }
+    .drawer-head { display: flex; align-items: center; gap: 10px; margin-bottom: 24px; }
+    .drawer-title { font-size: 17px; font-weight: 800; }
+    .drawer-close { margin-left: auto; background: none; border: none; color: var(--c-muted); cursor: pointer; padding: 4px; border-radius: 8px; }
+    .drawer-close:hover { background: var(--c-body); }
+    .detail-section { margin-bottom: 20px; }
+    .detail-label { font-size: 11px; font-weight: 700; letter-spacing: .08em; color: var(--c-muted); text-transform: uppercase; margin-bottom: 10px; }
+    .detail-row { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid rgba(143,89,53,.07); font-size: 13px; }
+    .detail-row:last-child { border-bottom: none; }
+    .detail-row .label { color: var(--c-muted); }
+    .detail-row .val { font-weight: 600; }
+    .item-card { display: flex; gap: 10px; padding: 10px 0; border-bottom: 1px solid rgba(143,89,53,.07); }
+    .item-card:last-child { border-bottom: none; }
+    .item-card-name { font-size: 13px; font-weight: 700; }
+    .item-card-meta { font-size: 12px; color: var(--c-muted); margin-top: 2px; }
+    .item-card-price { margin-left: auto; font-size: 14px; font-weight: 700; color: var(--c-primary); white-space: nowrap; }
+
+    #toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--c-text); color: #fff; padding: 12px 20px; border-radius: 12px; font-size: 14px; font-weight: 600; z-index: 999; transition: transform .3s, opacity .3s; opacity: 0; white-space: nowrap; }
+    #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+    #toast.error { background: var(--c-danger); }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="admin-header">
+  <div class="admin-brand">BRAND <span>後台管理</span></div>
+  <div style="flex:1"></div>
+  <a href="../index.html" target="_blank" style="display:flex;align-items:center;gap:6px;color:var(--c-muted);font-size:13px">
+    <span class="material-symbols-outlined" style="font-size:16px">open_in_new</span>前台預覽
+  </a>
+</header>
+
+<!-- SIDEBAR -->
+<nav class="admin-sidebar">
+  <span class="sidebar-label">管理</span>
+  <a class="sidebar-link" href="products.html">
+    <span class="material-symbols-outlined">checkroom</span>商品管理
+  </a>
+  <a class="sidebar-link active" href="orders.html">
+    <span class="material-symbols-outlined">receipt_long</span>訂單管理
+  </a>
+</nav>
+
+<!-- MAIN -->
+<main class="admin-main">
+  <div class="page-head">
+    <h1 class="page-title">訂單管理</h1>
+  </div>
+
+  <div class="toolbar">
+    <select class="filter-select" onchange="filterByStatus(this.value)">
+      <option value="">全部狀態</option>
+      <option value="pending">待付款</option>
+      <option value="paid">已付款</option>
+      <option value="shipped">已出貨</option>
+      <option value="done">已完成</option>
+      <option value="cancelled">已取消</option>
+    </select>
+    <div class="search-wrap">
+      <span class="material-symbols-outlined">search</span>
+      <input class="search-input" type="search" placeholder="搜尋訂單編號 / 姓名…"
+             oninput="searchOrders(this.value)">
+    </div>
+    <span id="order-count" style="font-size:13px;color:var(--c-muted)"></span>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>訂單編號</th>
+          <th>姓名</th>
+          <th>商品</th>
+          <th>合計</th>
+          <th>狀態</th>
+          <th>下單時間</th>
+          <th>明細</th>
+        </tr>
+      </thead>
+      <tbody id="order-tbody">
+        <tr><td colspan="7"><div class="empty-state"><span class="material-symbols-outlined">hourglass_empty</span>載入中…</div></td></tr>
+      </tbody>
+    </table>
+  </div>
+</main>
+
+<!-- Order detail drawer -->
+<div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
+<div class="order-drawer" id="order-drawer">
+  <div class="drawer-head">
+    <h2 class="drawer-title" id="drawer-order-no">訂單明細</h2>
+    <button class="drawer-close" onclick="closeDrawer()"><span class="material-symbols-outlined">close</span></button>
+  </div>
+  <div id="drawer-content"></div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+  const API = 'https://brand-api.crazyfunlife8.workers.dev';
+
+  const STATUS_LABEL = { pending:'待付款', paid:'已付款', shipped:'已出貨', done:'已完成', cancelled:'已取消' };
+  let orders = [];
+  let _statusFilter = '';
+  let _searchQuery  = '';
+
+  async function loadOrders() {
+    try {
+      const url = _statusFilter
+        ? `${API}/api/admin/orders?status=${_statusFilter}`
+        : `${API}/api/admin/orders`;
+      const res  = await fetch(url, { credentials: 'include' });
+      const data = await res.json();
+      orders = data.orders || [];
+      renderOrders(orders);
+    } catch {
+      showToast('載入失敗', true);
+    }
+  }
+
+  function renderOrders(list) {
+    document.getElementById('order-count').textContent = `共 ${list.length} 筆`;
+    const tbody = document.getElementById('order-tbody');
+    if (!list.length) {
+      tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><span class="material-symbols-outlined">receipt_long</span>沒有符合的訂單</div></td></tr>`;
+      return;
+    }
+    tbody.innerHTML = list.map(o => {
+      const itemNames = o.items.map(i => i.name).join('、');
+      const statusCls = `status-${o.status}`;
+      const statusOpts = Object.entries(STATUS_LABEL).map(([val, label]) =>
+        `<option value="${val}" ${o.status === val ? 'selected' : ''}>${label}</option>`
+      ).join('');
+      return `
+        <tr data-no="${o.order_no.toLowerCase()}" data-name="${o.name.toLowerCase()}">
+          <td style="font-weight:700;font-size:13px">${o.order_no}</td>
+          <td>${o.name}<br><span style="font-size:12px;color:var(--c-muted)">${o.phone}</span></td>
+          <td><div class="item-list">${itemNames}</div></td>
+          <td style="font-weight:700;color:var(--c-primary)">NT$${o.total.toLocaleString()}</td>
+          <td>
+            <select class="status-select ${statusCls}"
+                    onchange="updateStatus('${o.order_no}', this)">
+              ${statusOpts}
+            </select>
+          </td>
+          <td style="font-size:12px;color:var(--c-muted)">${o.created_at?.slice(0,16) || ''}</td>
+          <td>
+            <button class="btn btn-outline" onclick="openDrawer('${o.order_no}')">
+              <span class="material-symbols-outlined" style="font-size:16px">visibility</span>查看
+            </button>
+          </td>
+        </tr>`;
+    }).join('');
+  }
+
+  async function updateStatus(orderNo, select) {
+    const status = select.value;
+    select.className = `status-select status-${status}`;
+    try {
+      const res  = await fetch(`${API}/api/admin/orders/${orderNo}`, {
+        method: 'PUT', credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status }),
+      });
+      const data = await res.json();
+      if (!data.ok) throw new Error(data.error);
+      const o = orders.find(x => x.order_no === orderNo);
+      if (o) o.status = status;
+      showToast(`訂單 ${orderNo} 已更新為「${STATUS_LABEL[status]}」`);
+    } catch (err) {
+      showToast(err.message || '更新失敗', true);
+    }
+  }
+
+  function filterByStatus(val) {
+    _statusFilter = val;
+    loadOrders();
+  }
+
+  function searchOrders(q) {
+    _searchQuery = q.toLowerCase();
+    const rows = document.querySelectorAll('#order-tbody tr[data-no]');
+    rows.forEach(tr => {
+      tr.style.display = (tr.dataset.no.includes(_searchQuery) || tr.dataset.name.includes(_searchQuery)) ? '' : 'none';
+    });
+  }
+
+  function openDrawer(orderNo) {
+    const o = orders.find(x => x.order_no === orderNo);
+    if (!o) return;
+    document.getElementById('drawer-order-no').textContent = o.order_no;
+    document.getElementById('drawer-content').innerHTML = `
+      <div class="detail-section">
+        <p class="detail-label">收件資訊</p>
+        <div class="detail-row"><span class="label">姓名</span><span class="val">${o.name}</span></div>
+        <div class="detail-row"><span class="label">手機</span><span class="val">${o.phone}</span></div>
+        <div class="detail-row"><span class="label">Email</span><span class="val">${o.email || '—'}</span></div>
+        <div class="detail-row"><span class="label">地址</span><span class="val">${o.address}</span></div>
+        <div class="detail-row"><span class="label">備註</span><span class="val">${o.note || '—'}</span></div>
+      </div>
+      <div class="detail-section">
+        <p class="detail-label">購買商品</p>
+        ${o.items.map(item => `
+          <div class="item-card">
+            <div style="flex:1">
+              <p class="item-card-name">${item.name}</p>
+              <p class="item-card-meta">${[item.color,item.size].filter(Boolean).join(' / ')} × ${item.qty}</p>
+            </div>
+            <span class="item-card-price">NT$${(item.price * item.qty).toLocaleString()}</span>
+          </div>`).join('')}
+      </div>
+      <div class="detail-section">
+        <p class="detail-label">金額</p>
+        <div class="detail-row"><span class="label">商品小計</span><span class="val">NT$${o.subtotal.toLocaleString()}</span></div>
+        <div class="detail-row"><span class="label">運費</span><span class="val">${o.shipping_fee === 0 ? '免運' : 'NT$'+o.shipping_fee}</span></div>
+        <div class="detail-row" style="font-size:16px"><span class="label" style="font-weight:700">合計</span><span class="val" style="color:var(--c-primary)">NT$${o.total.toLocaleString()}</span></div>
+      </div>`;
+
+    document.getElementById('drawer-overlay').classList.add('open');
+    document.getElementById('order-drawer').classList.add('open');
+  }
+
+  function closeDrawer() {
+    document.getElementById('drawer-overlay').classList.remove('open');
+    document.getElementById('order-drawer').classList.remove('open');
+  }
+
+  let _toastTimer;
+  function showToast(msg, isError = false) {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.className = 'show' + (isError ? ' error' : '');
+    clearTimeout(_toastTimer);
+    _toastTimer = setTimeout(() => el.className = '', 2800);
+  }
+
+  loadOrders();
+</script>
+</body>
+</html>
