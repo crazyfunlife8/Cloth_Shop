@@ -20,7 +20,7 @@ id           = "8c93f5db13fa40969ebffc3d07e7555c"
 
 # ── 環境變數 ──
 [vars]
-ALLOWED_ORIGIN = "https://cloth-shop.pages.dev"
+ALLOWED_ORIGIN = "https://cloth.nestdigitalai.com"
 R2_PUBLIC_URL  = ""    # R2 custom domain（選填，空白則圖片走 Worker 代理）
 
 # ── Cloudflare Access 保護 /api/admin/* ──
