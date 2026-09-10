@@ -214,69 +214,7 @@
         </div>
 
         <div class="product-grid" id="product-grid">
-
-      <!-- ─ 範例卡片 1 ─ 替換成真實商品 ─ -->
-      <a class="product-card" href="product.html?id=001" data-cat="new top">
-        <div class="product-img-wrap">
-          <!-- <img src="/products/001.jpg" alt="商品名稱"> -->
-          <div class="product-img-placeholder">
-            <span class="material-symbols-outlined">checkroom</span>
-          </div>
-          <div class="product-badges">
-            <span class="badge badge-new">NEW</span>
-          </div>
-        </div>
-        <div class="product-info">
-          <p class="product-name">商品名稱範例</p>
-          <p class="product-price">NT$990</p>
-        </div>
-      </a>
-
-      <!-- ─ 範例卡片 2 ─ -->
-      <a class="product-card" href="product.html?id=002" data-cat="top">
-        <div class="product-img-wrap">
-          <div class="product-img-placeholder">
-            <span class="material-symbols-outlined">checkroom</span>
-          </div>
-          <div class="product-badges">
-            <span class="badge badge-hot">HOT</span>
-          </div>
-        </div>
-        <div class="product-info">
-          <p class="product-name">商品名稱範例</p>
-          <p class="product-price">NT$1,290 <span class="product-price-original">NT$1,590</span></p>
-        </div>
-      </a>
-
-      <!-- ─ 範例卡片 3 ─ -->
-      <a class="product-card" href="product.html?id=003" data-cat="bottom">
-        <div class="product-img-wrap">
-          <div class="product-img-placeholder">
-            <span class="material-symbols-outlined">checkroom</span>
-          </div>
-        </div>
-        <div class="product-info">
-          <p class="product-name">商品名稱範例</p>
-          <p class="product-price">NT$780</p>
-        </div>
-      </a>
-
-      <!-- ─ 範例卡片 4 ─ -->
-      <a class="product-card" href="product.html?id=004" data-cat="outer">
-        <div class="product-img-wrap">
-          <div class="product-img-placeholder">
-            <span class="material-symbols-outlined">checkroom</span>
-          </div>
-          <div class="product-badges">
-            <span class="badge badge-new">NEW</span>
-          </div>
-        </div>
-        <div class="product-info">
-          <p class="product-name">商品名稱範例</p>
-          <p class="product-price">NT$1,580</p>
-        </div>
-      </a>
-
+          <p id="products-loading" style="grid-column:1/-1;text-align:center;padding:60px 0;color:var(--c-secondary);font-size:14px">載入中…</p>
         </div><!-- /product-grid -->
       </div><!-- /shop-main -->
 
@@ -398,5 +336,42 @@
 </div>
 
 <script src="script.js"></script>
+<script>
+(async () => {
+  const API  = 'https://brand-api.crazyfunlife8.workers.dev';
+  const grid = document.getElementById('product-grid');
+  try {
+    const res  = await fetch(`${API}/api/products`);
+    const data = await res.json();
+    if (!data.ok || !data.products.length) {
+      grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;padding:60px 0;color:var(--c-secondary);font-size:14px">目前沒有商品</p>';
+      return;
+    }
+    grid.innerHTML = data.products.map(p => {
+      const img    = p.images?.[0]
+        ? `<img src="${API}/images/${p.images[0]}" alt="${p.name}" loading="lazy">`
+        : `<div class="product-img-placeholder"><span class="material-symbols-outlined">checkroom</span></div>`;
+      const badge  = p.badge === 'new' ? '<span class="badge badge-new">NEW</span>'
+                   : p.badge === 'hot' ? '<span class="badge badge-hot">HOT</span>' : '';
+      const price  = p.original_price && p.original_price > p.price
+        ? `NT$${p.price.toLocaleString()} <span class="product-price-original">NT$${p.original_price.toLocaleString()}</span>`
+        : `NT$${p.price.toLocaleString()}`;
+      return `
+        <a class="product-card reveal" href="product.html?id=${p.id}" data-cat="${p.cat || ''}">
+          <div class="product-img-wrap">
+            ${img}
+            ${badge ? `<div class="product-badges">${badge}</div>` : ''}
+          </div>
+          <div class="product-info">
+            <p class="product-name">${p.name}</p>
+            <p class="product-price">${price}</p>
+          </div>
+        </a>`;
+    }).join('');
+  } catch {
+    grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;padding:60px 0;color:var(--c-secondary);font-size:14px">商品載入失敗，請稍後再試</p>';
+  }
+})();
+</script>
 </body>
 </html>
