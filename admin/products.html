@@ -573,12 +573,14 @@
         <!-- 顏色 -->
         <div class="form-field full">
           <label class="form-label">顏色選項</label>
-          <div class="tag-input-wrap" id="color-tags" onclick="focusTagInput('color-input')">
+          <div class="tag-input-wrap" id="color-tags">
+            <input type="color" id="color-picker" value="#8f5935"
+                   style="width:28px;height:28px;padding:0;border:none;border-radius:6px;cursor:pointer;flex-shrink:0">
             <input class="tag-input" id="color-input" type="text"
-                   placeholder="輸入顏色後按 Enter"
-                   onkeydown="addTag(event,'color')">
+                   placeholder="顏色名稱後按 Enter"
+                   onkeydown="addColorTag(event)">
           </div>
-          <p class="form-hint">例：黑色、白色、米白（每個顏色按 Enter 新增）</p>
+          <p class="form-hint">選色票後輸入顯示名稱，例：藍白條紋、珊瑚橘（按 Enter 新增）</p>
         </div>
 
         <!-- 尺寸 -->
@@ -912,24 +914,61 @@
     e.target.value = '';
   }
 
-  function addTagValue(val, type) {
-    const arr = type === 'color' ? colorTags : sizeTags;
-    if (arr.includes(val)) return;
-    arr.push(val);
+  function addColorTag(e) {
+    if (e.key !== 'Enter') return;
+    e.preventDefault();
+    const label = e.target.value.trim();
+    if (!label) return;
+    const hex = document.getElementById('color-picker').value;
+    if (colorTags.some(c => c.label === label)) return;
+    colorTags.push({ label, hex });
 
-    const containerId = type === 'color' ? 'color-tags' : 'size-tags';
-    const inputId     = type === 'color' ? 'color-input' : 'size-input';
-    const container   = document.getElementById(containerId);
-    const input       = document.getElementById(inputId);
-
+    const container = document.getElementById('color-tags');
+    const input     = document.getElementById('color-input');
     const tag = document.createElement('span');
     tag.className = 'tag';
-    tag.innerHTML = `${val}<button class="tag-del" type="button" onclick="removeTag(this,'${type}','${val}')">×</button>`;
+    tag.innerHTML = `<span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:${hex};margin-right:4px;vertical-align:middle;border:1px solid rgba(0,0,0,.15)"></span>${label}<button class="tag-del" type="button" onclick="removeColorTag(this,'${label}')">×</button>`;
+    container.insertBefore(tag, input);
+    e.target.value = '';
+  }
+
+  function removeColorTag(btn, label) {
+    const idx = colorTags.findIndex(c => c.label === label);
+    if (idx > -1) colorTags.splice(idx, 1);
+    btn.parentElement.remove();
+  }
+
+  function addTagValue(val, type) {
+    if (type === 'color') {
+      // 舊格式相容：字串直接加（編輯已有商品時）
+      if (typeof val === 'object') {
+        colorTags.push(val);
+        const container = document.getElementById('color-tags');
+        const input     = document.getElementById('color-input');
+        const tag = document.createElement('span');
+        tag.className = 'tag';
+        tag.innerHTML = `<span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:${val.hex};margin-right:4px;vertical-align:middle;border:1px solid rgba(0,0,0,.15)"></span>${val.label}<button class="tag-del" type="button" onclick="removeColorTag(this,'${val.label}')">×</button>`;
+        container.insertBefore(tag, input);
+      } else {
+        // 舊格式字串 → 轉換成物件
+        const COLOR_MAP = {'黑色':'#222','白色':'#f5f5f5','米白':'#f0e9d6','卡其':'#b8a68a','棕色':'#8B6347','紅色':'#c0392b','粉紅':'#f4a0a0','橘色':'#e67e22','黃色':'#f1c40f','綠色':'#27ae60','藍色':'#2980b9','深藍':'#1a3a5c','灰色':'#95a5a6','深灰':'#555','紫色':'#8e44ad'};
+        addTagValue({ label: val, hex: COLOR_MAP[val] || '#cccccc' }, 'color');
+      }
+      return;
+    }
+    const arr = sizeTags;
+    if (arr.includes(val)) return;
+    arr.push(val);
+    const container = document.getElementById('size-tags');
+    const input     = document.getElementById('size-input');
+    const tag = document.createElement('span');
+    tag.className = 'tag';
+    tag.innerHTML = `${val}<button class="tag-del" type="button" onclick="removeTag(this,'size','${val}')">×</button>`;
     container.insertBefore(tag, input);
   }
 
   function removeTag(btn, type, val) {
-    const arr = type === 'color' ? colorTags : sizeTags;
+    const arr = sizeTags;
     const idx = arr.indexOf(val);
     if (idx > -1) arr.splice(idx, 1);
     btn.parentElement.remove();

@@ -24,21 +24,42 @@ document.querySelectorAll('#nav-drawer nav a').forEach(a => a.addEventListener('
 
 /* ── Search ── */
 const Search = {
+  _active: false,
   toggle() {
     const bar = document.getElementById('search-bar');
-    if (bar.classList.contains('open')) {
+    if (this._active) {
       bar.classList.remove('open');
+      this._active = false;
+      document.getElementById('search-input').value = '';
+      this.run('');
     } else {
       bar.classList.add('open');
+      this._active = true;
       document.getElementById('search-input').focus();
     }
   },
   run(val) {
     const q = val.trim().toLowerCase();
+    const grid = document.getElementById('product-grid');
+    let visible = 0;
     document.querySelectorAll('.product-card').forEach(card => {
       const name = (card.querySelector('.product-name')?.textContent || '').toLowerCase();
-      card.style.display = (!q || name.includes(q)) ? '' : 'none';
+      const show = !q || name.includes(q);
+      card.style.display = show ? '' : 'none';
+      if (show) visible++;
     });
+    let noResult = document.getElementById('search-no-result');
+    if (q && visible === 0) {
+      if (!noResult) {
+        noResult = document.createElement('p');
+        noResult.id = 'search-no-result';
+        noResult.style.cssText = 'grid-column:1/-1;text-align:center;padding:40px 0;color:var(--c-secondary);font-size:14px';
+        grid?.appendChild(noResult);
+      }
+      noResult.textContent = `找不到「${val.trim()}」相關商品`;
+    } else if (noResult) {
+      noResult.remove();
+    }
   }
 };
 
@@ -46,9 +67,9 @@ const Search = {
 /* ── Category Filter ── */
 // 父分類 → 子分類對應（點父項時也顯示所有子項商品）
 const CAT_MAP = {
-  top:    ['top', 'tshirt', 'longsleeve'],
-  bottom: ['bottom', 'pants', 'shorts', 'skirt'],
-  warm:   ['warm', 'thermal', 'knit', 'jacket', 'fleece'],
+  top:         ['top', 'tshirt', 'blouse', 'shortsleeve', 'longsleeve'],
+  bottom:      ['bottom', 'pants', 'shorts', 'skirt', 'longskirt'],
+  accessories: ['accessories', 'cap', 'shoes', 'necklace', 'bracelet', 'accessory'],
 };
 
 function filterCat(cat) {
@@ -69,6 +90,11 @@ function filterCat(cat) {
 /* ── Cart ── */
 const Cart = {
   _items: [],
+  _save() { localStorage.setItem('cart', JSON.stringify(this._items)); },
+  _load() {
+    try { this._items = JSON.parse(localStorage.getItem('cart') || '[]'); } catch { this._items = []; }
+  },
+  clear() { this._items = []; this._save(); this._render(); },
   open() {
     document.getElementById('cart-drawer').classList.add('open');
     document.getElementById('cart-overlay').classList.add('open');
@@ -78,13 +104,14 @@ const Cart = {
     document.getElementById('cart-overlay').classList.remove('open');
   },
   add(item) {
-    const ex = this._items.find(i => i.id === item.id && i.variant === (item.variant || ''));
+    const ex = this._items.find(i => i.id === item.id && i.color === (item.color || '') && i.size === (item.size || ''));
     if (ex) ex.qty += (item.qty || 1);
     else this._items.push({ qty: 1, ...item });
+    this._save();
     this._render();
     Toast.show();
   },
-  remove(idx) { this._items.splice(idx, 1); this._render(); },
+  remove(idx) { this._items.splice(idx, 1); this._save(); this._render(); },
   _render() {
     const body = document.getElementById('cart-body');
     const totalEl = document.getElementById('cart-total');
@@ -104,9 +131,14 @@ const Cart = {
       </div>`;
       return;
     }
-    body.innerHTML = this._items.map((item, idx) => `
+    const API_BASE = 'https://brand-api.crazyfunlife8.workers.dev';
+    body.innerHTML = this._items.map((item, idx) => {
+      const imgSrc = item.image
+        ? (item.image.startsWith('http') ? item.image : `${API_BASE}/images/${item.image}`)
+        : '';
+      return `
       <div class="cart-item">
-        <div class="cart-item-img">${item.image ? `<img src="${item.image}" alt="${item.name}">` : ''}</div>
+        <div class="cart-item-img">${imgSrc ? `<img src="${imgSrc}" alt="${item.name}">` : ''}</div>
         <div class="cart-item-info">
           <p class="cart-item-name">${item.name}</p>
           ${item.variant ? `<p class="cart-item-variant">${item.variant}</p>` : ''}
@@ -140,7 +172,7 @@ const Contact = {
 document.addEventListener('click', e => {
   const pop = document.getElementById('contact-pop');
   const fab = document.getElementById('fab-btn');
-  if (pop.classList.contains('open') && !pop.contains(e.target) && !fab.contains(e.target)) Contact.close();
+  if (pop && fab && pop.classList.contains('open') && !pop.contains(e.target) && !fab.contains(e.target)) Contact.close();
 });
 
 
@@ -241,3 +273,7 @@ document.querySelectorAll('.reveal').forEach(el => ro.observe(el));
   </div>`;
   document.body.appendChild(footer);
 })();
+
+/* ── Cart Init ── */
+Cart._load();
+Cart._render();

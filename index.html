@@ -49,7 +49,8 @@
   <!-- Search bar (toggle) -->
   <div id="search-bar">
     <input id="search-input" type="search" placeholder="搜尋商品…"
-           oninput="Search.run(this.value)" autocomplete="off">
+           oninput="Search.run(this.value)" autocomplete="off"
+           onkeydown="if(event.key==='Escape')Search.toggle()">
   </div>
 </header>
 
@@ -209,8 +210,7 @@
           <button class="mobile-filter-btn" data-cat="new" onclick="filterCat('new')">新品</button>
           <button class="mobile-filter-btn" data-cat="top" onclick="filterCat('top')">上衣</button>
           <button class="mobile-filter-btn" data-cat="bottom" onclick="filterCat('bottom')">下著</button>
-          <button class="mobile-filter-btn" data-cat="warm" onclick="filterCat('warm')">暖系列</button>
-          <button class="mobile-filter-btn" data-cat="acc" onclick="filterCat('acc')">配件</button>
+          <button class="mobile-filter-btn" data-cat="accessories" onclick="filterCat('accessories')">配件</button>
         </div>
 
         <div class="product-grid" id="product-grid">
@@ -357,7 +357,7 @@
         ? `NT$${p.price.toLocaleString()} <span class="product-price-original">NT$${p.original_price.toLocaleString()}</span>`
         : `NT$${p.price.toLocaleString()}`;
       return `
-        <a class="product-card" href="product.html?id=${p.id}" data-cat="${p.cat || ''}">
+        <a class="product-card" href="product.html?id=${p.id}" data-cat="${[p.cat, p.badge === 'new' ? 'new' : ''].filter(Boolean).join(' ')}">
           <div class="product-img-wrap">
             ${img}
             ${badge ? `<div class="product-badges">${badge}</div>` : ''}

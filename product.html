@@ -439,9 +439,14 @@
     const imgs = p.images.length ? p.images : [''];
     const mainImg  = document.getElementById('gallery-img');
     const thumbsEl = document.getElementById('gallery-thumbs');
+    const thumbDivs = [];
 
     function setMainImg(src) {
       mainImg.src = src ? `${API}/images/${src}` : '/placeholder.jpg';
+    }
+    function switchToThumb(index) {
+      const target = thumbDivs[index] || thumbDivs[0];
+      if (target) target.click();
     }
     setMainImg(imgs[0]);
 
@@ -455,26 +460,32 @@
         setMainImg(key);
       };
       thumbsEl.appendChild(div);
+      thumbDivs.push(div);
     });
 
     // Colors
     const swatchEl = document.getElementById('color-swatches');
+
     if (p.colors.length) {
       p.colors.forEach((c, i) => {
+        const label = typeof c === 'string' ? c : c.label;
+        const hex   = typeof c === 'string' ? (COLOR_MAP[c] || '#ccc') : (c.hex || '#ccc');
         const btn = document.createElement('button');
         btn.className = 'swatch' + (i === 0 ? ' active' : '');
-        btn.title = c;
-        btn.style.background = COLOR_MAP[c] || '#ccc';
+        btn.title = label;
+        btn.style.background = hex;
         btn.onclick = () => {
           document.querySelectorAll('.swatch').forEach(s => s.classList.remove('active'));
           btn.classList.add('active');
-          selectedColor = c;
-          document.getElementById('color-selected').textContent = c;
+          selectedColor = label;
+          document.getElementById('color-selected').textContent = label;
+          if (i < imgs.length) switchToThumb(i);
         };
         swatchEl.appendChild(btn);
       });
-      selectedColor = p.colors[0];
-      document.getElementById('color-selected').textContent = p.colors[0];
+      const first = p.colors[0];
+      selectedColor = typeof first === 'string' ? first : first.label;
+      document.getElementById('color-selected').textContent = selectedColor;
     } else {
       document.getElementById('color-group').style.display = 'none';
     }
@@ -517,7 +528,7 @@
       price: product.price,
       color: selectedColor,
       size:  selectedSize,
-      image: product.images[0] || '',
+      image: product.images[0] ? `${API}/images/${product.images[0]}` : '',
       qty,
     });
     Cart.open();
