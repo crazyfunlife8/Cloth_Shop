@@ -357,7 +357,7 @@
         ? `NT$${p.price.toLocaleString()} <span class="product-price-original">NT$${p.original_price.toLocaleString()}</span>`
         : `NT$${p.price.toLocaleString()}`;
       return `
-        <a class="product-card reveal" href="product.html?id=${p.id}" data-cat="${p.cat || ''}">
+        <a class="product-card" href="product.html?id=${p.id}" data-cat="${p.cat || ''}">
           <div class="product-img-wrap">
             ${img}
             ${badge ? `<div class="product-badges">${badge}</div>` : ''}
