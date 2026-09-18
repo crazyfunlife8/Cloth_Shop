@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>訂單查詢｜品牌名稱</title>
+  <title>會員中心｜品牌名稱</title>
   <meta name="theme-color" content="#FBF7F4">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,31 +18,102 @@
     }
     @media (min-width: 768px) { .account-page { padding: 140px 48px 100px; } }
 
-    .page-title {
+    /* ── Coming-soon banner ── */
+    .coming-banner {
+      text-align: center;
+      padding: 48px 24px 40px;
+      background: var(--c-surface);
+      border-radius: var(--r-card);
+      margin-bottom: 40px;
+    }
+    .coming-icon {
+      width: 72px; height: 72px;
+      margin: 0 auto 20px;
+      background: rgba(143,89,53,.1);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .coming-icon .material-symbols-outlined {
+      font-size: 36px;
+      color: var(--c-primary);
+    }
+    .coming-title {
       font-family: 'Noto Serif TC', serif;
-      font-size: clamp(22px, 4vw, 28px);
+      font-size: clamp(20px, 4vw, 26px);
       font-weight: 600;
       color: var(--c-ft-dark);
-      margin-bottom: 8px;
+      margin-bottom: 12px;
     }
-    .page-sub {
-      font-size: 14px; color: var(--c-secondary);
-      line-height: 1.7; margin-bottom: 32px;
+    .coming-sub {
+      font-size: 14px;
+      color: var(--c-secondary);
+      line-height: 1.85;
+      margin-bottom: 28px;
+    }
+    .coming-features {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      flex-wrap: wrap;
+      margin-bottom: 28px;
+    }
+    .coming-feat {
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+      font-size: 12px; color: var(--c-secondary);
+    }
+    .coming-feat .material-symbols-outlined {
+      font-size: 22px;
+      color: rgba(143,89,53,.45);
+    }
+    .coming-badge {
+      display: inline-block;
+      padding: 5px 18px;
+      background: rgba(143,89,53,.1);
+      border-radius: var(--r-pill);
+      font-size: 12px; font-weight: 700;
+      color: var(--c-primary);
+      letter-spacing: .06em;
+    }
+    .coming-shop-link {
+      display: inline-flex; align-items: center; gap: 6px;
+      margin-top: 20px;
+      font-size: 13px; font-weight: 700;
+      color: var(--c-primary);
+      text-decoration: none;
+      transition: opacity .2s;
+    }
+    .coming-shop-link:hover { opacity: .75; }
+
+    /* ── Divider ── */
+    .section-divider {
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 24px;
+    }
+    .section-divider::before,
+    .section-divider::after {
+      content: ''; flex: 1;
+      height: 1px; background: rgba(143,89,53,.15);
+    }
+    .section-divider span {
+      font-size: 12px; font-weight: 700;
+      color: var(--c-secondary); letter-spacing: .08em;
+      white-space: nowrap;
     }
 
+    /* ── Query cards ── */
     .query-card {
       background: var(--c-surface);
       border-radius: var(--r-card);
-      padding: 32px;
-      margin-bottom: 24px;
+      padding: 28px;
+      margin-bottom: 16px;
     }
     .query-card-title {
-      font-weight: 700; font-size: 15px;
+      font-weight: 700; font-size: 14px;
       color: var(--c-on-surface);
-      margin-bottom: 16px;
+      margin-bottom: 14px;
       display: flex; align-items: center; gap: 8px;
     }
-    .query-card-title .material-symbols-outlined { color: var(--c-primary); font-size: 20px; }
+    .query-card-title .material-symbols-outlined { color: var(--c-primary); font-size: 18px; }
 
     .query-row { display: flex; gap: 10px; }
     .query-input {
@@ -67,25 +138,24 @@
     .btn-query:hover { background: var(--c-primary-dark); }
     .btn-query:disabled { opacity: .55; cursor: not-allowed; }
 
-    /* 訂單結果 */
+    /* ── Order result cards ── */
     .order-card {
-      background: var(--c-surface);
-      border-radius: 16px;
-      padding: 20px 24px;
-      margin-bottom: 12px;
+      background: #fff;
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin-top: 10px;
       cursor: pointer;
       transition: box-shadow .2s;
       text-decoration: none; display: block; color: inherit;
+      border: 1px solid rgba(143,89,53,.1);
     }
     .order-card:hover { box-shadow: 0 4px 20px rgba(74,43,39,.1); }
-
     .order-card-head {
       display: flex; justify-content: space-between; align-items: center;
-      margin-bottom: 6px;
+      margin-bottom: 4px;
     }
     .order-no { font-size: 13px; font-weight: 700; }
-    .order-date { font-size: 12px; color: var(--c-secondary); }
-
+    .order-date { font-size: 12px; color: var(--c-secondary); margin-bottom: 4px; }
     .status-pill {
       display: inline-block; padding: 2px 10px;
       border-radius: var(--r-pill);
@@ -96,11 +166,10 @@
     .status-shipped  { background: rgba(41,128,185,.15); color: #1a5e8a; }
     .status-done     { background: rgba(39,174,96,.15);  color: #1e8449; }
     .status-cancelled{ background: rgba(192,57,43,.15);  color: #922b21; }
+    .order-items { font-size: 12px; color: var(--c-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .order-total { font-size: 14px; font-weight: 700; color: var(--c-primary); margin-top: 4px; }
 
-    .order-items { font-size: 13px; color: var(--c-secondary); margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .order-total { font-size: 15px; font-weight: 700; color: var(--c-primary); margin-top: 6px; }
-
-    .result-msg { font-size: 14px; color: var(--c-secondary); text-align: center; padding: 28px 0; }
+    .result-msg { font-size: 14px; color: var(--c-secondary); text-align: center; padding: 24px 0; }
   </style>
 </head>
 <body>
@@ -125,29 +194,94 @@
 
 <!-- CART DRAWER -->
 <div id="cart-overlay" onclick="Cart.close()"></div>
-<div id="cart-drawer">
+<aside id="cart-drawer" aria-label="購物車">
   <div class="cart-head">
-    <span class="cart-title">購物車</span>
-    <button class="icon-btn" onclick="Cart.close()"><span class="material-symbols-outlined">close</span></button>
+    <button class="cart-close" onclick="Cart.close()" aria-label="關閉購物車">
+      <span class="material-symbols-outlined">close</span>
+    </button>
+    <p class="cart-title">SHOPPING CART <span style="color:#A85C55">♥</span></p>
+    <span class="cart-subtitle">購 物 車</span>
   </div>
-  <div id="cart-items"></div>
-  <div class="cart-foot">
-    <div class="cart-total-row">
-      <span>小計</span><span id="cart-subtotal">NT$0</span>
+  <div class="cart-body" id="cart-body">
+    <div class="cart-empty-state">
+      <span class="material-symbols-outlined">shopping_cart</span>
+      <p>購物車還空著</p>
+      <a href="/#shop" onclick="Cart.close()">去逛逛 →</a>
     </div>
-    <a href="checkout.html" class="btn-cart" style="text-decoration:none;margin-top:12px">
-      前往結帳
-    </a>
   </div>
-</div>
+  <div class="cart-foot">
+    <div class="cart-total-box">
+      <div class="cart-total-row">
+        <span class="cart-total-label">小計</span>
+        <span class="cart-total-amt" id="cart-total">NT$0</span>
+      </div>
+      <p class="cart-total-note">運費將於結帳時計算</p>
+    </div>
+    <a href="/checkout.html" class="cart-btn-checkout">前往結帳</a>
+    <button class="cart-btn-continue" onclick="Cart.close()">繼續購物</button>
+    <div class="cart-perks">
+      <div class="cart-perk">
+        <span class="material-symbols-outlined">local_shipping</span>
+        <p class="cart-perk-title">滿額免運</p>
+        <p class="cart-perk-desc">消費滿 NT$5,000<br>享免運優惠</p>
+      </div>
+      <div class="cart-perk">
+        <span class="material-symbols-outlined">package_2</span>
+        <p class="cart-perk-title">快速出貨</p>
+        <p class="cart-perk-desc">現貨 1–3 天<br>快速出貨</p>
+      </div>
+      <div class="cart-perk">
+        <span class="material-symbols-outlined">favorite</span>
+        <p class="cart-perk-title">貼心服務</p>
+        <p class="cart-perk-desc">有問題歡迎<br>聯繫客服</p>
+      </div>
+    </div>
+  </div>
+</aside>
 
 <div id="toast"></div>
 
 <main class="account-page">
-  <h1 class="page-title">訂單查詢</h1>
-  <p class="page-sub">輸入您下單時填寫的手機號碼，即可查詢所有歷史訂單。</p>
 
-  <!-- 手機查詢 -->
+  <!-- Coming Soon Banner -->
+  <div class="coming-banner">
+    <div class="coming-icon">
+      <span class="material-symbols-outlined">person</span>
+    </div>
+    <h1 class="coming-title">會員中心</h1>
+    <p class="coming-sub">
+      我們正在打造更完整的會員系統，<br>
+      未來將開放以下功能，敬請期待！
+    </p>
+    <div class="coming-features">
+      <div class="coming-feat">
+        <span class="material-symbols-outlined">receipt_long</span>
+        訂單管理
+      </div>
+      <div class="coming-feat">
+        <span class="material-symbols-outlined">favorite</span>
+        收藏清單
+      </div>
+      <div class="coming-feat">
+        <span class="material-symbols-outlined">redeem</span>
+        專屬優惠
+      </div>
+      <div class="coming-feat">
+        <span class="material-symbols-outlined">notifications</span>
+        新品通知
+      </div>
+    </div>
+    <span class="coming-badge">COMING SOON</span>
+    <br>
+    <a class="coming-shop-link" href="index.html#shop">
+      <span class="material-symbols-outlined" style="font-size:16px">arrow_back</span>
+      繼續逛逛
+    </a>
+  </div>
+
+  <!-- 訂單查詢 -->
+  <div class="section-divider"><span>訂單查詢</span></div>
+
   <div class="query-card">
     <p class="query-card-title">
       <span class="material-symbols-outlined">phone</span>以手機號碼查詢
@@ -161,7 +295,6 @@
     <div id="phone-results"></div>
   </div>
 
-  <!-- 訂單編號查詢 -->
   <div class="query-card">
     <p class="query-card-title">
       <span class="material-symbols-outlined">receipt_long</span>以訂單編號查詢
@@ -174,6 +307,7 @@
     </div>
     <div id="orderno-results"></div>
   </div>
+
 </main>
 
 <!-- footer 由 script.js renderFooter() 動態插入 -->
@@ -192,7 +326,6 @@
     if (!phone) return;
     const btn = document.getElementById('btn-phone');
     btn.disabled = true; btn.textContent = '查詢中…';
-
     try {
       const res  = await fetch(`${API}/api/orders?phone=${encodeURIComponent(phone)}`);
       const data = await res.json();
@@ -210,7 +343,6 @@
     if (!no) return;
     const btn = document.getElementById('btn-order-no');
     btn.disabled = true; btn.textContent = '查詢中…';
-
     try {
       const res  = await fetch(`${API}/api/orders/${no}`);
       const data = await res.json();
@@ -243,7 +375,6 @@
       </a>`).join('');
   }
 
-  // 若從 URL 帶入訂單編號，自動填入並查詢
   const urlNo = new URLSearchParams(location.search).get('no');
   if (urlNo) {
     document.getElementById('input-order-no').value = urlNo;

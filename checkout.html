@@ -121,6 +121,105 @@
       color: var(--c-secondary); font-size: 15px;
     }
     .empty-cart-msg a { color: var(--c-primary); font-weight: 600; text-decoration: none; }
+
+    /* ── Shipping options ── */
+    .shipping-options { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+    .shipping-option { display: block; cursor: pointer; }
+    .shipping-option input[type="radio"] { position: absolute; opacity: 0; width: 0; height: 0; }
+    .shipping-opt-body {
+      display: flex; align-items: center; gap: 12px;
+      padding: 14px 16px;
+      border: 1.5px solid rgba(143,89,53,.2);
+      border-radius: var(--r-input);
+      background: #fff;
+      transition: border-color .2s, background .2s;
+    }
+    .shipping-option:has(input:checked) .shipping-opt-body {
+      border-color: var(--c-primary);
+      background: rgba(143,89,53,.04);
+    }
+    .shipping-opt-body .material-symbols-outlined { color: var(--c-primary); font-size: 22px; flex-shrink: 0; }
+    .shipping-opt-body > div { flex: 1; }
+    .shipping-opt-name { font-size: 14px; font-weight: 600; color: var(--c-on-surface); }
+    .shipping-opt-desc { font-size: 12px; color: var(--c-secondary); margin-top: 2px; }
+    .shipping-opt-price { font-size: 14px; font-weight: 700; color: var(--c-primary); white-space: nowrap; }
+
+    .form-field select {
+      padding: 11px 14px;
+      border: 1.5px solid rgba(143,89,53,.2);
+      border-radius: var(--r-input);
+      background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24'%3E%3Cpath fill='%238f5935' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E") no-repeat right 10px center;
+      font-family: inherit; font-size: 14px;
+      color: var(--c-on-surface);
+      outline: none; appearance: none; -webkit-appearance: none;
+      transition: border-color .2s; width: 100%;
+    }
+    .form-field select:focus { border-color: var(--c-primary); }
+
+    /* ── Store Selector ── */
+    .brand-tabs { display: flex; gap: 8px; margin-bottom: 8px; }
+    .brand-tab {
+      flex: 1; padding: 9px 8px;
+      border: 1.5px solid rgba(143,89,53,.2);
+      border-radius: var(--r-input);
+      background: #fff;
+      font-family: inherit; font-size: 13px; font-weight: 600;
+      color: var(--c-secondary); cursor: pointer; text-align: center;
+      transition: all .2s;
+    }
+    .brand-tab.active {
+      border-color: var(--c-primary);
+      background: rgba(143,89,53,.06);
+      color: var(--c-primary);
+    }
+    .store-search-row { display: flex; gap: 8px; }
+    .store-search-input {
+      flex: 1; padding: 11px 14px;
+      border: 1.5px solid rgba(143,89,53,.2);
+      border-radius: var(--r-input);
+      background: #fff; font-family: inherit;
+      font-size: 14px; color: var(--c-on-surface);
+      outline: none; transition: border-color .2s;
+    }
+    .store-search-input:focus { border-color: var(--c-primary); }
+    .btn-store-search {
+      padding: 11px 16px;
+      background: var(--c-primary); color: #fff;
+      border: none; border-radius: var(--r-input);
+      font-family: inherit; font-size: 14px; font-weight: 700;
+      cursor: pointer; white-space: nowrap; transition: background .2s;
+    }
+    .btn-store-search:hover { background: var(--c-primary-dark); }
+    .btn-store-search:disabled { opacity: .55; cursor: not-allowed; }
+    .store-results {
+      max-height: 210px; overflow-y: auto;
+      border: 1.5px solid rgba(143,89,53,.15);
+      border-radius: var(--r-input);
+      background: #fff; display: none;
+    }
+    .store-result-item {
+      padding: 10px 14px; cursor: pointer;
+      border-bottom: 1px solid rgba(143,89,53,.08);
+      transition: background .15s;
+    }
+    .store-result-item:last-child { border-bottom: none; }
+    .store-result-item:hover { background: rgba(143,89,53,.05); }
+    .store-result-name { font-size: 13px; font-weight: 600; color: var(--c-on-surface); }
+    .store-result-addr { font-size: 12px; color: var(--c-secondary); margin-top: 2px; }
+    .store-selected {
+      display: none; padding: 12px 14px;
+      background: rgba(143,89,53,.06);
+      border: 1.5px solid var(--c-primary);
+      border-radius: var(--r-input);
+    }
+    .store-selected-name { font-size: 13px; font-weight: 600; color: var(--c-on-surface); }
+    .store-selected-addr { font-size: 12px; color: var(--c-secondary); margin-top: 2px; }
+    .store-selected-change {
+      display: inline-block; margin-top: 6px;
+      font-size: 12px; color: var(--c-primary);
+      cursor: pointer; font-weight: 600;
+    }
+    .store-msg { font-size: 13px; color: var(--c-secondary); padding: 12px 14px; display: none; }
   </style>
 </head>
 <body>
@@ -173,24 +272,84 @@
             <input type="email" id="f-email" placeholder="選填，用於訂單通知">
           </div>
         </div>
-        <div class="form-row">
-          <div class="form-field">
-            <label class="required">收件地址</label>
-            <input type="text" id="f-address" placeholder="縣市＋鄉鎮區＋路段門號" required>
-          </div>
+        <p class="form-section-title" style="margin-top:8px">配送方式</p>
+        <div class="shipping-options">
+          <label class="shipping-option">
+            <input type="radio" name="shipping" value="cvs" checked onchange="toggleShipping(this.value)">
+            <div class="shipping-opt-body">
+              <span class="material-symbols-outlined">storefront</span>
+              <div>
+                <p class="shipping-opt-name">超商取貨付款</p>
+                <p class="shipping-opt-desc">7-ELEVEN / 全家 · 到店取件時付款</p>
+              </div>
+              <span class="shipping-opt-price">NT$60</span>
+            </div>
+          </label>
+          <label class="shipping-option">
+            <input type="radio" name="shipping" value="home" onchange="toggleShipping(this.value)">
+            <div class="shipping-opt-body">
+              <span class="material-symbols-outlined">local_shipping</span>
+              <div>
+                <p class="shipping-opt-name">宅配到府</p>
+                <p class="shipping-opt-desc">黑貓 / 郵局宅配 · 送到您指定地址</p>
+              </div>
+              <span class="shipping-opt-price">NT$100</span>
+            </div>
+          </label>
         </div>
-        <div class="form-row">
-          <div class="form-field">
-            <label>備註</label>
-            <textarea id="f-note" placeholder="指定配送時間、顏色說明等…"></textarea>
+
+        <!-- 超商取貨欄位 -->
+        <div id="cvs-fields">
+          <div class="form-row">
+            <div class="form-field">
+              <label class="required">選擇取貨門市</label>
+              <div class="brand-tabs">
+                <button type="button" class="brand-tab active" data-brand="711" onclick="selectBrand('711')">7-ELEVEN</button>
+                <button type="button" class="brand-tab" data-brand="family" onclick="selectBrand('family')">全家 FamilyMart</button>
+              </div>
+              <div class="store-search-row">
+                <input class="store-search-input" type="text" id="store-search-input"
+                       placeholder="輸入地區或門市名稱，例：信義、忠孝"
+                       onkeydown="if(event.key==='Enter'){event.preventDefault();searchStore();}">
+                <button type="button" class="btn-store-search" id="btn-store-search" onclick="searchStore()">搜尋</button>
+              </div>
+              <div class="store-results" id="store-results"></div>
+              <p class="store-msg" id="store-msg"></p>
+              <div class="store-selected" id="store-selected">
+                <p class="store-selected-name" id="store-selected-name"></p>
+                <p class="store-selected-addr" id="store-selected-addr"></p>
+                <span class="store-selected-change" onclick="clearStoreSelection()">重新選擇</span>
+              </div>
+              <!-- 隱藏欄位供 submitOrder 讀取 -->
+              <input type="hidden" id="f-cvs-brand">
+              <input type="hidden" id="f-cvs-store">
+              <input type="hidden" id="f-cvs-store-addr">
+            </div>
           </div>
         </div>
 
-        <p class="form-section-title" style="margin-top:24px">付款說明</p>
-        <div style="font-size:14px;line-height:1.8;color:var(--c-secondary);background:rgba(143,89,53,.06);border-radius:12px;padding:16px;">
-          <strong style="color:var(--c-on-surface)">LINE Pay QR Code 付款</strong><br>
-          確認訂單後，請在訂單確認頁面掃描 QR Code 完成付款。<br>
-          付款完成後請截圖傳送至 LINE 客服，以利核對。
+        <!-- 宅配欄位 -->
+        <div id="home-fields" style="display:none">
+          <div class="form-row">
+            <div class="form-field">
+              <label class="required">收件地址</label>
+              <input type="text" id="f-address" placeholder="縣市＋鄉鎮區＋路段門號">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-field">
+            <label>備註</label>
+            <textarea id="f-note" placeholder="其他說明（顏色確認、指定配送時間等）…"></textarea>
+          </div>
+        </div>
+
+        <p class="form-section-title" style="margin-top:24px">付款方式</p>
+        <div id="pay-desc" style="font-size:14px;line-height:1.8;color:var(--c-secondary);background:rgba(143,89,53,.06);border-radius:12px;padding:16px;">
+          <strong style="color:var(--c-on-surface)">超商取貨付款</strong><br>
+          到超商取件時再付款，無需預先付款。<br>
+          確認訂單後 2–3 個工作天寄出，並傳送取件通知至您的手機。
         </div>
 
         <!-- 手機版才顯示送出按鈕 -->
@@ -221,6 +380,132 @@
 <script src="script.js"></script>
 <script>
   const API = 'https://brand-api.crazyfunlife8.workers.dev';
+  let shippingMethod = 'cvs';
+  let selectedBrand  = '711';
+  let _storeResults  = [];
+
+  /* ── 門市選取器 ── */
+  function selectBrand(brand) {
+    selectedBrand = brand;
+    document.querySelectorAll('.brand-tab').forEach(t =>
+      t.classList.toggle('active', t.dataset.brand === brand));
+    clearStoreSelection();
+    document.getElementById('store-search-input').value = '';
+    document.getElementById('store-results').style.display = 'none';
+    document.getElementById('store-msg').style.display = 'none';
+  }
+
+  async function searchStore() {
+    const q = document.getElementById('store-search-input').value.trim();
+    if (!q) return;
+    const btn = document.getElementById('btn-store-search');
+    btn.disabled = true; btn.textContent = '搜尋中…';
+    const resultsEl = document.getElementById('store-results');
+    const msgEl     = document.getElementById('store-msg');
+    resultsEl.style.display = 'none';
+    msgEl.style.display = 'block';
+    msgEl.textContent = '搜尋中…';
+    try {
+      const res  = await fetch(`${API}/api/stores?brand=${selectedBrand}&q=${encodeURIComponent(q)}`);
+      const data = await res.json();
+
+      // 全家目前無 API，降級為手動輸入
+      if (data.manual) {
+        msgEl.style.display = 'none';
+        showManualInput(q);
+        return;
+      }
+
+      if (!data.ok || !data.stores.length) {
+        msgEl.textContent = '找不到符合的門市，請試試其他關鍵字（例：信義、忠孝、板橋）';
+        return;
+      }
+      _storeResults = data.stores;
+      msgEl.style.display = 'none';
+      resultsEl.style.display = 'block';
+      resultsEl.innerHTML = data.stores.map((s, i) => `
+        <div class="store-result-item" onclick="selectStore(${i})">
+          <p class="store-result-name">${s.name}</p>
+          <p class="store-result-addr">${s.address || ''}</p>
+        </div>`).join('');
+    } catch {
+      msgEl.textContent = '查詢失敗，請稍後再試';
+    } finally {
+      btn.disabled = false; btn.textContent = '搜尋';
+    }
+  }
+
+  function showManualInput(prefill) {
+    const resultsEl = document.getElementById('store-results');
+    resultsEl.style.display = 'block';
+    resultsEl.innerHTML = `
+      <div style="padding:12px 14px">
+        <p style="font-size:13px;font-weight:600;color:var(--c-on-surface);margin-bottom:8px">請直接填寫門市名稱</p>
+        <input id="manual-store-input" class="store-search-input" style="width:100%;box-sizing:border-box;margin-bottom:8px"
+               type="text" placeholder="例：全家信義三越門市" value="${prefill || ''}">
+        <button type="button" onclick="confirmManualStore()" class="btn-store-search" style="width:100%">確認</button>
+      </div>`;
+  }
+
+  function confirmManualStore() {
+    const name = document.getElementById('manual-store-input')?.value.trim();
+    if (!name) return;
+    selectStore(-1, name);
+  }
+
+  function selectStore(idx, manualName) {
+    const brandLabel = selectedBrand === '711' ? '7-ELEVEN' : '全家 FamilyMart';
+    const store = idx === -1
+      ? { name: manualName, address: '' }
+      : _storeResults[idx];
+    document.getElementById('f-cvs-brand').value = brandLabel;
+    document.getElementById('f-cvs-store').value = store.name;
+    document.getElementById('f-cvs-store-addr').value = store.address || '';
+    document.getElementById('store-results').style.display = 'none';
+    document.getElementById('store-msg').style.display = 'none';
+    const sel = document.getElementById('store-selected');
+    sel.style.display = 'block';
+    document.getElementById('store-selected-name').textContent = `${brandLabel}｜${store.name}`;
+    document.getElementById('store-selected-addr').textContent = store.address || '';
+  }
+
+  function clearStoreSelection() {
+    ['f-cvs-brand','f-cvs-store','f-cvs-store-addr'].forEach(id =>
+      document.getElementById(id).value = '');
+    document.getElementById('store-selected').style.display = 'none';
+  }
+
+  function toggleShipping(val) {
+    shippingMethod = val;
+    const isCvs = val === 'cvs';
+    document.getElementById('cvs-fields').style.display = isCvs ? '' : 'none';
+    document.getElementById('home-fields').style.display = isCvs ? 'none' : '';
+    const addr = document.getElementById('f-address');
+    if (addr) addr.required = !isCvs;
+
+    document.getElementById('pay-desc').innerHTML = isCvs
+      ? `<strong style="color:var(--c-on-surface)">超商取貨付款</strong><br>
+         到超商取件時再付款，無需預先付款。<br>
+         確認訂單後 2–3 個工作天寄出，並傳送取件通知至您的手機。`
+      : `<strong style="color:var(--c-on-surface)">宅配貨到付款</strong><br>
+         配送時由宅配人員現場收款，無需預先付款。<br>
+         確認訂單後 2–3 個工作天出貨，提供貨運追蹤資訊。`;
+
+    updateShippingFee();
+  }
+
+  function getShippingFee(subtotal) {
+    if (subtotal >= 5000) return 0;
+    return shippingMethod === 'cvs' ? 60 : 100;
+  }
+
+  function updateShippingFee() {
+    const subtotal = Cart._items.reduce((s, i) => s + i.price * i.qty, 0);
+    const shipping = getShippingFee(subtotal);
+    document.getElementById('sum-subtotal').textContent = `NT$${subtotal.toLocaleString()}`;
+    document.getElementById('sum-shipping').textContent = shipping === 0 ? '免運' : `NT$${shipping}`;
+    document.getElementById('sum-total').textContent = `NT$${(subtotal + shipping).toLocaleString()}`;
+  }
 
   function renderSummary() {
     const items = Cart._items;
@@ -229,29 +514,20 @@
       document.getElementById('checkout-grid').style.display = 'none';
       return;
     }
-
     const el = document.getElementById('summary-items');
     el.innerHTML = '';
     items.forEach(item => {
-      const imgSrc = item.image || '/placeholder.jpg';
       el.innerHTML += `
         <div class="summary-item">
-          <img class="summary-item-img" src="${imgSrc}" alt="${item.name}">
+          <img class="summary-item-img" src="${item.image || '/placeholder.jpg'}" alt="${item.name}">
           <div class="summary-item-info">
             <p class="summary-item-name">${item.name}</p>
-            <p class="summary-item-meta">${[item.color,item.size].filter(Boolean).join(' / ')} × ${item.qty}</p>
+            <p class="summary-item-meta">${[item.color, item.size].filter(Boolean).join(' / ')} × ${item.qty}</p>
           </div>
           <span class="summary-item-price">NT$${(item.price * item.qty).toLocaleString()}</span>
         </div>`;
     });
-
-    const subtotal = items.reduce((s, i) => s + i.price * i.qty, 0);
-    const shipping = subtotal >= 5000 ? 0 : 60;
-    document.getElementById('sum-subtotal').textContent = `NT$${subtotal.toLocaleString()}`;
-    document.getElementById('sum-shipping').textContent = shipping === 0 ? '免運' : `NT$${shipping}`;
-    document.getElementById('sum-total').textContent    = `NT$${(subtotal + shipping).toLocaleString()}`;
-
-    // 手機版按鈕
+    updateShippingFee();
     if (window.innerWidth < 768)
       document.getElementById('btn-submit-form').style.display = 'flex';
   }
@@ -261,18 +537,30 @@
     const btn = document.getElementById('btn-submit');
     btn.disabled = true; btn.textContent = '處理中…';
 
-    const items = Cart._items.map(i => ({
-      id: i.id, name: i.name, price: i.price,
-      color: i.color, size: i.size, qty: i.qty,
-    }));
+    const isCvs = shippingMethod === 'cvs';
+    if (isCvs && !document.getElementById('f-cvs-store').value) {
+      Toast.show('請先搜尋並選擇取貨門市');
+      btn.disabled = false;
+      btn.innerHTML = '<span class="material-symbols-outlined">check_circle</span>確認訂單';
+      return;
+    }
+    const storeAddr = document.getElementById('f-cvs-store-addr').value;
+    const address = isCvs
+      ? `超商取貨：${document.getElementById('f-cvs-brand').value} ${document.getElementById('f-cvs-store').value}（${storeAddr}）`
+      : document.getElementById('f-address').value.trim();
 
     const body = {
-      name:    document.getElementById('f-name').value.trim(),
-      phone:   document.getElementById('f-phone').value.trim(),
-      email:   document.getElementById('f-email').value.trim(),
-      address: document.getElementById('f-address').value.trim(),
-      note:    document.getElementById('f-note').value.trim(),
-      items,
+      name:            document.getElementById('f-name').value.trim(),
+      phone:           document.getElementById('f-phone').value.trim(),
+      email:           document.getElementById('f-email').value.trim(),
+      address,
+      note:            document.getElementById('f-note').value.trim(),
+      shipping_method: shippingMethod,
+      items: Cart._items.map(i => ({
+        id: i.id, name: i.name, price: i.price,
+        color: i.color, size: i.size, qty: i.qty,
+        image: i.image ? i.image.replace(API + '/images/', '') : '',
+      })),
     };
 
     try {

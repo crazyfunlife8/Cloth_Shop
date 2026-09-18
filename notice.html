@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>購物須知｜品牌名稱</title>
+  <meta name="theme-color" content="#FBF7F4">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,500;1,600&family=Noto+Serif+TC:wght@500;600;700&family=Nunito:ital,wght@0,300..800;1,400..700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .notice-page {
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 120px 20px 100px;
+    }
+    @media (min-width: 768px) { .notice-page { padding: 140px 48px 120px; } }
+
+    .notice-eyebrow {
+      font-size: 11px; font-weight: 700; letter-spacing: .14em;
+      color: var(--c-primary); text-transform: uppercase;
+      margin-bottom: 12px; display: block;
+    }
+    .notice-heading {
+      font-family: 'Noto Serif TC', serif;
+      font-size: clamp(24px, 5vw, 32px);
+      font-weight: 600; color: var(--c-ft-dark);
+      margin-bottom: 40px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid rgba(143,89,53,.15);
+    }
+
+    .notice-section { margin-bottom: 40px; }
+
+    .notice-section-head {
+      display: flex; align-items: center; gap: 14px;
+      margin-bottom: 18px;
+    }
+    .notice-num {
+      font-family: 'Playfair Display', serif;
+      font-size: 13px; font-weight: 600;
+      color: var(--c-primary); letter-spacing: .08em;
+      background: rgba(143,89,53,.08);
+      padding: 4px 10px; border-radius: var(--r-pill);
+      white-space: nowrap;
+    }
+    .notice-section-title {
+      font-family: 'Noto Serif TC', serif;
+      font-size: 17px; font-weight: 600;
+      color: var(--c-ft-dark);
+    }
+
+    .notice-body {
+      background: var(--c-surface);
+      border-radius: var(--r-card);
+      padding: 24px 28px;
+    }
+    .notice-body p {
+      font-size: 14px; line-height: 1.9;
+      color: var(--c-on-surface);
+      margin-bottom: 10px;
+    }
+    .notice-body p:last-child { margin-bottom: 0; }
+    .notice-body ul {
+      padding-left: 0; list-style: none;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .notice-body li {
+      font-size: 14px; line-height: 1.85;
+      color: var(--c-on-surface);
+      position: relative;
+      padding-left: 20px;
+    }
+    .notice-body li::before {
+      content: '—';
+      color: rgba(143,89,53,.45);
+      position: absolute;
+      left: 0; top: 0;
+    }
+    .notice-body .highlight {
+      color: var(--c-primary); font-weight: 700;
+    }
+
+    .notice-divider {
+      height: 1px;
+      background: rgba(143,89,53,.1);
+      margin: 40px 0;
+    }
+
+    .notice-footer-note {
+      text-align: center;
+      font-size: 13px; color: var(--c-secondary);
+      line-height: 1.85;
+      padding: 24px;
+      background: var(--c-surface);
+      border-radius: var(--r-card);
+    }
+    .notice-footer-note strong { color: var(--c-on-surface); }
+
+    .notice-back {
+      display: inline-flex; align-items: center; gap: 6px;
+      margin-top: 32px;
+      font-size: 13px; font-weight: 700;
+      color: var(--c-primary); text-decoration: none;
+      transition: opacity .2s;
+    }
+    .notice-back:hover { opacity: .7; }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header id="site-header">
+  <nav class="header-nav">
+    <a href="/" class="header-logo" aria-label="品牌首頁">
+      <img src="/image/cloth_logo.png" alt="Wear the Warmth">
+    </a>
+    <div class="header-actions">
+      <a href="/" class="icon-btn" aria-label="回首頁">
+        <span class="material-symbols-outlined">home</span>
+      </a>
+    </div>
+  </nav>
+</header>
+
+<main class="notice-page">
+
+  <span class="notice-eyebrow">Shopping Guide</span>
+  <h1 class="notice-heading">購物須知</h1>
+
+  <!-- 01 出貨時間 -->
+  <div class="notice-section">
+    <div class="notice-section-head">
+      <span class="notice-num">01</span>
+      <h2 class="notice-section-title">出貨時間</h2>
+    </div>
+    <div class="notice-body">
+      <ul>
+        <li>現貨商品於付款完成後，約需 <span class="highlight">1–3 個工作天</span> 出貨。</li>
+        <li>預購商品出貨時間依各商品頁面公告為準，請下單前確認。</li>
+        <li>如同時購買現貨與預購商品，將會分開寄出，現貨優先發送。</li>
+        <li>出貨後請依賣貨便通知追蹤包裹狀態，並於指定期限內至超商取貨。</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 02 商品說明 -->
+  <div class="notice-section">
+    <div class="notice-section-head">
+      <span class="notice-num">02</span>
+      <h2 class="notice-section-title">商品說明</h2>
+    </div>
+    <div class="notice-body">
+      <ul>
+        <li>商品色澤可能因拍攝光線、螢幕顯示差異而略有色差，請以實品為準。</li>
+        <li>商品尺寸數據為人工量測，允許 1–2 cm 的誤差，請參閱各商品頁面的尺寸說明。</li>
+        <li>如對商品有任何疑問，歡迎於下單前透過官方 LINE 聯繫客服確認。</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 03 退換貨政策 -->
+  <div class="notice-section">
+    <div class="notice-section-head">
+      <span class="notice-num">03</span>
+      <h2 class="notice-section-title">退換貨政策</h2>
+    </div>
+    <div class="notice-body">
+      <ul>
+        <li>商品若無重大瑕疵，恕不接受退換貨，請下單前詳閱商品說明並確認尺寸。</li>
+        <li>若收到商品有<span class="highlight">重大製造瑕疵</span>，請於收貨後 <span class="highlight">3 天內</span>透過官方 LINE 客服聯繫，並附上商品照片，我們將盡速協助處理。</li>
+        <li>超商取貨後逾期未取件，視同放棄，恕不退款，請務必留意取件通知。</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="notice-divider"></div>
+
+  <div class="notice-footer-note">
+    完成訂購即視為已閱讀並同意以上所有條款。<br>
+    如有任何疑問，歡迎透過 <strong>官方 LINE</strong> 聯繫我們，我們將竭誠為您服務。
+  </div>
+
+  <a class="notice-back" href="/">
+    <span class="material-symbols-outlined" style="font-size:16px">arrow_back</span>
+    返回首頁
+  </a>
+
+</main>
+
+<!-- footer 由 script.js renderFooter() 動態插入 -->
+
+<script src="script.js"></script>
+</body>
+</html>

@@ -76,6 +76,7 @@
     .btn { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 8px; font-size: 13px; font-weight: 700; border: none; transition: opacity .15s; cursor: pointer; }
     .btn:hover { opacity: .85; }
     .btn-outline { background: #fff; color: var(--c-text); border: 1.5px solid var(--c-border); }
+    .btn-danger  { background: rgba(192,57,43,.1); color: var(--c-danger); border: 1.5px solid rgba(192,57,43,.25); }
 
     .empty-state { text-align: center; padding: 60px 20px; color: var(--c-muted); }
     .empty-state .material-symbols-outlined { font-size: 48px; display: block; margin-bottom: 12px; }
@@ -167,10 +168,11 @@
           <th>狀態</th>
           <th>下單時間</th>
           <th>明細</th>
+          <th>刪除</th>
         </tr>
       </thead>
       <tbody id="order-tbody">
-        <tr><td colspan="7"><div class="empty-state"><span class="material-symbols-outlined">hourglass_empty</span>載入中…</div></td></tr>
+        <tr><td colspan="8"><div class="empty-state"><span class="material-symbols-outlined">hourglass_empty</span>載入中…</div></td></tr>
       </tbody>
     </table>
   </div>
@@ -214,7 +216,7 @@
     document.getElementById('order-count').textContent = `共 ${list.length} 筆`;
     const tbody = document.getElementById('order-tbody');
     if (!list.length) {
-      tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><span class="material-symbols-outlined">receipt_long</span>沒有符合的訂單</div></td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><span class="material-symbols-outlined">receipt_long</span>沒有符合的訂單</div></td></tr>`;
       return;
     }
     tbody.innerHTML = list.map(o => {
@@ -239,6 +241,11 @@
           <td>
             <button class="btn btn-outline" onclick="openDrawer('${o.order_no}')">
               <span class="material-symbols-outlined" style="font-size:16px">visibility</span>查看
+            </button>
+          </td>
+          <td>
+            <button class="btn btn-danger" onclick="deleteOrder('${o.order_no}')">
+              <span class="material-symbols-outlined" style="font-size:16px">delete</span>刪除
             </button>
           </td>
         </tr>`;
@@ -315,6 +322,25 @@
   function closeDrawer() {
     document.getElementById('drawer-overlay').classList.remove('open');
     document.getElementById('order-drawer').classList.remove('open');
+  }
+
+  async function deleteOrder(orderNo) {
+    if (!confirm(`確定要刪除訂單 ${orderNo}？\n此操作無法復原。`)) return;
+    try {
+      const res  = await fetch(`${API}/api/admin/orders/${orderNo}`, {
+        method: 'DELETE', credentials: 'include',
+      });
+      const data = await res.json();
+      if (!data.ok) throw new Error(data.error);
+      orders = orders.filter(o => o.order_no !== orderNo);
+      renderOrders(orders.filter(o =>
+        (!_statusFilter || o.status === _statusFilter) &&
+        (!_searchQuery  || o.order_no.toLowerCase().includes(_searchQuery) || o.name.toLowerCase().includes(_searchQuery))
+      ));
+      showToast(`訂單 ${orderNo} 已刪除`);
+    } catch (err) {
+      showToast(err.message || '刪除失敗', true);
+    }
   }
 
   let _toastTimer;

@@ -106,29 +106,18 @@
     .item-meta { font-size: 12px; color: var(--c-secondary); margin-top: 2px; }
     .item-price { font-size: 14px; font-weight: 700; color: var(--c-primary); white-space: nowrap; }
 
-    /* ── QR code card ── */
-    .qr-card {
-      background: var(--c-surface);
+    /* ── Shipping notice ── */
+    .notice-card {
+      background: rgba(143,89,53,.06);
+      border: 1.5px solid rgba(143,89,53,.18);
       border-radius: var(--r-card);
-      padding: 28px;
-      text-align: center;
+      padding: 20px 24px;
       margin-bottom: 16px;
+      display: flex; gap: 14px; align-items: flex-start;
     }
-    .qr-card p { font-size: 14px; color: var(--c-secondary); line-height: 1.8; margin-top: 12px; }
-    .qr-img {
-      width: 200px; height: 200px;
-      margin: 0 auto;
-      border-radius: 16px;
-      object-fit: contain;
-      background: #fff;
-      border: 1px solid rgba(143,89,53,.15);
-      padding: 8px;
-    }
-    .qr-amount {
-      font-size: 22px; font-weight: 700;
-      color: var(--c-primary);
-      margin: 10px 0 4px;
-    }
+    .notice-card .material-symbols-outlined { color: var(--c-primary); font-size: 26px; flex-shrink: 0; margin-top: 2px; }
+    .notice-card-body h4 { font-size: 14px; font-weight: 700; color: var(--c-on-surface); margin-bottom: 6px; }
+    .notice-card-body p  { font-size: 13px; color: var(--c-secondary); line-height: 1.9; }
 
     /* ── CTA buttons ── */
     .cta-row { display: flex; gap: 12px; margin-top: 8px; }
@@ -171,7 +160,7 @@
   <div class="success-banner">
     <span class="material-symbols-outlined success-icon">check_circle</span>
     <h1 class="success-title">訂單已建立！</h1>
-    <p class="success-sub">感謝您的訂購，請掃描下方 QR Code 完成付款。<br>付款後截圖傳送至 LINE 客服以利核對。</p>
+    <p class="success-sub">感謝您的訂購，我們收到訂單後將盡快安排出貨。<br>如有疑問請透過 LINE 聯繫客服。</p>
     <span class="order-no-tag" id="order-no-tag">ORD-…</span>
   </div>
 
@@ -182,7 +171,8 @@
     <div class="meta-row"><span class="meta-label">訂單狀態</span><span class="meta-val" id="m-status">—</span></div>
     <div class="meta-row"><span class="meta-label">姓名</span><span class="meta-val" id="m-name">—</span></div>
     <div class="meta-row"><span class="meta-label">手機</span><span class="meta-val" id="m-phone">—</span></div>
-    <div class="meta-row"><span class="meta-label">地址</span><span class="meta-val" id="m-address">—</span></div>
+    <div class="meta-row"><span class="meta-label">配送方式</span><span class="meta-val" id="m-shipping-method">—</span></div>
+    <div class="meta-row"><span class="meta-label">地址／門市</span><span class="meta-val" id="m-address">—</span></div>
     <div class="meta-row"><span class="meta-label">備註</span><span class="meta-val" id="m-note">—</span></div>
   </div>
 
@@ -195,15 +185,13 @@
     <div class="meta-row" style="font-size:16px"><span class="meta-label" style="font-weight:700;color:var(--c-ft-dark)">合計</span><span class="meta-val price" id="m-total" style="font-size:18px">—</span></div>
   </div>
 
-  <!-- LINE Pay QR Code -->
-  <div class="qr-card">
-    <p class="card-title" style="justify-content:center;border:none;margin-bottom:8px">
-      <span class="material-symbols-outlined">qr_code_2</span>LINE Pay 付款 QR Code
-    </p>
-    <p class="qr-amount" id="qr-amount">NT$—</p>
-    <!-- ↓ 換成你的靜態 LINE Pay QR 圖片路徑 -->
-    <img class="qr-img" src="/brand/line-pay-qr.png" alt="LINE Pay QR Code">
-    <p>使用 LINE App → 付款 → 掃描 QR Code<br>金額請依照上方合計填寫</p>
+  <!-- 出貨說明 -->
+  <div class="notice-card" id="shipping-notice">
+    <span class="material-symbols-outlined" id="notice-icon">local_shipping</span>
+    <div class="notice-card-body">
+      <h4 id="notice-title">出貨說明</h4>
+      <p id="notice-body">載入中…</p>
+    </div>
   </div>
 
   <!-- 操作按鈕 -->
@@ -266,16 +254,34 @@
     document.getElementById('m-subtotal').textContent  = `NT$${o.subtotal.toLocaleString()}`;
     document.getElementById('m-shipping').textContent  = o.shipping_fee === 0 ? '免運' : `NT$${o.shipping_fee}`;
     document.getElementById('m-total').textContent     = `NT$${o.total.toLocaleString()}`;
-    document.getElementById('qr-amount').textContent   = `NT$${o.total.toLocaleString()}`;
 
+    // 配送方式
+    const isCvs = (o.shipping_method || 'cvs') !== 'home';
+    document.getElementById('m-shipping-method').textContent = isCvs ? '超商取貨付款' : '宅配到府';
+
+    // 出貨說明
+    document.getElementById('notice-icon').textContent = isCvs ? 'storefront' : 'local_shipping';
+    document.getElementById('notice-title').textContent = isCvs ? '超商取貨付款說明' : '宅配到府說明';
+    document.getElementById('notice-body').innerHTML = isCvs
+      ? `確認訂單後 <strong>2–3 個工作天</strong>寄出，請留意手機簡訊取件通知。<br>
+         取件時攜帶取件碼至指定超商，付款後即可取貨。<br>
+         如有疑問請透過 LINE 聯繫客服。`
+      : `確認訂單後 <strong>2–3 個工作天</strong>安排出貨，宅配人員送達時現場收款。<br>
+         出貨後將提供貨運追蹤資訊，請留意手機通知。<br>
+         如有疑問請透過 LINE 聯繫客服。`;
+
+    // 商品列表
     const el = document.getElementById('order-items');
     o.items.forEach(item => {
+      const imgSrc = item.image
+        ? (item.image.startsWith('http') ? item.image : `${API}/images/${item.image}`)
+        : '/placeholder.jpg';
       el.innerHTML += `
         <div class="item-row">
-          <img class="item-thumb" src="${item.image ? `${API}/images/${item.image}` : '/placeholder.jpg'}" alt="${item.name}">
+          <img class="item-thumb" src="${imgSrc}" alt="${item.name}">
           <div class="item-info">
             <p class="item-name">${item.name}</p>
-            <p class="item-meta">${[item.color,item.size].filter(Boolean).join(' / ')} × ${item.qty}</p>
+            <p class="item-meta">${[item.color, item.size].filter(Boolean).join(' / ')} × ${item.qty}</p>
           </div>
           <span class="item-price">NT$${(item.price * item.qty).toLocaleString()}</span>
         </div>`;

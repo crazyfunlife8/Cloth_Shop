@@ -864,3 +864,15 @@ footer::before {
 ══════════════════════════════════════════ */
 main { margin-top: 80px; }
 @media (min-width: 768px) { main { margin-top: 96px; } }
+
+/* ══════════════════════════════════════════
+   CART HIDDEN — 賣貨便賣場模式
+   還原購物車：刪除此區塊即可
+══════════════════════════════════════════ */
+button[aria-label="購物車"],
+a[aria-label="會員中心"],
+#cart-overlay,
+#cart-drawer,
+.btn-cart,
+.btn-buy,
+.qty-row { display: none !important; }

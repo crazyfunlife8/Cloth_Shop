@@ -26,6 +26,48 @@ function genOrderNo() {
   return `ORD-${d}-${r}`;
 }
 
+/* GET /api/stores?brand=711|family&q=keyword — 超商門市搜尋（Proxy 避免 CORS） */
+async function searchStores(url, env) {
+  const brand = url.searchParams.get('brand');
+  const q = (url.searchParams.get('q') || '').trim();
+  if (!q || q.length < 2) return json({ ok: true, stores: [] }, 200, env);
+
+  const ua = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36';
+
+  // 從 XML 字串提取所有 <tag>value</tag>
+  function xmlAll(xml, tag) {
+    const re = new RegExp(`<${tag}>([^<]*)<\\/${tag}>`, 'g');
+    const out = []; let m;
+    while ((m = re.exec(xml)) !== null) out.push(m[1].trim());
+    return out;
+  }
+
+  try {
+    if (brand === '711') {
+      // 統一超商 emap API（回傳 XML，標籤為 POIName / Address / POIID）
+      const apiUrl = `https://emap.pcsc.com.tw/EMapSDK.aspx?commandid=SearchStore&SearchType=S&StoreName=${encodeURIComponent(q)}&slngx=&slaty=&City=&Town=&Road=&Sect=&Lane=&Alley=&Street=&Place=&StoreType=&CategoryType=&isInstore=0&24Hours=&foodtype=&Latitude=&Longitude=`;
+      const res  = await fetch(apiUrl, { headers: { 'User-Agent': ua, 'Referer': 'https://emap.pcsc.com.tw/' } });
+      const xml  = await res.text();
+      const names  = xmlAll(xml, 'POIName');
+      const addrs  = xmlAll(xml, 'Address');
+      const ids    = xmlAll(xml, 'POIID');
+      const stores = names.slice(0, 20).map((name, i) => ({
+        name, address: addrs[i] || '', code: (ids[i] || '').trim(),
+      })).filter(s => s.name);
+      return json({ ok: true, stores }, 200, env);
+    }
+
+    if (brand === 'family') {
+      // 全家目前無可靠公開 API，回傳 manual 旗標讓前端降級為手動輸入
+      return json({ ok: true, stores: [], manual: true }, 200, env);
+    }
+
+    return json({ ok: false, error: '不支援的超商品牌' }, 400, env);
+  } catch (err) {
+    return json({ ok: false, error: `門市查詢失敗：${err.message}` }, 500, env);
+  }
+}
+
 // ──────────────────────────────────────────────
 //  Route handlers
 // ──────────────────────────────────────────────
@@ -71,22 +113,22 @@ async function createOrder(request, env) {
   try { body = await request.json(); }
   catch { return json({ ok: false, error: '請求格式錯誤' }, 400, env); }
 
-  const { name, phone, email = '', address, items, note = '' } = body;
+  const { name, phone, email = '', address, items, note = '', shipping_method = 'cvs' } = body;
 
   if (!name || !phone || !address || !Array.isArray(items) || !items.length)
     return json({ ok: false, error: '請填寫姓名、電話、地址，並確認購物車不為空' }, 400, env);
 
   const subtotal     = items.reduce((s, i) => s + (i.price * i.qty), 0);
-  const shipping_fee = subtotal >= 5000 ? 0 : 60;
+  const shipping_fee = subtotal >= 5000 ? 0 : (shipping_method === 'home' ? 100 : 60);
   const total        = subtotal + shipping_fee;
   const order_no     = genOrderNo();
 
   await env.DB.prepare(`
     INSERT INTO orders
-      (order_no, name, phone, email, address, items, subtotal, shipping_fee, total, note)
-    VALUES (?,?,?,?,?,?,?,?,?,?)
+      (order_no, name, phone, email, address, items, subtotal, shipping_fee, total, note, shipping_method)
+    VALUES (?,?,?,?,?,?,?,?,?,?,?)
   `).bind(order_no, name, phone, email, address,
-          JSON.stringify(items), subtotal, shipping_fee, total, note).run();
+          JSON.stringify(items), subtotal, shipping_fee, total, note, shipping_method).run();
 
   return json({ ok: true, order_no, subtotal, shipping_fee, total }, 200, env);
 }
@@ -253,6 +295,15 @@ async function adminListOrders(url, env) {
   return json({ ok: true, orders }, 200, env);
 }
 
+/* DELETE /api/admin/orders/:no */
+async function adminDeleteOrder(no, env) {
+  const info = await env.DB
+    .prepare('DELETE FROM orders WHERE order_no = ?')
+    .bind(no).run();
+  if (!info.meta.changes) return json({ ok: false, error: '訂單不存在' }, 404, env);
+  return json({ ok: true }, 200, env);
+}
+
 /* PUT /api/admin/orders/:no  body: { status } */
 async function adminUpdateOrder(no, request, env) {
   const { status } = await request.json();
@@ -387,6 +438,9 @@ export default {
       if (method === 'GET'  && path === '/api/orders')
         return listOrdersByPhone(url, env);
 
+      if (method === 'GET'  && path === '/api/stores')
+        return searchStores(url, env);
+
       // ── LINE Login ──
       if (method === 'GET'  && path === '/api/auth/login')
         return authLogin(env);
@@ -412,6 +466,9 @@ export default {
 
         if (method === 'PUT'  && /^\/api\/admin\/orders\/ORD-/.test(path))
           return adminUpdateOrder(path.split('/').pop(), request, env);
+
+        if (method === 'DELETE' && /^\/api\/admin\/orders\/ORD-/.test(path))
+          return adminDeleteOrder(path.split('/').pop(), env);
 
         if (method === 'GET'  && path === '/api/admin/products')
           return adminListProducts(env);

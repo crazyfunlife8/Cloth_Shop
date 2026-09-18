@@ -197,6 +197,18 @@
     }
     .btn-buy:hover { background: var(--c-primary); color: #fff; }
 
+    .btn-store {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 15px 28px;
+      background: var(--c-primary); color: #fff;
+      border: none; border-radius: var(--r-btn);
+      font-size: 15px; font-weight: 700;
+      text-decoration: none;
+      transition: background .2s, transform .15s;
+    }
+    .btn-store:hover { background: var(--c-primary-dark); transform: translateY(-1px); }
+    .btn-store:active { transform: translateY(0); }
+
     /* ── Info accordion ── */
     .info-tabs { margin-top: 8px; border-top: 1px solid rgba(143,89,53,.12); }
     .info-tab { border-bottom: 1px solid rgba(143,89,53,.12); }
@@ -346,6 +358,9 @@
         <button class="btn-buy" onclick="buyNow()">
           立即購買
         </button>
+        <a class="btn-store" href="https://myship.7-11.com.tw/general/detail?id=GM2609146387915" target="_blank" rel="noopener" id="btn-store">
+          <span class="material-symbols-outlined">storefront</span>點我進入賣場
+        </a>
       </div>
 
       <!-- Accordion -->
