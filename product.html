@@ -209,6 +209,25 @@
     .btn-store:hover { background: var(--c-primary-dark); transform: translateY(-1px); }
     .btn-store:active { transform: translateY(0); }
 
+    /* ── Store notice ── */
+    .store-notice {
+      display: flex; align-items: flex-start; gap: 12px;
+      background: rgba(143,89,53,.07);
+      border: 1px solid rgba(143,89,53,.18);
+      border-radius: 14px;
+      padding: 14px 18px;
+    }
+    .store-notice .material-symbols-outlined {
+      font-size: 20px;
+      color: var(--c-primary);
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .store-notice p {
+      font-size: 13px; line-height: 1.75;
+      color: var(--c-on-surface);
+    }
+
     /* ── Info accordion ── */
     .info-tabs { margin-top: 8px; border-top: 1px solid rgba(143,89,53,.12); }
     .info-tab { border-bottom: 1px solid rgba(143,89,53,.12); }
@@ -340,6 +359,11 @@
         <p class="selector-label">尺寸 <em id="size-selected"></em></p>
         <div class="size-chips" id="size-chips"></div>
       </div>
+    
+      <div class="store-notice">
+        <span class="material-symbols-outlined">info</span>
+        <p>本網站提供商品資訊展示，如需下單請前往我們的賣貨便賣場選購。</p>
+      </div>
 
       <!-- Qty -->
       <div class="qty-row">
@@ -384,8 +408,8 @@
             運費與付款 <span class="material-symbols-outlined">expand_more</span>
           </button>
           <div class="info-tab-body">
-            訂單滿 NT$5,000 免運費，未滿收運費 NT$60。<br>
-            付款方式：LINE Pay QR Code（下單後頁面提供）。
+            訂單滿 NT$1,500 免運費，未滿則按賣貨便規則收取運費。<br>
+            付款方式：根據賣貨便提供的付款方式選擇。
           </div>
         </div>
       </div>
