@@ -158,21 +158,22 @@
     .td-cat  { font-size: 12px; color: var(--c-muted); margin-top: 2px; }
 
     /* Toggle switch */
-    .toggle { position: relative; width: 44px; height: 24px; flex-shrink: 0; }
-    .toggle input { opacity: 0; width: 0; height: 0; }
+    .toggle { position: relative; display: inline-block; width: 48px; height: 26px; flex-shrink: 0; }
+    .toggle input { position: absolute; opacity: 0; pointer-events: none; width: 100%; height: 100%; margin: 0; }
     .toggle-slider {
       position: absolute; inset: 0;
-      background: #ddd; border-radius: 99px; cursor: pointer;
-      transition: background .2s;
+      background: #d9534f; border-radius: 99px; cursor: pointer;
+      transition: background .25s;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,.2);
     }
     .toggle-slider::before {
       content: ''; position: absolute;
-      width: 18px; height: 18px; border-radius: 50%; background: #fff;
-      top: 3px; left: 3px; transition: transform .2s;
-      box-shadow: 0 1px 4px rgba(0,0,0,.2);
+      width: 20px; height: 20px; border-radius: 50%; background: #fff;
+      top: 3px; left: 3px; transition: transform .25s;
+      box-shadow: 0 1px 4px rgba(0,0,0,.25);
     }
-    .toggle input:checked + .toggle-slider { background: var(--c-success); }
-    .toggle input:checked + .toggle-slider::before { transform: translateX(20px); }
+    .toggle input:checked ~ .toggle-slider { background: var(--c-success); }
+    .toggle input:checked ~ .toggle-slider::before { transform: translateX(22px); }
 
     .action-btns { display: flex; gap: 6px; align-items: center; }
 
@@ -786,6 +787,9 @@
               <button class="btn btn-outline btn-sm" onclick="openModal(${p.id})">
                 <span class="material-symbols-outlined" style="font-size:16px">edit</span>編輯
               </button>
+              <button class="btn btn-danger btn-sm" onclick="deleteProduct(${p.id}, '${p.name.replace(/'/g, "\\'")}')">
+                <span class="material-symbols-outlined" style="font-size:16px">delete</span>刪除
+              </button>
             </div>
           </td>
         </tr>`;
@@ -838,6 +842,25 @@
       showToast(active ? '已上架' : '已下架');
     } catch {
       showToast('操作失敗', true);
+    }
+  }
+
+  // ─────────────────────────────────────
+  //  Delete product
+  // ─────────────────────────────────────
+  async function deleteProduct(id, name) {
+    if (!confirm(`確定要刪除「${name}」？\n此操作無法復原。`)) return;
+    try {
+      const res  = await fetch(`${API}/api/admin/products/${id}`, {
+        method: 'DELETE', credentials: 'include',
+      });
+      const data = await res.json();
+      if (!data.ok) throw new Error(data.error);
+      products = products.filter(p => p.id !== id);
+      renderProducts(products);
+      showToast(`「${name}」已刪除`);
+    } catch (err) {
+      showToast(err.message || '刪除失敗', true);
     }
   }
 

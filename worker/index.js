@@ -368,6 +368,15 @@ async function adminUpdateProduct(id, request, env) {
   return json({ ok: true }, 200, env);
 }
 
+/* DELETE /api/admin/products/:id */
+async function adminDeleteProduct(id, env) {
+  const info = await env.DB
+    .prepare('DELETE FROM products WHERE id = ?')
+    .bind(id).run();
+  if (!info.meta.changes) return json({ ok: false, error: '商品不存在' }, 404, env);
+  return json({ ok: true }, 200, env);
+}
+
 /* POST /api/admin/upload  (multipart/form-data, field: file) */
 async function adminUpload(request, env) {
   let formData;
@@ -478,6 +487,9 @@ export default {
 
         if (method === 'PUT'  && /^\/api\/admin\/products\/\d+$/.test(path))
           return adminUpdateProduct(path.split('/').pop(), request, env);
+
+        if (method === 'DELETE' && /^\/api\/admin\/products\/\d+$/.test(path))
+          return adminDeleteProduct(path.split('/').pop(), env);
 
         if (method === 'POST' && path === '/api/admin/upload')
           return adminUpload(request, env);
