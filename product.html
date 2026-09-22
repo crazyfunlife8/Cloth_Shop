@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>商品詳情｜品牌名稱</title>
+  <title>商品詳情｜Ember</title>
   <meta name="theme-color" content="#FBF7F4">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -132,7 +132,7 @@
       outline-offset: 3px;
       transform: scale(1.15);
     }
-    .swatch[title] { /* tooltip via title attr */ }
+    .swatch[title] { cursor: pointer; }
 
     .size-chips { display: flex; gap: 8px; flex-wrap: wrap; }
     .size-chip {
@@ -454,7 +454,7 @@
   function renderProduct() {
     const p = product;
 
-    document.title = `${p.name}｜品牌名稱`;
+    document.title = `${p.name}｜Ember`;
     document.getElementById('breadcrumb-name').textContent = p.name;
     document.getElementById('product-name').textContent = p.name;
     document.getElementById('price-now').textContent = `NT$${p.price.toLocaleString()}`;

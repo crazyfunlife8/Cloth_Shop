@@ -231,8 +231,8 @@ document.querySelectorAll('.reveal').forEach(el => ro.observe(el));
     <div class="footer-grid">
 
       <div>
-        <div class="footer-brand-text">BRAND</div>
-        <p class="footer-blurb">品牌介紹文字。在這裡描述你的品牌故事與理念，讓顧客感受到你的用心與溫度。</p>
+        <div class="footer-brand-text">EMBER</div>
+        <p class="footer-blurb">溫暖日常的穿搭提案，精選每一件讓你感受溫度的衣物。</p>
 
         <div class="footer-social">
           <a href="#" target="_blank" rel="noopener">
@@ -264,16 +264,16 @@ document.querySelectorAll('.reveal').forEach(el => ro.observe(el));
         </div>
         <div class="footer-col">
           <h5>Care · 服務</h5>
-          <a href="#">購物須知</a>
-          <a href="#">隱私權政策</a>
+          <a href="/notice">購物須知</a>
+          <a href="/privacy">隱私權政策</a>
         </div>
       </div>
 
     </div>
 
     <div class="footer-bar">
-      <span class="ft-copy">© 2026 品牌名稱</span>
-      <span class="ft-tagline">你的品牌英文標語</span>
+      <span class="ft-copy">© 2026 Ember</span>
+      <span class="ft-tagline">Wear the Warmth</span>
     </div>
   </div>`;
   document.body.appendChild(footer);

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>訂單確認｜品牌名稱</title>
+  <title>訂單確認｜Ember</title>
   <meta name="theme-color" content="#FBF7F4">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -241,7 +241,7 @@
   }
 
   function renderOrder(o) {
-    document.title = `訂單 ${o.order_no}｜品牌名稱`;
+    document.title = `訂單 ${o.order_no}｜Ember`;
 
     const statusClass = `status-${o.status}`;
     document.getElementById('m-no').textContent      = o.order_no;

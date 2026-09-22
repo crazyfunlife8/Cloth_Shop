@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>隱私權政策｜Ember</title>
+  <meta name="theme-color" content="#FBF7F4">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,500;1,600&family=Noto+Serif+TC:wght@500;600;700&family=Nunito:ital,wght@0,300..800;1,400..700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .privacy-page {
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 120px 20px 100px;
+    }
+    @media (min-width: 768px) { .privacy-page { padding: 140px 48px 120px; } }
+
+    .privacy-eyebrow {
+      font-size: 11px; font-weight: 700; letter-spacing: .14em;
+      color: var(--c-primary); text-transform: uppercase;
+      margin-bottom: 12px; display: block;
+    }
+    .privacy-heading {
+      font-family: 'Noto Serif TC', serif;
+      font-size: clamp(24px, 5vw, 32px);
+      font-weight: 600; color: var(--c-ft-dark);
+      margin-bottom: 8px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid rgba(143,89,53,.15);
+    }
+    .privacy-updated {
+      font-size: 12px; color: var(--c-secondary);
+      margin-bottom: 40px;
+    }
+
+    .privacy-section { margin-bottom: 36px; }
+
+    .privacy-section-head {
+      display: flex; align-items: center; gap: 14px;
+      margin-bottom: 16px;
+    }
+    .privacy-num {
+      font-family: 'Playfair Display', serif;
+      font-size: 13px; font-weight: 600;
+      color: var(--c-primary); letter-spacing: .08em;
+      background: rgba(143,89,53,.08);
+      padding: 4px 10px; border-radius: var(--r-pill);
+      white-space: nowrap;
+    }
+    .privacy-section-title {
+      font-family: 'Noto Serif TC', serif;
+      font-size: 17px; font-weight: 600;
+      color: var(--c-ft-dark);
+    }
+
+    .privacy-body {
+      background: var(--c-surface);
+      border-radius: var(--r-card);
+      padding: 22px 26px;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .privacy-body p {
+      font-size: 14px; line-height: 1.9;
+      color: var(--c-on-surface);
+      margin: 0;
+    }
+    .privacy-body ul {
+      padding-left: 0; list-style: none;
+      display: flex; flex-direction: column; gap: 9px;
+      margin: 0;
+    }
+    .privacy-body li {
+      font-size: 14px; line-height: 1.85;
+      color: var(--c-on-surface);
+      position: relative; padding-left: 20px;
+    }
+    .privacy-body li::before {
+      content: '—';
+      color: rgba(143,89,53,.45);
+      position: absolute; left: 0; top: 0;
+    }
+    .privacy-body .sub-label {
+      font-weight: 700; color: var(--c-on-surface);
+    }
+    .privacy-body .note {
+      font-size: 13px; color: var(--c-secondary);
+      line-height: 1.75;
+      padding-top: 6px;
+      border-top: 1px solid rgba(143,89,53,.1);
+    }
+
+    .privacy-divider {
+      height: 1px;
+      background: rgba(143,89,53,.1);
+      margin: 36px 0;
+    }
+
+    .privacy-footer-note {
+      text-align: center;
+      font-size: 13px; color: var(--c-secondary);
+      line-height: 1.85;
+      padding: 22px;
+      background: var(--c-surface);
+      border-radius: var(--r-card);
+    }
+    .privacy-footer-note strong { color: var(--c-on-surface); }
+
+    .privacy-back {
+      display: inline-flex; align-items: center; gap: 6px;
+      margin-top: 32px;
+      font-size: 13px; font-weight: 700;
+      color: var(--c-primary); text-decoration: none;
+      transition: opacity .2s;
+    }
+    .privacy-back:hover { opacity: .7; }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header id="site-header">
+  <nav class="header-nav">
+    <a href="/" class="header-logo" aria-label="品牌首頁">
+      <img src="/image/cloth_logo.png" alt="Wear the Warmth">
+    </a>
+    <div class="header-actions">
+      <a href="/" class="icon-btn" aria-label="回首頁">
+        <span class="material-symbols-outlined">home</span>
+      </a>
+    </div>
+  </nav>
+</header>
+
+<main class="privacy-page">
+
+  <span class="privacy-eyebrow">Privacy Policy</span>
+  <h1 class="privacy-heading">隱私權政策</h1>
+  <p class="privacy-updated">最後更新：2026 年 9 月</p>
+
+  <!-- 01 我們蒐集的資料 -->
+  <div class="privacy-section">
+    <div class="privacy-section-head">
+      <span class="privacy-num">01</span>
+      <h2 class="privacy-section-title">我們蒐集的資料</h2>
+    </div>
+    <div class="privacy-body">
+      <ul>
+        <li>訂購時提供的姓名、手機號碼、Email、收件地址或取貨門市。</li>
+        <li>使用 LINE 登入時，取得您的 LINE 顯示名稱、頭像與識別碼（僅作會員識別，不會取得您的聊天內容）。</li>
+        <li>訂單紀錄與瀏覽偏好（透過 Cookie / Session 維持登入狀態與購物車）。</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 02 資料使用目的 -->
+  <div class="privacy-section">
+    <div class="privacy-section-head">
+      <span class="privacy-num">02</span>
+      <h2 class="privacy-section-title">資料使用目的</h2>
+    </div>
+    <div class="privacy-body">
+      <p>我們蒐集之個人資料，僅作為以下用途：</p>
+      <ul>
+        <li><span class="sub-label">訂單處理</span>　確認訂單內容與付款、通知訂單進度。</li>
+        <li><span class="sub-label">商品配送</span>　安排出貨與物流追蹤。</li>
+        <li><span class="sub-label">售後服務</span>　客服聯繫與問題處理。</li>
+        <li><span class="sub-label">會員通知</span>　到貨通知、優惠活動等會員訊息。</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 03 第三方服務 -->
+  <div class="privacy-section">
+    <div class="privacy-section-head">
+      <span class="privacy-num">03</span>
+      <h2 class="privacy-section-title">第三方服務</h2>
+    </div>
+    <div class="privacy-body">
+      <ul>
+        <li><span class="sub-label">付款</span>　本站採匯款與 LINE Pay 付款，不會儲存您的金融卡／信用卡資訊。</li>
+        <li><span class="sub-label">7-11 賣貨便 / 宅配</span>　為完成配送，會提供收件人姓名、電話與取貨門市（或地址）給物流業者。</li>
+        <li><span class="sub-label">LINE</span>　提供登入驗證與訊息通知服務。</li>
+      </ul>
+      <p class="note">除法律規定或經您同意外，我們不會出售、交換或提供您的個人資料給任何無關第三人，並採取合理的資訊安全措施保護您的資料。</p>
+    </div>
+  </div>
+
+  <!-- 04 資料保護 -->
+  <div class="privacy-section">
+    <div class="privacy-section-head">
+      <span class="privacy-num">04</span>
+      <h2 class="privacy-section-title">資料保護</h2>
+    </div>
+    <div class="privacy-body">
+      <ul>
+        <li>全站以 HTTPS 加密傳輸；付款資訊由金流業者加密處理。</li>
+        <li>個人資料僅供訂單與會員服務用途，並限於必要人員存取。</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 05 您的權利 -->
+  <div class="privacy-section">
+    <div class="privacy-section-head">
+      <span class="privacy-num">05</span>
+      <h2 class="privacy-section-title">您的權利</h2>
+    </div>
+    <div class="privacy-body">
+      <ul>
+        <li>您可以隨時查詢、更正或請求刪除您的個人資料。</li>
+        <li>請透過官方 LINE 客服與我們聯繫，我們將盡快為您處理。</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 06 政策修訂 -->
+  <div class="privacy-section">
+    <div class="privacy-section-head">
+      <span class="privacy-num">06</span>
+      <h2 class="privacy-section-title">政策修訂</h2>
+    </div>
+    <div class="privacy-body">
+      <p>本政策將因應法規或服務調整不定期修訂，修訂後公告於本頁面，不另行個別通知。</p>
+    </div>
+  </div>
+
+  <div class="privacy-divider"></div>
+
+  <div class="privacy-footer-note">
+    如對本政策有任何疑問，歡迎透過 <strong>官方 LINE</strong> 聯繫我們。
+  </div>
+
+  <a class="privacy-back" href="/">
+    <span class="material-symbols-outlined" style="font-size:16px">arrow_back</span>
+    返回首頁
+  </a>
+
+</main>
+
+<!-- footer 由 script.js renderFooter() 動態插入 -->
+
+<script src="script.js"></script>
+</body>
+</html>

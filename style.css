@@ -80,8 +80,15 @@ img { display: block; max-width: 100%; }
 /* 文字 logo 備用 (沒有圖時顯示) */
 .logo-text {
   font-family: 'Playfair Display', serif;
-  font-size: 22px; font-weight: 600;
+  font-size: 24px; font-weight: 600;
   color: var(--c-primary); letter-spacing: .1em;
+}
+.logo-text-span {
+  font-family: 'Nunito', 'Noto Sans TC', sans-serif;
+  font-size: 8px; font-weight: 600;
+  color: var(--c-secondary); letter-spacing: .08em;
+  top: 4px; left: 1px;
+  position: relative;
 }
 
 .header-actions { display: flex; align-items: center; gap: 2px; margin-left: auto; }
