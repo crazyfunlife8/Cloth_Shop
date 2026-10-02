@@ -285,7 +285,7 @@
               <span class="material-symbols-outlined">storefront</span>
               <div>
                 <p class="shipping-opt-name">超商交貨便</p>
-                <p class="shipping-opt-desc">7-ELEVEN / 全家 · 付款完成後安排寄件</p>
+                <p class="shipping-opt-desc">7-ELEVEN · 付款完成後安排寄件</p>
               </div>
               <span class="shipping-opt-price">NT$60</span>
             </div>
@@ -309,8 +309,7 @@
             <div class="form-field">
               <label class="required">選擇取貨門市</label>
               <div class="brand-tabs">
-                <button type="button" class="brand-tab active" data-brand="711" onclick="selectBrand('711')">7-ELEVEN</button>
-                <button type="button" class="brand-tab" data-brand="family" onclick="selectBrand('family')">全家 FamilyMart</button>
+                <button type="button" class="brand-tab active" data-brand="711">7-ELEVEN</button>
               </div>
               <div class="store-search-row">
                 <input class="store-search-input" type="text" id="store-search-input"
@@ -368,7 +367,7 @@
               <span class="material-symbols-outlined">barcode</span>
               <div>
                 <p class="shipping-opt-name">超商條碼繳費</p>
-                <p class="shipping-opt-desc">7-11 / 全家 / 萊爾富 · 條碼當日有效</p>
+                <p class="shipping-opt-desc">7-ELEVEN · 條碼當日有效</p>
               </div>
             </div>
           </label>
@@ -378,7 +377,7 @@
               <span class="material-symbols-outlined">pin</span>
               <div>
                 <p class="shipping-opt-name">超商代碼繳費</p>
-                <p class="shipping-opt-desc">7-11 / 全家 / 萊爾富 · 輸入代碼至機台繳費</p>
+                <p class="shipping-opt-desc">7-ELEVEN · 輸入代碼至機台繳費</p>
               </div>
             </div>
           </label>
@@ -387,10 +386,6 @@
           線上刷卡，付款成功後立即安排出貨。
         </div>
 
-        <!-- 手機版才顯示送出按鈕 -->
-        <button type="submit" class="btn-submit" id="btn-submit-form" style="display:none">
-          確認訂單
-        </button>
       </form>
     </div>
 
@@ -431,16 +426,6 @@
   let _storeResults  = [];
 
   /* ── 門市選取器 ── */
-  function selectBrand(brand) {
-    selectedBrand = brand;
-    document.querySelectorAll('.brand-tab').forEach(t =>
-      t.classList.toggle('active', t.dataset.brand === brand));
-    clearStoreSelection();
-    document.getElementById('store-search-input').value = '';
-    document.getElementById('store-results').style.display = 'none';
-    document.getElementById('store-msg').style.display = 'none';
-  }
-
   async function searchStore() {
     const q = document.getElementById('store-search-input').value.trim();
     if (!q) return;
@@ -454,13 +439,6 @@
     try {
       const res  = await fetch(`${API}/api/stores?brand=${selectedBrand}&q=${encodeURIComponent(q)}`);
       const data = await res.json();
-
-      // 全家目前無 API，降級為手動輸入
-      if (data.manual) {
-        msgEl.style.display = 'none';
-        showManualInput(q);
-        return;
-      }
 
       if (!data.ok || !data.stores.length) {
         msgEl.textContent = '找不到符合的門市，請試試其他關鍵字（例：信義、忠孝、板橋）';
@@ -500,7 +478,7 @@
   }
 
   function selectStore(idx, manualName) {
-    const brandLabel = selectedBrand === '711' ? '7-ELEVEN' : '全家 FamilyMart';
+    const brandLabel = '7-ELEVEN';
     const store = idx === -1
       ? { name: manualName, address: '' }
       : _storeResults[idx];
@@ -566,14 +544,20 @@
         </div>`;
     });
     updateShippingFee();
-    if (window.innerWidth < 768)
-      document.getElementById('btn-submit-form').style.display = 'flex';
   }
 
   async function submitOrder(e) {
     e.preventDefault();
     const btn = document.getElementById('btn-submit');
     btn.disabled = true; btn.textContent = '處理中…';
+
+    const nameVal = document.getElementById('f-name').value.trim();
+    if (!/^[一-鿿A-Za-z\s]+$/.test(nameVal)) {
+      Toast.show('姓名只能包含中文或英文字母，不可有數字或符號');
+      btn.disabled = false;
+      btn.innerHTML = '<span class="material-symbols-outlined">check_circle</span>確認訂單';
+      return;
+    }
 
     const isCvs = shippingMethod === 'cvs';
     if (isCvs && !document.getElementById('f-cvs-store').value) {
