@@ -453,7 +453,7 @@
           <p class="store-result-addr">${s.address || ''}</p>
         </div>`).join('');
     } catch {
-      msgEl.textContent = '查詢失敗，請稍後再試';
+      Toast.show('門市查詢失敗，請稍後再試', 'error');
     } finally {
       btn.disabled = false; btn.textContent = '搜尋';
     }
@@ -553,7 +553,7 @@
 
     const nameVal = document.getElementById('f-name').value.trim();
     if (!/^[一-鿿A-Za-z\s]+$/.test(nameVal)) {
-      Toast.show('姓名只能包含中文或英文字母，不可有數字或符號');
+      Toast.show('姓名只能包含中文或英文字母，不可有數字或符號', 'error');
       btn.disabled = false;
       btn.innerHTML = '<span class="material-symbols-outlined">check_circle</span>確認訂單';
       return;
@@ -561,7 +561,7 @@
 
     const isCvs = shippingMethod === 'cvs';
     if (isCvs && !document.getElementById('f-cvs-store').value) {
-      Toast.show('請先搜尋並選擇取貨門市');
+      Toast.show('請先搜尋並選擇取貨門市', 'error');
       btn.disabled = false;
       btn.innerHTML = '<span class="material-symbols-outlined">check_circle</span>確認訂單';
       return;
@@ -610,7 +610,7 @@
       window.location.href = payData.redirect_url;
 
     } catch (err) {
-      Toast.show(err.message || '下單失敗，請稍後再試');
+      Toast.show(err.message || '下單失敗，請稍後再試', 'error');
       btn.disabled = false;
       btn.innerHTML = '<span class="material-symbols-outlined">check_circle</span>確認訂單';
     }

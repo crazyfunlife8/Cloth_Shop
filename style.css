@@ -865,6 +865,10 @@ footer::before {
   font-size: 14px; white-space: nowrap;
 }
 .toast-body .material-symbols-outlined { font-size: 18px; }
+.toast-body.toast-error {
+  background: #c0392b;
+  box-shadow: 0 8px 24px rgba(192,57,43,.35);
+}
 
 /* ══════════════════════════════════════════
    MAIN OFFSET

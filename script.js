@@ -187,13 +187,17 @@ document.addEventListener('click', e => {
 
 /* ── Toast ── */
 const Toast = {
-  show(msg) {
+  show(msg, type) {
     const t = document.getElementById('toast');
     if (!t) return;
-    if (msg) t.textContent = msg;
+    const isErr = type === 'error';
+    const icon  = isErr ? 'error' : 'check_circle';
+    t.innerHTML = `<div class="toast-body${isErr ? ' toast-error' : ''}">` +
+                  `<span class="material-symbols-outlined">${icon}</span>${msg || ''}` +
+                  `</div>`;
     t.classList.add('show');
     clearTimeout(this._timer);
-    this._timer = setTimeout(() => { t.classList.remove('show'); t.textContent = ''; }, 2200);
+    this._timer = setTimeout(() => { t.classList.remove('show'); }, 2500);
   }
 };
 
