@@ -1,6 +1,40 @@
 'use strict';
 
 // ──────────────────────────────────────────────
+//  MD5（Cloudflare Workers 無原生 MD5，純 JS 實作）
+// ──────────────────────────────────────────────
+function md5hex(str) {
+  const K = [], S = [7,12,17,22,7,12,17,22,7,12,17,22,7,12,17,22,5,9,14,20,5,9,14,20,5,9,14,20,5,9,14,20,4,11,16,23,4,11,16,23,4,11,16,23,4,11,16,23,6,10,15,21,6,10,15,21,6,10,15,21,6,10,15,21];
+  for (let i = 0; i < 64; i++) K[i] = (Math.abs(Math.sin(i + 1)) * 2 ** 32) >>> 0;
+  const bytes = new TextEncoder().encode(str);
+  const L = bytes.length, padLen = (L % 64 < 56 ? 56 - L % 64 : 120 - L % 64);
+  const msg = new Uint8Array(L + padLen + 8);
+  msg.set(bytes); msg[L] = 0x80;
+  const dv = new DataView(msg.buffer);
+  dv.setUint32(L + padLen, (L * 8) >>> 0, true);
+  let a = 0x67452301, b = 0xEFCDAB89, c = 0x98BADCFE, d = 0x10325476;
+  for (let i = 0; i < msg.length; i += 64) {
+    const M = Array.from({ length: 16 }, (_, j) => dv.getInt32(i + j * 4, true));
+    let [A, B, C, D] = [a, b, c, d];
+    for (let j = 0; j < 64; j++) {
+      let F, g;
+      if      (j < 16) { F = (B & C) | (~B & D); g = j; }
+      else if (j < 32) { F = (D & B) | (~D & C); g = (5 * j + 1) % 16; }
+      else if (j < 48) { F = B ^ C ^ D;           g = (3 * j + 5) % 16; }
+      else             { F = C ^ (B | ~D);         g = (7 * j)     % 16; }
+      const tmp = D; D = C; C = B;
+      const s = (F + A + K[j] + M[g]) | 0;
+      B = (B + ((s << S[j]) | (s >>> (32 - S[j])))) | 0; A = tmp;
+    }
+    a = (a + A) | 0; b = (b + B) | 0; c = (c + C) | 0; d = (d + D) | 0;
+  }
+  return [a, b, c, d].map(n => {
+    const v = new DataView(new ArrayBuffer(4)); v.setInt32(0, n, true);
+    return [...new Uint8Array(v.buffer)].map(x => x.toString(16).padStart(2, '0')).join('');
+  }).join('');
+}
+
+// ──────────────────────────────────────────────
 //  Helpers
 // ──────────────────────────────────────────────
 
@@ -131,6 +165,87 @@ async function createOrder(request, env) {
           JSON.stringify(items), subtotal, shipping_fee, total, note, shipping_method).run();
 
   return json({ ok: true, order_no, subtotal, shipping_fee, total }, 200, env);
+}
+
+/* POST /api/payment/initiate — 建立 Gomypay 付款連結 */
+async function paymentInitiate(request, env) {
+  let body;
+  try { body = await request.json(); }
+  catch { return json({ ok: false, error: '請求格式錯誤' }, 400, env); }
+
+  const { order_no, payment_type } = body;
+  if (!order_no || !payment_type)
+    return json({ ok: false, error: '缺少必要參數' }, 400, env);
+
+  const order = await env.DB
+    .prepare('SELECT * FROM orders WHERE order_no = ?')
+    .bind(order_no).first();
+  if (!order) return json({ ok: false, error: '訂單不存在' }, 404, env);
+
+  const SEND_TYPE = { credit: '0', barcode: '2', code: '6' };
+  const sendType = SEND_TYPE[payment_type];
+  if (!sendType) return json({ ok: false, error: '無效的付款方式' }, 400, env);
+
+  const items = JSON.parse(order.items || '[]');
+  const memo  = items.map(i => `${i.name}×${i.qty}`).join('、').slice(0, 490) || 'Ember 服飾訂單';
+
+  const GOMYPAY_URL = 'https://n.gomypay.asia/TestShuntClass.aspx';
+  const frontendUrl = (env.ALLOWED_ORIGIN || 'https://cloth.nestdigitalai.com').replace(/\*$/, '').replace(/,$/, '');
+  const workerUrl   = 'https://brand-api.crazyfunlife8.workers.dev';
+
+  const params = new URLSearchParams({
+    Send_Type:    sendType,
+    Pay_Mode_No:  '2',
+    CustomerId:   env.CustomerId,
+    Order_No:     order_no,
+    Amount:       String(order.total),
+    TransCode:    '00',
+    Buyer_Name:   order.name,
+    Buyer_Telm:   order.phone,
+    Buyer_Memo:   memo,
+    Return_url:   `${frontendUrl}/order.html`,
+    Callback_Url: `${workerUrl}/api/payment/callback`,
+  });
+  if (order.email) params.set('Buyer_Mail', order.email);
+  if (sendType === '0') { params.set('TransMode', '1'); params.set('Installment', '0'); }
+
+  return json({ ok: true, redirect_url: `${GOMYPAY_URL}?${params}` }, 200, env);
+}
+
+/* POST /api/payment/callback — Gomypay 背景對帳回傳 */
+async function paymentCallback(request, env) {
+  let params;
+  try {
+    const text = await request.text();
+    params = new URLSearchParams(text);
+  } catch {
+    return new Response('ERROR', { status: 400 });
+  }
+
+  const result    = params.get('result');
+  const e_orderno = params.get('e_orderno');
+  const e_money   = params.get('e_money');
+  const OrderID   = params.get('OrderID');
+  const str_check = params.get('str_check');
+
+  if (!e_orderno) return new Response('OK', { status: 200 });
+
+  // 驗證 str_check（需設定 GOMYPAY_PLAIN_ID secret 為統編/身分證）
+  if (env.GOMYPAY_PLAIN_ID && str_check) {
+    const expected = md5hex(`${result}${e_orderno}${env.GOMYPAY_PLAIN_ID}${e_money}${OrderID}${env.Str_Check}`);
+    if (expected.toLowerCase() !== str_check.toLowerCase()) {
+      console.error('Gomypay callback str_check mismatch', { expected, received: str_check });
+      return new Response('INVALID', { status: 400 });
+    }
+  }
+
+  if (result === '1') {
+    await env.DB
+      .prepare("UPDATE orders SET status = 'paid' WHERE order_no = ? AND status = 'pending'")
+      .bind(e_orderno).run();
+  }
+
+  return new Response('OK', { status: 200 });
 }
 
 /* GET /api/orders?phone=09xx  — 會員查自己的訂單 */
@@ -449,6 +564,12 @@ export default {
 
       if (method === 'GET'  && path === '/api/stores')
         return searchStores(url, env);
+
+      if (method === 'POST' && path === '/api/payment/initiate')
+        return paymentInitiate(request, env);
+
+      if (method === 'POST' && path === '/api/payment/callback')
+        return paymentCallback(request, env);
 
       // ── LINE Login ──
       if (method === 'GET'  && path === '/api/auth/login')

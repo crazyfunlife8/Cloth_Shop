@@ -273,8 +273,8 @@
         </div>
         <div class="form-row">
           <div class="form-field">
-            <label>Email</label>
-            <input type="email" id="f-email" placeholder="選填，用於訂單通知">
+            <label class="required">Email</label>
+            <input type="email" id="f-email" placeholder="example@email.com" required>
           </div>
         </div>
         <p class="form-section-title" style="margin-top:8px">配送方式</p>
@@ -284,8 +284,8 @@
             <div class="shipping-opt-body">
               <span class="material-symbols-outlined">storefront</span>
               <div>
-                <p class="shipping-opt-name">超商取貨付款</p>
-                <p class="shipping-opt-desc">7-ELEVEN / 全家 · 到店取件時付款</p>
+                <p class="shipping-opt-name">超商交貨便</p>
+                <p class="shipping-opt-desc">7-ELEVEN / 全家 · 付款完成後安排寄件</p>
               </div>
               <span class="shipping-opt-price">NT$60</span>
             </div>
@@ -295,8 +295,8 @@
             <div class="shipping-opt-body">
               <span class="material-symbols-outlined">local_shipping</span>
               <div>
-                <p class="shipping-opt-name">宅配到府</p>
-                <p class="shipping-opt-desc">黑貓 / 郵局宅配 · 送到您指定地址</p>
+                <p class="shipping-opt-name">黑貓宅配</p>
+                <p class="shipping-opt-desc">黑貓宅急便 · 送到您指定地址</p>
               </div>
               <span class="shipping-opt-price">NT$100</span>
             </div>
@@ -351,10 +351,40 @@
         </div>
 
         <p class="form-section-title" style="margin-top:24px">付款方式</p>
-        <div id="pay-desc" style="font-size:14px;line-height:1.8;color:var(--c-secondary);background:rgba(143,89,53,.06);border-radius:12px;padding:16px;">
-          <strong style="color:var(--c-on-surface)">超商取貨付款</strong><br>
-          到超商取件時再付款，無需預先付款。<br>
-          確認訂單後 2–3 個工作天寄出，並傳送取件通知至您的手機。
+        <div class="shipping-options">
+          <label class="shipping-option">
+            <input type="radio" name="payment" value="credit" checked onchange="selectPayMethod(this.value)">
+            <div class="shipping-opt-body">
+              <span class="material-symbols-outlined">credit_card</span>
+              <div>
+                <p class="shipping-opt-name">信用卡（線上刷卡）</p>
+                <p class="shipping-opt-desc">Visa / Mastercard / JCB · 付款後立即安排出貨</p>
+              </div>
+            </div>
+          </label>
+          <label class="shipping-option">
+            <input type="radio" name="payment" value="barcode" onchange="selectPayMethod(this.value)">
+            <div class="shipping-opt-body">
+              <span class="material-symbols-outlined">barcode</span>
+              <div>
+                <p class="shipping-opt-name">超商條碼繳費</p>
+                <p class="shipping-opt-desc">7-11 / 全家 / 萊爾富 · 條碼當日有效</p>
+              </div>
+            </div>
+          </label>
+          <label class="shipping-option">
+            <input type="radio" name="payment" value="code" onchange="selectPayMethod(this.value)">
+            <div class="shipping-opt-body">
+              <span class="material-symbols-outlined">pin</span>
+              <div>
+                <p class="shipping-opt-name">超商代碼繳費</p>
+                <p class="shipping-opt-desc">7-11 / 全家 / 萊爾富 · 輸入代碼至機台繳費</p>
+              </div>
+            </div>
+          </label>
+        </div>
+        <div id="pay-desc" style="font-size:13px;line-height:1.85;color:var(--c-secondary);background:rgba(143,89,53,.06);border-radius:12px;padding:14px 16px;margin-top:8px;">
+          線上刷卡，付款成功後立即安排出貨。
         </div>
 
         <!-- 手機版才顯示送出按鈕 -->
@@ -386,7 +416,18 @@
 <script>
   const API = 'https://brand-api.crazyfunlife8.workers.dev';
   let shippingMethod = 'cvs';
+  let payMethod      = 'credit';
   let selectedBrand  = '711';
+
+  function selectPayMethod(val) {
+    payMethod = val;
+    const desc = {
+      credit:  '線上刷卡，付款成功後立即安排出貨。',
+      barcode: '前往超商掃描條碼繳費（當日有效），繳費成功後安排出貨。',
+      code:    '至超商機台輸入代碼繳費，繳費成功後安排出貨。',
+    };
+    document.getElementById('pay-desc').textContent = desc[val];
+  }
   let _storeResults  = [];
 
   /* ── 門市選取器 ── */
@@ -488,14 +529,6 @@
     const addr = document.getElementById('f-address');
     if (addr) addr.required = !isCvs;
 
-    document.getElementById('pay-desc').innerHTML = isCvs
-      ? `<strong style="color:var(--c-on-surface)">超商取貨付款</strong><br>
-         到超商取件時再付款，無需預先付款。<br>
-         確認訂單後 2–3 個工作天寄出，並傳送取件通知至您的手機。`
-      : `<strong style="color:var(--c-on-surface)">宅配貨到付款</strong><br>
-         配送時由宅配人員現場收款，無需預先付款。<br>
-         確認訂單後 2–3 個工作天出貨，提供貨運追蹤資訊。`;
-
     updateShippingFee();
   }
 
@@ -569,6 +602,7 @@
     };
 
     try {
+      // 步驟一：建立訂單
       const res  = await fetch(`${API}/api/orders`, {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -576,8 +610,21 @@
       });
       const data = await res.json();
       if (!data.ok) throw new Error(data.error);
+
       Cart.clear();
-      location.href = `/order.html?no=${data.order_no}`;
+
+      // 步驟二：取得 Gomypay 付款連結
+      const payRes  = await fetch(`${API}/api/payment/initiate`, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ order_no: data.order_no, payment_type: payMethod }),
+      });
+      const payData = await payRes.json();
+      if (!payData.ok) throw new Error(payData.error || '無法建立付款連結');
+
+      // 步驟三：轉跳 Gomypay
+      window.location.href = payData.redirect_url;
+
     } catch (err) {
       Toast.show(err.message || '下單失敗，請稍後再試');
       btn.disabled = false;
