@@ -223,17 +223,29 @@
     cancelled: '已取消',
   };
 
-  let payType = ''; // credit | barcode | code
+  let payType  = ''; // credit | barcode | code
+  let pinCode  = ''; // 超商代碼繳費代碼
+  let limitDate = ''; // 超商條碼繳費期限 yyyyMMdd
 
   async function loadOrder() {
-    const qp     = new URLSearchParams(location.search);
-    const no     = qp.get('no') || qp.get('e_orderno');
-    const result = qp.get('result'); // Gomypay 回傳：'1'=成功/代碼已產生 '0'=失敗
+    const qp       = new URLSearchParams(location.search);
+    const no       = qp.get('no') || qp.get('e_orderno');
+    const result   = qp.get('result');   // '1'=成功/取號成功 '0'=失敗
+    const sendType = qp.get('Send_Type'); // Gomypay 回傳付款類型：'0'=信用卡 '2'=條碼 '6'=代碼
+    pinCode   = qp.get('PinCode')   || '';
+    limitDate = qp.get('LimitDate') || '';
 
-    // Gomypay 會丟棄 Return_url 的 query params，改從 localStorage 讀取付款方式
-    const lsNo = localStorage.getItem('ember_pending_no');
-    const lsPt = localStorage.getItem('ember_pending_pt');
-    payType = qp.get('pt') || (lsNo === no ? lsPt : '') || '';
+    // 優先用 Gomypay 回傳的 Send_Type，fallback localStorage（舊訂單相容）
+    if (sendType === '6') {
+      payType = 'code';
+    } else if (sendType === '2') {
+      payType = 'barcode';
+    } else if (sendType === '0') {
+      payType = 'credit';
+    } else {
+      const lsNo = localStorage.getItem('ember_pending_no');
+      payType = (lsNo === no ? localStorage.getItem('ember_pending_pt') : '') || '';
+    }
     localStorage.removeItem('ember_pending_no');
     localStorage.removeItem('ember_pending_pt');
 
@@ -254,16 +266,23 @@
         '<p class="success-sub">您的付款未成功，訂單仍保留。<br>請重新付款或透過 LINE 聯繫客服。</p>' +
         `<span class="order-no-tag" id="order-no-tag">${no}</span>`;
     } else if (result === '1' && payType === 'code') {
+      const pinHtml = pinCode
+        ? `<p class="success-sub" style="margin-top:10px">繳費代碼：<strong style="font-size:22px;letter-spacing:.12em;color:var(--c-primary)">${pinCode}</strong></p>`
+        : '';
       banner.innerHTML =
         '<span class="material-symbols-outlined success-icon" style="color:#e67e22">pin</span>' +
         '<h1 class="success-title">訂單已建立，請前往超商繳費</h1>' +
-        '<p class="success-sub">付款代碼已取得，請至 <strong>7-ELEVEN ibon 機台</strong> 選擇「繳費」輸入代碼完成付款。<br>繳費確認後我們將安排出貨，如有疑問請透過 LINE 聯繫客服。</p>' +
+        '<p class="success-sub">請持以下代碼至 <strong>7-ELEVEN ibon 機台</strong> 選擇「繳費」輸入代碼完成付款。<br>代碼有效期限為 <strong>3 小時</strong>，逾期請聯繫客服。</p>' +
+        pinHtml +
         `<span class="order-no-tag" id="order-no-tag">${no}</span>`;
     } else if (result === '1' && payType === 'barcode') {
+      const dateHtml = limitDate
+        ? `（期限：${limitDate.slice(0,4)}/${limitDate.slice(4,6)}/${limitDate.slice(6,8)}）`
+        : '（條碼限當日有效）';
       banner.innerHTML =
-        '<span class="material-symbols-outlined success-icon" style="color:#e67e22">barcode</span>' +
+        '<span class="material-symbols-outlined success-icon" style="color:#e67e22">barcode_scanner</span>' +
         '<h1 class="success-title">訂單已建立，請前往超商繳費</h1>' +
-        '<p class="success-sub">繳費條碼已取得，請盡快前往 <strong>7-ELEVEN</strong> 掃碼繳費（<strong>條碼限當日有效</strong>）。<br>繳費確認後我們將安排出貨，如有疑問請透過 LINE 聯繫客服。</p>' +
+        `<p class="success-sub">繳費條碼已取得，請盡快前往 <strong>7-ELEVEN</strong> 掃碼繳費 <strong>${dateHtml}</strong>。<br>繳費確認後我們將安排出貨，如有疑問請透過 LINE 聯繫客服。</p>` +
         `<span class="order-no-tag" id="order-no-tag">${no}</span>`;
     } else {
       // 信用卡付款成功，或直接以 no= 進入此頁
@@ -307,17 +326,18 @@
 
     // 說明卡依付款方式顯示不同內容
     if (payType === 'code') {
+      const pinDisplay = pinCode ? `代碼：<strong style="font-size:16px;letter-spacing:.08em">${pinCode}</strong>，` : '';
       document.getElementById('notice-icon').textContent  = 'pin';
       document.getElementById('notice-title').textContent = '超商代碼繳費說明';
       document.getElementById('notice-body').innerHTML =
-        `請持 Gomypay 頁面上的 <strong>繳費代碼</strong>，前往 <strong>7-ELEVEN ibon 機台</strong>，<br>
-         選擇「代碼繳費」並輸入代碼完成付款。<br>
+        `${pinDisplay}請前往 <strong>7-ELEVEN ibon 機台</strong> 選擇「代碼繳費」輸入代碼完成付款。<br>
+         代碼有效期限為取得後 <strong>3 小時</strong>，請盡快完成繳費。<br>
          繳費確認後 <strong>2–3 個工作天</strong>安排出貨，如有疑問請透過 LINE 聯繫客服。`;
     } else if (payType === 'barcode') {
-      document.getElementById('notice-icon').textContent  = 'barcode';
+      document.getElementById('notice-icon').textContent  = 'barcode_scanner';
       document.getElementById('notice-title').textContent = '超商條碼繳費說明';
       document.getElementById('notice-body').innerHTML =
-        `請持 Gomypay 頁面上的 <strong>繳費條碼</strong>，前往 <strong>7-ELEVEN</strong> 掃碼繳費。<br>
+        `請前往 <strong>7-ELEVEN</strong> 讓店員掃描繳費條碼完成付款。<br>
          <strong>條碼限當日有效</strong>，請盡快完成繳費。<br>
          繳費確認後 <strong>2–3 個工作天</strong>安排出貨，如有疑問請透過 LINE 聯繫客服。`;
     } else {
@@ -351,7 +371,8 @@
 
   loadOrder();
 
-  const _no = new URLSearchParams(location.search).get('no');
+  const _qp = new URLSearchParams(location.search);
+  const _no = _qp.get('no') || _qp.get('e_orderno');
   if (_no) document.getElementById('btn-view-order').href = `account.html?no=${_no}`;
 </script>
 </body>
