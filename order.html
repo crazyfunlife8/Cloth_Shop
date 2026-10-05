@@ -44,16 +44,6 @@
       margin-bottom: 8px;
     }
     .success-sub { font-size: 14px; color: var(--c-secondary); line-height: 1.7; }
-    .order-no-tag {
-      display: inline-block;
-      margin-top: 12px;
-      padding: 6px 16px;
-      background: rgba(143,89,53,.1);
-      border-radius: var(--r-pill);
-      font-size: 13px; font-weight: 700;
-      color: var(--c-primary);
-      letter-spacing: .04em;
-    }
 
     /* ── Card shared ── */
     .info-card {
@@ -168,13 +158,22 @@
     <span class="material-symbols-outlined success-icon">check_circle</span>
     <h1 class="success-title">訂單已建立！</h1>
     <p class="success-sub">感謝您的訂購，我們收到訂單後將盡快安排出貨。<br>如有疑問請透過 LINE 聯繫客服。</p>
-    <span class="order-no-tag" id="order-no-tag">ORD-…</span>
   </div>
 
   <!-- 訂單資訊 -->
   <div class="info-card">
     <p class="card-title"><span class="material-symbols-outlined">receipt_long</span>訂單資訊</p>
-    <div class="meta-row"><span class="meta-label">訂單編號</span><span class="meta-val" id="m-no">—</span></div>
+    <div class="meta-row">
+      <span class="meta-label">訂單編號</span>
+      <span class="meta-val" style="display:flex;align-items:center;gap:6px">
+        <span id="m-no">—</span>
+        <button id="btn-copy-no" onclick="copyOrderNo()" title="複製訂單編號"
+          style="background:none;border:none;cursor:pointer;padding:2px;display:flex;align-items:center;color:var(--c-secondary);transition:color .2s"
+          onmouseover="this.style.color='var(--c-primary)'" onmouseout="this.style.color='var(--c-secondary)'">
+          <span class="material-symbols-outlined" style="font-size:16px">content_copy</span>
+        </button>
+      </span>
+    </div>
     <div class="meta-row"><span class="meta-label">訂單狀態</span><span class="meta-val" id="m-status">—</span></div>
     <div class="meta-row"><span class="meta-label">姓名</span><span class="meta-val" id="m-name">—</span></div>
     <div class="meta-row"><span class="meta-label">手機</span><span class="meta-val" id="m-phone">—</span></div>
@@ -263,8 +262,7 @@
       banner.innerHTML =
         '<span class="material-symbols-outlined" style="font-size:56px;color:#e74c3c">cancel</span>' +
         '<h1 class="success-title" style="color:#c0392b">付款未完成</h1>' +
-        '<p class="success-sub">您的付款未成功，訂單仍保留。<br>請重新付款或透過 LINE 聯繫客服。</p>' +
-        `<span class="order-no-tag" id="order-no-tag">${no}</span>`;
+        '<p class="success-sub">您的付款未成功，訂單仍保留。<br>請重新付款或透過 LINE 聯繫客服。</p>';
     } else if (result === '1' && payType === 'code') {
       const pinHtml = pinCode
         ? `<p class="success-sub" style="margin-top:10px">繳費代碼：<strong style="font-size:22px;letter-spacing:.12em;color:var(--c-primary)">${pinCode}</strong></p>`
@@ -273,8 +271,7 @@
         '<span class="material-symbols-outlined success-icon" style="color:#e67e22">pin</span>' +
         '<h1 class="success-title">訂單已建立，請前往超商繳費</h1>' +
         '<p class="success-sub">請持以下代碼至 <strong>7-ELEVEN ibon 機台</strong> 選擇「繳費」輸入代碼完成付款。<br>代碼有效期限為 <strong>3 小時</strong>，逾期請聯繫客服。</p>' +
-        pinHtml +
-        `<span class="order-no-tag" id="order-no-tag">${no}</span>`;
+        pinHtml;
     } else if (result === '1' && payType === 'barcode') {
       const dateHtml = limitDate
         ? `（期限：${limitDate.slice(0,4)}/${limitDate.slice(4,6)}/${limitDate.slice(6,8)}）`
@@ -282,8 +279,7 @@
       banner.innerHTML =
         '<span class="material-symbols-outlined success-icon" style="color:#e67e22">barcode_scanner</span>' +
         '<h1 class="success-title">訂單已建立，請前往超商繳費</h1>' +
-        `<p class="success-sub">繳費條碼已取得，請盡快前往 <strong>7-ELEVEN</strong> 掃碼繳費 <strong>${dateHtml}</strong>。<br>繳費確認後我們將安排出貨，如有疑問請透過 LINE 聯繫客服。</p>` +
-        `<span class="order-no-tag" id="order-no-tag">${no}</span>`;
+        `<p class="success-sub">繳費條碼已取得，請盡快前往 <strong>7-ELEVEN</strong> 掃碼繳費 <strong>${dateHtml}</strong>。<br>繳費確認後我們將安排出貨，如有疑問請透過 LINE 聯繫客服。</p>`;
     } else {
       // 信用卡付款成功，或直接以 no= 進入此頁
       if (result === '1') {
@@ -291,7 +287,6 @@
         document.querySelector('.success-sub').innerHTML =
           '感謝您的付款，訂單已確認，我們將盡快安排出貨。<br>如有疑問請透過 LINE 聯繫客服。';
       }
-      document.getElementById('order-no-tag').textContent = no;
     }
 
     try {
@@ -366,6 +361,21 @@
           </div>
           <span class="item-price">NT$${(item.price * item.qty).toLocaleString()}</span>
         </div>`;
+    });
+  }
+
+  function copyOrderNo() {
+    const no = document.getElementById('m-no').textContent;
+    if (!no || no === '—') return;
+    navigator.clipboard.writeText(no).then(() => {
+      const btn = document.getElementById('btn-copy-no');
+      const icon = btn.querySelector('.material-symbols-outlined');
+      icon.textContent = 'check';
+      btn.style.color = '#27ae60';
+      setTimeout(() => {
+        icon.textContent = 'content_copy';
+        btn.style.color = 'var(--c-secondary)';
+      }, 1800);
     });
   }
 
