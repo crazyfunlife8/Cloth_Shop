@@ -223,13 +223,19 @@
     cancelled: '已取消',
   };
 
-  let payType = ''; // credit | barcode | code，由 Return_url 的 pt 參數帶入
+  let payType = ''; // credit | barcode | code
 
   async function loadOrder() {
     const qp     = new URLSearchParams(location.search);
     const no     = qp.get('no') || qp.get('e_orderno');
     const result = qp.get('result'); // Gomypay 回傳：'1'=成功/代碼已產生 '0'=失敗
-    payType      = qp.get('pt') || '';
+
+    // Gomypay 會丟棄 Return_url 的 query params，改從 localStorage 讀取付款方式
+    const lsNo = localStorage.getItem('ember_pending_no');
+    const lsPt = localStorage.getItem('ember_pending_pt');
+    payType = qp.get('pt') || (lsNo === no ? lsPt : '') || '';
+    localStorage.removeItem('ember_pending_no');
+    localStorage.removeItem('ember_pending_pt');
 
     const banner = document.querySelector('.success-banner');
 

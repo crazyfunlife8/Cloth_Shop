@@ -203,7 +203,7 @@ async function paymentInitiate(request, env) {
     Buyer_Name:   order.name,
     Buyer_Telm:   order.phone,
     Buyer_Memo:   memo,
-    Return_url:   `${frontendUrl}/order.html?pt=${payment_type}`,
+    Return_url:   `${frontendUrl}/order.html`,
     Callback_Url: `${workerUrl}/api/payment/callback`,
   });
   if (order.email) params.set('Buyer_Mail', order.email);

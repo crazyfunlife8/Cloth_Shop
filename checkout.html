@@ -607,6 +607,9 @@
       if (!payData.ok) throw new Error(payData.error || '無法建立付款連結');
 
       // 步驟三：轉跳 Gomypay
+      // Gomypay 會丟棄 Return_url 的 query params，用 localStorage 保留付款方式
+      localStorage.setItem('ember_pending_pt', payMethod);
+      localStorage.setItem('ember_pending_no', data.order_no);
       window.location.href = payData.redirect_url;
 
     } catch (err) {
