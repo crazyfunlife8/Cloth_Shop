@@ -260,7 +260,7 @@
     <!-- 表單 -->
     <div class="form-card">
       <p class="form-section-title">收件資訊</p>
-      <form id="checkout-form" onsubmit="submitOrder(event)">
+      <form id="checkout-form" onsubmit="submitOrder(event)" novalidate>
         <div class="form-row">
           <div class="form-field">
             <label class="required">姓名</label>
@@ -551,12 +551,29 @@
     const btn = document.getElementById('btn-submit');
     btn.disabled = true; btn.textContent = '處理中…';
 
-    const nameVal = document.getElementById('f-name').value.trim();
+    const nameVal  = document.getElementById('f-name').value.trim();
+    const phoneVal = document.getElementById('f-phone').value.trim();
+    const emailVal = document.getElementById('f-email').value.trim();
+
+    if (!nameVal) {
+      Toast.show('請填寫姓名', 'error'); btn.disabled = false;
+      btn.innerHTML = '<span class="material-symbols-outlined">check_circle</span>確認訂單'; return;
+    }
     if (!/^[一-鿿A-Za-z\s]+$/.test(nameVal)) {
-      Toast.show('姓名只能包含中文或英文字母，不可有數字或符號', 'error');
-      btn.disabled = false;
-      btn.innerHTML = '<span class="material-symbols-outlined">check_circle</span>確認訂單';
-      return;
+      Toast.show('姓名不可含數字或符號', 'error'); btn.disabled = false;
+      btn.innerHTML = '<span class="material-symbols-outlined">check_circle</span>確認訂單'; return;
+    }
+    if (!phoneVal) {
+      Toast.show('請填寫手機號碼', 'error'); btn.disabled = false;
+      btn.innerHTML = '<span class="material-symbols-outlined">check_circle</span>確認訂單'; return;
+    }
+    if (!emailVal || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal)) {
+      Toast.show('請填寫正確的 Email', 'error'); btn.disabled = false;
+      btn.innerHTML = '<span class="material-symbols-outlined">check_circle</span>確認訂單'; return;
+    }
+    if (!Cart._items.length) {
+      Toast.show('購物車是空的，請先加入商品', 'error'); btn.disabled = false;
+      btn.innerHTML = '<span class="material-symbols-outlined">check_circle</span>確認訂單'; return;
     }
 
     const isCvs = shippingMethod === 'cvs';
