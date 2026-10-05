@@ -203,11 +203,12 @@ async function paymentInitiate(request, env) {
     Buyer_Name:   order.name,
     Buyer_Telm:   order.phone,
     Buyer_Memo:   memo,
-    Return_url:   `${frontendUrl}/order.html`,
+    Return_url:   `${frontendUrl}/order.html?pt=${payment_type}`,
     Callback_Url: `${workerUrl}/api/payment/callback`,
   });
   if (order.email) params.set('Buyer_Mail', order.email);
   if (sendType === '0') { params.set('TransMode', '1'); params.set('Installment', '0'); }
+  if (sendType === '2' || sendType === '6') params.set('StoreType', '3'); // 3 = 7-ELEVEN
 
   return json({ ok: true, redirect_url: `${GOMYPAY_URL}?${params}` }, 200, env);
 }
