@@ -223,21 +223,25 @@ async function paymentCallback(request, env) {
     return new Response('ERROR', { status: 400 });
   }
 
-  const result    = params.get('result');
-  const e_orderno = params.get('e_orderno');
-  const e_money   = params.get('e_money');
-  const OrderID   = params.get('OrderID');
-  const str_check = params.get('str_check');
+  const result     = params.get('result');
+  const e_orderno  = params.get('e_orderno');
+  const PayAmount  = params.get('PayAmount') || params.get('e_money') || '';
+  const OrderID    = params.get('OrderID')   || '';
+  const str_check  = params.get('str_check') || '';
 
   if (!e_orderno) return new Response('OK', { status: 200 });
 
-  // 驗證 str_check（需設定 GOMYPAY_PLAIN_ID secret 為統編/身分證）
-  if (env.GOMYPAY_PLAIN_ID && str_check) {
-    const expected = md5hex(`${result}${e_orderno}${env.GOMYPAY_PLAIN_ID}${e_money}${OrderID}${env.Str_Check}`);
+  // MD5 驗證：CustomerId 明碼優先用 GOMYPAY_PLAIN_ID，fallback 到 CustomerId
+  const plainId = env.GOMYPAY_PLAIN_ID || env.CustomerId || '';
+  if (plainId && env.Str_Check && str_check) {
+    const expected = md5hex(`${result}${e_orderno}${plainId}${PayAmount}${OrderID}${env.Str_Check}`);
     if (expected.toLowerCase() !== str_check.toLowerCase()) {
-      console.error('Gomypay callback str_check mismatch', { expected, received: str_check });
+      console.error('[callback] str_check mismatch', { expected, received: str_check });
       return new Response('INVALID', { status: 400 });
     }
+  } else if (!plainId || !env.Str_Check) {
+    // secret 未設定時，記錄警告但仍繼續（避免阻斷測試環境）
+    console.warn('[callback] str_check 驗證跳過：GOMYPAY_PLAIN_ID 或 Str_Check 未設定');
   }
 
   if (result === '1') {

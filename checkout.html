@@ -372,16 +372,6 @@
             </div>
           </label>
           <label class="shipping-option">
-            <input type="radio" name="payment" value="webatm" onchange="selectPayMethod(this.value)">
-            <div class="shipping-opt-body">
-              <span class="material-symbols-outlined">account_balance</span>
-              <div>
-                <p class="shipping-opt-name">網路 ATM（WebATM）</p>
-                <p class="shipping-opt-desc">銀行帳戶即時扣款 · 需準備 ATM 晶片卡</p>
-              </div>
-            </div>
-          </label>
-          <label class="shipping-option">
             <input type="radio" name="payment" value="virtual" onchange="selectPayMethod(this.value)">
             <div class="shipping-opt-body">
               <span class="material-symbols-outlined">savings</span>
@@ -429,7 +419,6 @@
     const desc = {
       credit:  '線上刷卡，付款成功後立即安排出貨。',
       code:    '至 7-ELEVEN ibon 機台輸入代碼繳費（3 小時有效），繳費成功後安排出貨。',
-      webatm:  '使用銀行帳戶即時轉帳，需將 ATM 晶片卡插入讀卡機，付款成功後立即安排出貨。',
       virtual: '系統產生一組專屬虛擬帳號，3 天內至 ATM 或網路銀行轉入指定金額後安排出貨。',
     };
     document.getElementById('pay-desc').textContent = desc[val];
@@ -460,7 +449,7 @@
       resultsEl.style.display = 'block';
       resultsEl.innerHTML = data.stores.map((s, i) => `
         <div class="store-result-item" onclick="selectStore(${i})">
-          <p class="store-result-name">${s.name}</p>
+          <p class="store-result-name">${s.name} 門市</p>
           <p class="store-result-addr">${s.address || ''}</p>
         </div>`).join('');
     } catch {
@@ -578,7 +567,7 @@
       Toast.show('請填寫手機號碼', 'error'); btn.disabled = false;
       btn.innerHTML = '<span class="material-symbols-outlined">check_circle</span>確認訂單'; return;
     }
-    if (!emailVal || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal)) {
+    if (!emailVal || !/^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/.test(emailVal)) {
       Toast.show('請填寫正確的 Email', 'error'); btn.disabled = false;
       btn.innerHTML = '<span class="material-symbols-outlined">check_circle</span>確認訂單'; return;
     }

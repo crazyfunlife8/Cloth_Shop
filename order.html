@@ -222,19 +222,25 @@
     cancelled: '已取消',
   };
 
-  let payType  = ''; // credit | barcode | code
-  let pinCode  = ''; // 超商代碼繳費代碼
-  let limitDate = ''; // 超商條碼繳費期限 yyyyMMdd
+  let payType   = ''; // credit | barcode | code | virtual
+  let pinCode   = ''; // 超商代碼繳費代碼
+  let limitDate = ''; // 繳費期限
+  let accountNo = ''; // 虛擬帳戶帳號
+  let bankInfo  = ''; // 虛擬帳戶銀行資訊
 
   async function loadOrder() {
     const qp       = new URLSearchParams(location.search);
     const no       = qp.get('no') || qp.get('e_orderno');
     const result   = qp.get('result');   // '1'=成功/取號成功 '0'=失敗
-    const sendType   = qp.get('Send_Type'); // '0'=信用卡 '2'=條碼 '3'=WebATM '4'=虛擬帳戶 '6'=代碼
-    pinCode   = qp.get('PinCode')   || '';
-    limitDate = qp.get('LimitDate') || '';
-    const bankId      = qp.get('BankID')      || qp.get('BankNo')      || '';
-    const bankAccount = qp.get('Account')     || qp.get('BankAccount') || '';
+    const sendType    = qp.get('Send_Type'); // '0'=信用卡 '2'=條碼 '4'=虛擬帳戶 '6'=代碼
+    pinCode   = qp.get('PinCode')      || '';
+    limitDate = qp.get('LimitDate')    || '';
+    const ePayAccount = qp.get('e_payaccount') || '';
+    if (ePayAccount) {
+      const lastDash = ePayAccount.lastIndexOf('-');
+      accountNo = ePayAccount.slice(lastDash + 1).trim();
+      bankInfo  = ePayAccount.slice(0, lastDash).trim().replace(/\s*-\s*$/, '');
+    }
 
     // 優先用 Gomypay 回傳的 Send_Type，fallback localStorage（舊訂單相容）
     if (sendType === '6') {
@@ -243,8 +249,6 @@
       payType = 'barcode';
     } else if (sendType === '0') {
       payType = 'credit';
-    } else if (sendType === '3') {
-      payType = 'webatm';
     } else if (sendType === '4') {
       payType = 'virtual';
     } else {
@@ -293,18 +297,15 @@
         '<h1 class="success-title">付款成功！</h1>' +
         '<p class="success-sub">網路 ATM 扣款成功，訂單已確認，我們將盡快安排出貨。<br>如有疑問請透過 LINE 聯繫客服。</p>';
     } else if (result === '1' && payType === 'virtual') {
-      const acctHtml = bankAccount
-        ? `<p class="success-sub" style="margin-top:10px">匯款帳號：<strong style="font-size:18px;letter-spacing:.08em;color:var(--c-primary)">${bankId ? `（${bankId}）` : ''}${bankAccount}</strong></p>`
+      const acctHtml = accountNo
+        ? `<p class="success-sub" style="margin-top:10px">${bankInfo ? `${bankInfo}<br>` : ''}匯款帳號：<strong style="font-size:20px;letter-spacing:.1em;color:var(--c-primary)">${accountNo}</strong></p>`
         : '';
-      const dateStr = limitDate
-        ? `${limitDate.slice(0,4)}/${limitDate.slice(4,6)}/${limitDate.slice(6,8)}`
-        : '3 天內';
+      const dateStr = limitDate || '3 天內';
       banner.innerHTML =
         '<span class="material-symbols-outlined success-icon" style="color:#2980b9">account_balance</span>' +
         '<h1 class="success-title">訂單已建立，請完成匯款</h1>' +
         `<p class="success-sub">請於 <strong>${dateStr}</strong> 前，將訂單金額匯入以下虛擬帳號。</p>` +
-        acctHtml +
-        '<p id="virtual-limit" style="margin-top:10px;font-size:13px;color:var(--c-secondary)"></p>';
+        acctHtml;
     } else {
       // 信用卡付款成功，或直接以 no= 進入此頁
       if (result === '1') {
@@ -391,17 +392,12 @@
         `請前往 <strong>7-ELEVEN</strong> 讓店員掃描繳費條碼完成付款。<br>
          <strong>條碼限當日有效</strong>，請盡快完成繳費。<br>
          繳費確認後 <strong>2–3 個工作天</strong>安排出貨，如有疑問請透過 LINE 聯繫客服。`;
-    } else if (payType === 'webatm') {
-      document.getElementById('notice-icon').textContent  = 'check_circle';
-      document.getElementById('notice-title').textContent = '付款完成說明';
-      document.getElementById('notice-body').innerHTML =
-        `網路 ATM 扣款已成功，訂單已確認。<br>
-         確認後 <strong>2–3 個工作天</strong>安排出貨，如有疑問請透過 LINE 聯繫客服。`;
     } else if (payType === 'virtual') {
       document.getElementById('notice-icon').textContent  = 'account_balance';
       document.getElementById('notice-title').textContent = '虛擬帳戶匯款說明';
+      const acctNote = accountNo ? `帳號：<strong>${accountNo}</strong><br>` : '';
       document.getElementById('notice-body').innerHTML =
-        `請將訂單金額匯入上方虛擬帳號，<strong>請勿多付或少付</strong>，金額需完全吻合。<br>
+        `${acctNote}請至 ATM 或網路銀行匯款，<strong>金額須與訂單完全相符，請勿多付或少付</strong>。<br>
          匯款確認後 <strong>2–3 個工作天</strong>安排出貨，如有疑問請透過 LINE 聯繫客服。`;
     } else {
       document.getElementById('notice-icon').textContent  = isCvs ? 'storefront' : 'local_shipping';
