@@ -174,6 +174,7 @@
         </button>
       </span>
     </div>
+    <div class="meta-row"><span class="meta-label">下單時間</span><span class="meta-val" id="m-created">—</span></div>
     <div class="meta-row"><span class="meta-label">訂單狀態</span><span class="meta-val" id="m-status">—</span></div>
     <div class="meta-row"><span class="meta-label">姓名</span><span class="meta-val" id="m-name">—</span></div>
     <div class="meta-row"><span class="meta-label">手機</span><span class="meta-val" id="m-phone">—</span></div>
@@ -382,6 +383,11 @@
     }
 
     const statusClass = `status-${o.status}`;
+    if (o.created_at) {
+      const d = new Date(o.created_at.replace(' ', 'T') + 'Z');
+      document.getElementById('m-created').textContent =
+        d.toLocaleString('zh-TW', { timeZone: 'Asia/Taipei', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+    }
     document.getElementById('m-no').textContent      = o.order_no;
     document.getElementById('m-status').innerHTML    =
       `<span class="status-pill ${statusClass}">${STATUS_LABEL[o.status] || o.status}</span>`;
