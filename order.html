@@ -305,7 +305,8 @@
         '<span class="material-symbols-outlined success-icon" style="color:#2980b9">account_balance</span>' +
         '<h1 class="success-title">訂單已建立，請完成匯款</h1>' +
         `<p class="success-sub">請於 <strong>${dateStr}</strong> 前，將訂單金額匯入以下虛擬帳號。</p>` +
-        acctHtml;
+        acctHtml +
+        '<p id="virtual-timer" style="margin-top:10px;font-size:13px;font-weight:600;color:var(--c-secondary)">計算剩餘時間…</p>';
     } else {
       // 信用卡付款成功，或直接以 no= 進入此頁
       if (result === '1') {
@@ -399,6 +400,40 @@
       document.getElementById('notice-body').innerHTML =
         `${acctNote}請至 ATM 或網路銀行匯款，<strong>金額須與訂單完全相符，請勿多付或少付</strong>。<br>
          匯款確認後 <strong>2–3 個工作天</strong>安排出貨，如有疑問請透過 LINE 聯繫客服。`;
+
+      // 倒數計時：到 LimitDate 當天 23:59:59（台灣時間 UTC+8）
+      const timerEl  = document.getElementById('virtual-timer');
+      const bannerEl = document.querySelector('.success-banner');
+      const noticeEl = document.getElementById('shipping-notice');
+      if (timerEl && limitDate) {
+        const parts = limitDate.split(/[\/\-]/);
+        const expiresAt = new Date(`${parts[0]}-${parts[1]}-${parts[2]}T23:59:59+08:00`).getTime();
+        const tickV = () => {
+          const remaining = expiresAt - Date.now();
+          if (remaining <= 0) {
+            clearInterval(virtualTimer);
+            bannerEl.innerHTML =
+              '<span class="material-symbols-outlined" style="font-size:56px;color:#aaa">timer_off</span>' +
+              '<h1 class="success-title" style="color:var(--c-secondary)">匯款期限已過</h1>' +
+              '<p class="success-sub">此虛擬帳號已超過有效期限，如需購買請重新下單。</p>' +
+              '<a href="/index.html#shop" style="display:inline-block;margin-top:16px;padding:12px 32px;background:var(--c-primary);color:#fff;border-radius:var(--r-btn);font-size:14px;font-weight:700;text-decoration:none">重新下單</a>';
+            noticeEl.style.display = 'none';
+            return;
+          }
+          const totalH = Math.floor(remaining / 3600000);
+          const d = Math.floor(totalH / 24);
+          const h = totalH % 24;
+          const m = Math.floor((remaining % 3600000) / 60000);
+          const s = Math.floor((remaining % 60000) / 1000);
+          const urgent = remaining < 3 * 3600000; // 剩不到 3 小時變紅
+          timerEl.textContent = d > 0
+            ? `匯款期限剩餘：${d} 天 ${h} 小時 ${String(m).padStart(2,'0')} 分`
+            : `匯款期限剩餘：${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+          timerEl.style.color = urgent ? '#e74c3c' : 'var(--c-secondary)';
+        };
+        tickV();
+        const virtualTimer = setInterval(tickV, 1000);
+      }
     } else {
       document.getElementById('notice-icon').textContent  = isCvs ? 'storefront' : 'local_shipping';
       document.getElementById('notice-title').textContent = isCvs ? '超商取貨說明' : '宅配到府說明';
