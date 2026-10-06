@@ -806,7 +806,22 @@ footer::before {
 .cart-item-variant { font-size: 11px; color: var(--c-secondary); margin-top: 4px; }
 .cart-item-row { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
 .cart-item-price { font-size: 14px; color: var(--c-primary); font-weight: 700; }
-.cart-item-qty { font-size: 12px; color: var(--c-secondary); }
+.cart-qty-ctrl {
+  display: flex; align-items: center;
+  border: 1.5px solid rgba(143,89,53,.25); border-radius: 20px;
+  overflow: hidden;
+}
+.cart-qty-ctrl button {
+  background: none; border: none; cursor: pointer;
+  width: 28px; height: 26px; font-size: 16px; line-height: 1;
+  color: var(--c-primary); display: flex; align-items: center; justify-content: center;
+  transition: background .15s;
+}
+.cart-qty-ctrl button:hover { background: rgba(143,89,53,.1); }
+.cart-qty-ctrl span {
+  min-width: 24px; text-align: center;
+  font-size: 13px; font-weight: 700; color: var(--c-on-surface);
+}
 .cart-item-remove {
   margin-top: 6px; font-size: 10.5px; color: rgba(168,92,85,.7);
   background: none; border: none; cursor: pointer;

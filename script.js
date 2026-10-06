@@ -113,6 +113,14 @@ const Cart = {
     Toast.show('已加入購物車！');
   },
   remove(idx) { this._items.splice(idx, 1); this._save(); this._render(); },
+  setQty(idx, delta) {
+    const item = this._items[idx];
+    if (!item) return;
+    item.qty += delta;
+    if (item.qty <= 0) this._items.splice(idx, 1);
+    this._save();
+    this._render();
+  },
   _render() {
     const body   = document.getElementById('cart-body');
     const totalEl = document.getElementById('cart-total');
@@ -149,12 +157,13 @@ const Cart = {
           <p class="cart-item-name">${item.name}</p>
           ${item.color || item.size ? `<p class="cart-item-variant">${[item.color, item.size].filter(Boolean).join(' / ')}</p>` : ''}
           <div class="cart-item-row">
-            <span class="cart-item-price">NT$${item.price.toLocaleString()}</span>
-            <span class="cart-item-qty">× ${item.qty}</span>
+            <span class="cart-item-price">NT$${(item.price * item.qty).toLocaleString()}</span>
+            <div class="cart-qty-ctrl">
+              <button onclick="Cart.setQty(${idx}, -1)">−</button>
+              <span>${item.qty}</span>
+              <button onclick="Cart.setQty(${idx}, 1)">+</button>
+            </div>
           </div>
-          <button class="cart-item-remove" onclick="Cart.remove(${idx})">
-            <span class="material-symbols-outlined">delete</span>移除
-          </button>
         </div>
       </div>
     `}).join('');
