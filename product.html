@@ -24,6 +24,17 @@
     }
     @media (min-width: 768px) { .product-page { padding: 140px 48px 100px; } }
 
+    .btn-back {
+      display: inline-flex; align-items: center; gap: 4px;
+      background: none; border: none; cursor: pointer;
+      font-size: 13px; font-weight: 600;
+      color: var(--c-secondary);
+      padding: 0; margin-bottom: 16px;
+      transition: color .2s;
+    }
+    .btn-back:hover { color: var(--c-primary); }
+    .btn-back .material-symbols-outlined { font-size: 17px; }
+
     .breadcrumb {
       font-size: 13px;
       color: var(--c-secondary);
@@ -330,6 +341,10 @@
 
 <!-- MAIN -->
 <main class="product-page">
+  <button class="btn-back" onclick="history.length > 1 ? history.back() : location.href='/#shop'">
+    <span class="material-symbols-outlined">arrow_back</span>返回
+  </button>
+
   <p class="breadcrumb">
     <a href="/">首頁</a><span>›</span>
     <a href="/#shop">商品</a><span>›</span>
