@@ -27,10 +27,6 @@ R2_PUBLIC_URL  = ""    # R2 custom domain（選填，空白則圖片走 Worker �
 # 在 Cloudflare Dashboard → Access → Applications 設定
 # Path: /api/admin/*  Policy: 公司 Email 或 Google 登入
 
-# ── Cron：每小時整點自動取消過期待付款訂單 ──
-[triggers]
-crons = ["0 * * * *"]
-
 # ── 本地開發 ──
 [dev]
 port = 8787
