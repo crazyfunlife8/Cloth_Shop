@@ -230,9 +230,11 @@
     const qp       = new URLSearchParams(location.search);
     const no       = qp.get('no') || qp.get('e_orderno');
     const result   = qp.get('result');   // '1'=成功/取號成功 '0'=失敗
-    const sendType = qp.get('Send_Type'); // Gomypay 回傳付款類型：'0'=信用卡 '2'=條碼 '6'=代碼
+    const sendType   = qp.get('Send_Type'); // '0'=信用卡 '2'=條碼 '3'=WebATM '4'=虛擬帳戶 '6'=代碼
     pinCode   = qp.get('PinCode')   || '';
     limitDate = qp.get('LimitDate') || '';
+    const bankId      = qp.get('BankID')      || qp.get('BankNo')      || '';
+    const bankAccount = qp.get('Account')     || qp.get('BankAccount') || '';
 
     // 優先用 Gomypay 回傳的 Send_Type，fallback localStorage（舊訂單相容）
     if (sendType === '6') {
@@ -241,6 +243,10 @@
       payType = 'barcode';
     } else if (sendType === '0') {
       payType = 'credit';
+    } else if (sendType === '3') {
+      payType = 'webatm';
+    } else if (sendType === '4') {
+      payType = 'virtual';
     } else {
       const lsNo = localStorage.getItem('ember_pending_no');
       payType = (lsNo === no ? localStorage.getItem('ember_pending_pt') : '') || '';
@@ -270,8 +276,9 @@
       banner.innerHTML =
         '<span class="material-symbols-outlined success-icon" style="color:#e67e22">pin</span>' +
         '<h1 class="success-title">訂單已建立，請前往超商繳費</h1>' +
-        '<p class="success-sub">請持以下代碼至 <strong>7-ELEVEN ibon 機台</strong> 選擇「繳費」輸入代碼完成付款。<br>代碼有效期限為 <strong>3 小時</strong>，逾期請聯繫客服。</p>' +
-        pinHtml;
+        '<p class="success-sub">請持以下代碼至 <strong>7-ELEVEN ibon 機台</strong> 選擇「繳費」輸入代碼完成付款。</p>' +
+        pinHtml +
+        '<p id="code-timer" style="margin-top:10px;font-size:13px;font-weight:600;color:var(--c-secondary)">計算剩餘時間…</p>';
     } else if (result === '1' && payType === 'barcode') {
       const dateHtml = limitDate
         ? `（期限：${limitDate.slice(0,4)}/${limitDate.slice(4,6)}/${limitDate.slice(6,8)}）`
@@ -280,6 +287,24 @@
         '<span class="material-symbols-outlined success-icon" style="color:#e67e22">barcode_scanner</span>' +
         '<h1 class="success-title">訂單已建立，請前往超商繳費</h1>' +
         `<p class="success-sub">繳費條碼已取得，請盡快前往 <strong>7-ELEVEN</strong> 掃碼繳費 <strong>${dateHtml}</strong>。<br>繳費確認後我們將安排出貨，如有疑問請透過 LINE 聯繫客服。</p>`;
+    } else if (result === '1' && payType === 'webatm') {
+      banner.innerHTML =
+        '<span class="material-symbols-outlined success-icon">check_circle</span>' +
+        '<h1 class="success-title">付款成功！</h1>' +
+        '<p class="success-sub">網路 ATM 扣款成功，訂單已確認，我們將盡快安排出貨。<br>如有疑問請透過 LINE 聯繫客服。</p>';
+    } else if (result === '1' && payType === 'virtual') {
+      const acctHtml = bankAccount
+        ? `<p class="success-sub" style="margin-top:10px">匯款帳號：<strong style="font-size:18px;letter-spacing:.08em;color:var(--c-primary)">${bankId ? `（${bankId}）` : ''}${bankAccount}</strong></p>`
+        : '';
+      const dateStr = limitDate
+        ? `${limitDate.slice(0,4)}/${limitDate.slice(4,6)}/${limitDate.slice(6,8)}`
+        : '3 天內';
+      banner.innerHTML =
+        '<span class="material-symbols-outlined success-icon" style="color:#2980b9">account_balance</span>' +
+        '<h1 class="success-title">訂單已建立，請完成匯款</h1>' +
+        `<p class="success-sub">請於 <strong>${dateStr}</strong> 前，將訂單金額匯入以下虛擬帳號。</p>` +
+        acctHtml +
+        '<p id="virtual-limit" style="margin-top:10px;font-size:13px;color:var(--c-secondary)"></p>';
     } else {
       // 信用卡付款成功，或直接以 no= 進入此頁
       if (result === '1') {
@@ -328,6 +353,37 @@
         `${pinDisplay}請前往 <strong>7-ELEVEN ibon 機台</strong> 選擇「代碼繳費」輸入代碼完成付款。<br>
          代碼有效期限為取得後 <strong>3 小時</strong>，請盡快完成繳費。<br>
          繳費確認後 <strong>2–3 個工作天</strong>安排出貨，如有疑問請透過 LINE 聯繫客服。`;
+
+      // 倒數計時器
+      if (o.created_at) {
+        const expiresAt = new Date(o.created_at.replace(' ', 'T') + 'Z').getTime() + 3 * 60 * 60 * 1000;
+        const timerEl   = document.getElementById('code-timer');
+        const noticeEl  = document.getElementById('shipping-notice');
+        const bannerEl  = document.querySelector('.success-banner');
+
+        const tick = () => {
+          const remaining = expiresAt - Date.now();
+          if (remaining <= 0) {
+            clearInterval(codeTimer);
+            // 失效畫面
+            bannerEl.innerHTML =
+              '<span class="material-symbols-outlined" style="font-size:56px;color:#aaa">timer_off</span>' +
+              '<h1 class="success-title" style="color:var(--c-secondary)">繳費代碼已失效</h1>' +
+              '<p class="success-sub">此代碼已超過 3 小時有效期限。<br>如需購買請重新下單，或透過 LINE 聯繫客服。</p>' +
+              '<a href="/index.html#shop" style="display:inline-block;margin-top:16px;padding:12px 32px;background:var(--c-primary);color:#fff;border-radius:var(--r-btn);font-size:14px;font-weight:700;text-decoration:none">重新下單</a>';
+            noticeEl.style.display = 'none';
+            return;
+          }
+          const h = Math.floor(remaining / 3600000);
+          const m = Math.floor((remaining % 3600000) / 60000);
+          const s = Math.floor((remaining % 60000) / 1000);
+          const urgent = remaining < 30 * 60 * 1000; // 剩不到 30 分鐘變紅
+          timerEl.textContent = `繳費期限剩餘：${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+          timerEl.style.color = urgent ? '#e74c3c' : 'var(--c-secondary)';
+        };
+        tick();
+        const codeTimer = setInterval(tick, 1000);
+      }
     } else if (payType === 'barcode') {
       document.getElementById('notice-icon').textContent  = 'barcode_scanner';
       document.getElementById('notice-title').textContent = '超商條碼繳費說明';
@@ -335,6 +391,18 @@
         `請前往 <strong>7-ELEVEN</strong> 讓店員掃描繳費條碼完成付款。<br>
          <strong>條碼限當日有效</strong>，請盡快完成繳費。<br>
          繳費確認後 <strong>2–3 個工作天</strong>安排出貨，如有疑問請透過 LINE 聯繫客服。`;
+    } else if (payType === 'webatm') {
+      document.getElementById('notice-icon').textContent  = 'check_circle';
+      document.getElementById('notice-title').textContent = '付款完成說明';
+      document.getElementById('notice-body').innerHTML =
+        `網路 ATM 扣款已成功，訂單已確認。<br>
+         確認後 <strong>2–3 個工作天</strong>安排出貨，如有疑問請透過 LINE 聯繫客服。`;
+    } else if (payType === 'virtual') {
+      document.getElementById('notice-icon').textContent  = 'account_balance';
+      document.getElementById('notice-title').textContent = '虛擬帳戶匯款說明';
+      document.getElementById('notice-body').innerHTML =
+        `請將訂單金額匯入上方虛擬帳號，<strong>請勿多付或少付</strong>，金額需完全吻合。<br>
+         匯款確認後 <strong>2–3 個工作天</strong>安排出貨，如有疑問請透過 LINE 聯繫客服。`;
     } else {
       document.getElementById('notice-icon').textContent  = isCvs ? 'storefront' : 'local_shipping';
       document.getElementById('notice-title').textContent = isCvs ? '超商取貨說明' : '宅配到府說明';

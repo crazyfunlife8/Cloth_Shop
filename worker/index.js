@@ -147,7 +147,7 @@ async function createOrder(request, env) {
   try { body = await request.json(); }
   catch { return json({ ok: false, error: '請求格式錯誤' }, 400, env); }
 
-  const { name, phone, email = '', address, items, note = '', shipping_method = 'cvs' } = body;
+  const { name, phone, email = '', address, items, note = '', shipping_method = 'cvs', payment_method = '' } = body;
 
   if (!name || !phone || !address || !Array.isArray(items) || !items.length)
     return json({ ok: false, error: '請填寫姓名、電話、地址，並確認購物車不為空' }, 400, env);
@@ -159,10 +159,10 @@ async function createOrder(request, env) {
 
   await env.DB.prepare(`
     INSERT INTO orders
-      (order_no, name, phone, email, address, items, subtotal, shipping_fee, total, note, shipping_method)
-    VALUES (?,?,?,?,?,?,?,?,?,?,?)
+      (order_no, name, phone, email, address, items, subtotal, shipping_fee, total, note, shipping_method, payment_method)
+    VALUES (?,?,?,?,?,?,?,?,?,?,?,?)
   `).bind(order_no, name, phone, email, address,
-          JSON.stringify(items), subtotal, shipping_fee, total, note, shipping_method).run();
+          JSON.stringify(items), subtotal, shipping_fee, total, note, shipping_method, payment_method).run();
 
   return json({ ok: true, order_no, subtotal, shipping_fee, total }, 200, env);
 }
@@ -182,7 +182,7 @@ async function paymentInitiate(request, env) {
     .bind(order_no).first();
   if (!order) return json({ ok: false, error: '訂單不存在' }, 404, env);
 
-  const SEND_TYPE = { credit: '0', barcode: '2', code: '6' };
+  const SEND_TYPE = { credit: '0', webatm: '3', virtual: '4', barcode: '2', code: '6' };
   const sendType = SEND_TYPE[payment_type];
   if (!sendType) return json({ ok: false, error: '無效的付款方式' }, 400, env);
 
@@ -528,9 +528,27 @@ function parseProduct(row) {
 }
 
 // ──────────────────────────────────────────────
+/* Cron：依付款方式取消過期未付款訂單 */
+async function cancelExpiredOrders(env) {
+  // 超商代碼：3 小時有效，4 小時後取消
+  const r1 = await env.DB
+    .prepare("UPDATE orders SET status='cancelled' WHERE status='pending' AND payment_method='code' AND created_at < datetime('now','-4 hours')")
+    .run();
+  // 虛擬帳戶：3 天有效，3 天 1 小時後取消
+  const r2 = await env.DB
+    .prepare("UPDATE orders SET status='cancelled' WHERE status='pending' AND payment_method='virtual' AND created_at < datetime('now','-73 hours')")
+    .run();
+  console.log(`[cron] cancelled: code=${r1.meta.changes} virtual=${r2.meta.changes}`);
+}
+
+// ──────────────────────────────────────────────
 //  Main router
 // ──────────────────────────────────────────────
 export default {
+  async scheduled(event, env, ctx) {
+    ctx.waitUntil(cancelExpiredOrders(env));
+  },
+
   async fetch(request, env) {
     const url    = new URL(request.url);
     const path   = url.pathname;
