@@ -41,7 +41,7 @@ function md5hex(str) {
 function corsHeaders(env) {
   return {
     'Access-Control-Allow-Origin':      env.ALLOWED_ORIGIN || '*',
-    'Access-Control-Allow-Methods':     'GET, POST, PUT, DELETE, OPTIONS',
+    'Access-Control-Allow-Methods':     'GET, POST, PUT, PATCH, DELETE, OPTIONS',
     'Access-Control-Allow-Headers':     'Content-Type',
     'Access-Control-Allow-Credentials': 'true',
   };
@@ -248,6 +248,15 @@ async function paymentCallback(request, env) {
     await env.DB
       .prepare("UPDATE orders SET status = 'paid' WHERE order_no = ? AND status = 'pending'")
       .bind(e_orderno).run();
+    // 儲存付款資訊（CVS代碼的PinCode、虛擬帳戶的e_payaccount/LimitDate）
+    const pinCodeVal = params.get('PinCode')       || '';
+    const payAcct    = params.get('e_payaccount')  || '';
+    const limitDt    = params.get('LimitDate')     || '';
+    if (pinCodeVal || payAcct || limitDt) {
+      await env.DB
+        .prepare('UPDATE orders SET pin_code=?, pay_account=?, limit_date=? WHERE order_no=?')
+        .bind(pinCodeVal, payAcct, limitDt, e_orderno).run();
+    }
   }
 
   return new Response('OK', { status: 200 });
@@ -262,6 +271,19 @@ async function listOrdersByPhone(url, env) {
     .bind(phone).all();
   const orders = results.map(r => ({ ...r, items: JSON.parse(r.items || '[]') }));
   return json({ ok: true, orders }, 200, env);
+}
+
+/* PATCH /api/orders/:no/payment-info  — 前端跳轉後儲存付款資訊 */
+async function savePaymentInfo(no, request, env) {
+  let body;
+  try { body = await request.json(); }
+  catch { return json({ ok: false, error: '請求格式錯誤' }, 400, env); }
+  const { pin_code = '', pay_account = '', limit_date = '' } = body;
+  const info = await env.DB
+    .prepare('UPDATE orders SET pin_code=?, pay_account=?, limit_date=? WHERE order_no=?')
+    .bind(pin_code, pay_account, limit_date, no).run();
+  if (!info.meta.changes) return json({ ok: false, error: '訂單不存在' }, 404, env);
+  return json({ ok: true }, 200, env);
 }
 
 /* GET /api/orders/:no */
@@ -581,6 +603,9 @@ export default {
 
       if (method === 'GET'  && /^\/api\/orders\/ORD-/.test(path))
         return getOrder(path.split('/').pop(), env);
+
+      if (method === 'PATCH' && /^\/api\/orders\/ORD-.+\/payment-info$/.test(path))
+        return savePaymentInfo(path.split('/')[3], request, env);
 
       if (method === 'GET'  && path === '/api/orders')
         return listOrdersByPhone(url, env);

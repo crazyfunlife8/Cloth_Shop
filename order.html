@@ -258,6 +258,15 @@
     localStorage.removeItem('ember_pending_no');
     localStorage.removeItem('ember_pending_pt');
 
+    // 付款成功時，立即將付款資訊存回 DB（使用者關閉頁面後仍可查閱）
+    if (result === '1' && no && (pinCode || ePayAccount || limitDate)) {
+      fetch(`${API}/api/orders/${no}/payment-info`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pin_code: pinCode, pay_account: ePayAccount, limit_date: limitDate }),
+      }).catch(() => {});
+    }
+
     const banner = document.querySelector('.success-banner');
 
     if (!no) {
@@ -331,6 +340,47 @@
   function renderOrder(o) {
     document.title = `訂單 ${o.order_no}｜Ember`;
 
+    // 非 Gomypay 跳轉（從 account 頁進入），依訂單狀態顯示 banner
+    const qpCheck = new URLSearchParams(location.search);
+    if (!qpCheck.get('result')) {
+      // 從 DB 補回付款資訊（使用者之前關頁後再次開啟）
+      if (!payType && o.payment_method) payType = o.payment_method;
+      if (!pinCode && o.pin_code) pinCode = o.pin_code;
+      if (!accountNo && o.pay_account) {
+        const lastDash = o.pay_account.lastIndexOf('-');
+        accountNo = o.pay_account.slice(lastDash + 1).trim();
+        bankInfo  = o.pay_account.slice(0, lastDash).trim().replace(/\s*-\s*$/, '');
+      }
+      if (!limitDate && o.limit_date) limitDate = o.limit_date;
+
+      const bannerEl = document.querySelector('.success-banner');
+      const bannerCfg = {
+        pending:   { icon: 'schedule',       color: '#e67e22', title: '待付款',   sub: '訂單已建立，尚未完成付款。如有疑問請透過 LINE 聯繫客服。' },
+        paid:      { icon: 'check_circle',   color: '#27ae60', title: '付款完成', sub: '款項已確認，我們將盡快安排出貨。' },
+        shipped:   { icon: 'local_shipping', color: '#2980b9', title: '已出貨',   sub: '商品已寄出，請留意物流通知。如有疑問請透過 LINE 聯繫客服。' },
+        done:      { icon: 'done_all',       color: '#27ae60', title: '訂單完成', sub: '感謝您的購買，期待您再次光臨！' },
+        cancelled: { icon: 'cancel',         color: '#c0392b', title: '訂單已取消', sub: '此訂單已取消。如有疑問請透過 LINE 聯繫客服。' },
+      };
+      const cfg = bannerCfg[o.status] || bannerCfg.pending;
+
+      // 待付款且有儲存付款資訊 → 一起顯示在 banner
+      let payInfoHtml = '';
+      if (o.status === 'pending' && payType === 'code' && pinCode) {
+        payInfoHtml =
+          `<br><br>繳費代碼：<strong style="font-size:20px;letter-spacing:.12em;color:var(--c-primary)">${pinCode}</strong>` +
+          `<br><span style="font-size:12px;color:#e67e22">請至 7-ELEVEN ibon 機台輸入代碼完成繳費（3 小時內有效）</span>`;
+      } else if (o.status === 'pending' && payType === 'virtual' && accountNo) {
+        payInfoHtml =
+          `<br><br>${bankInfo ? `${bankInfo}<br>` : ''}匯款帳號：<strong style="font-size:20px;letter-spacing:.1em;color:var(--c-primary)">${accountNo}</strong>` +
+          (limitDate ? `<br><span style="font-size:12px;color:#2980b9">匯款期限：${limitDate}</span>` : '');
+      }
+
+      bannerEl.innerHTML =
+        `<span class="material-symbols-outlined success-icon" style="color:${cfg.color}">${cfg.icon}</span>` +
+        `<h1 class="success-title">${cfg.title}</h1>` +
+        `<p class="success-sub">${cfg.sub}${payInfoHtml}</p>`;
+    }
+
     const statusClass = `status-${o.status}`;
     document.getElementById('m-no').textContent      = o.order_no;
     document.getElementById('m-status').innerHTML    =
@@ -356,35 +406,36 @@
          代碼有效期限為取得後 <strong>3 小時</strong>，請盡快完成繳費。<br>
          繳費確認後 <strong>2–3 個工作天</strong>安排出貨，如有疑問請透過 LINE 聯繫客服。`;
 
-      // 倒數計時器
+      // 倒數計時器（僅限從 Gomypay 跳轉後的頁面，帳號頁進入時元素不存在故跳過）
       if (o.created_at) {
         const expiresAt = new Date(o.created_at.replace(' ', 'T') + 'Z').getTime() + 3 * 60 * 60 * 1000;
         const timerEl   = document.getElementById('code-timer');
-        const noticeEl  = document.getElementById('shipping-notice');
-        const bannerEl  = document.querySelector('.success-banner');
+        if (timerEl) {
+          const noticeEl  = document.getElementById('shipping-notice');
+          const bannerEl  = document.querySelector('.success-banner');
 
-        const tick = () => {
-          const remaining = expiresAt - Date.now();
-          if (remaining <= 0) {
-            clearInterval(codeTimer);
-            // 失效畫面
-            bannerEl.innerHTML =
-              '<span class="material-symbols-outlined" style="font-size:56px;color:#aaa">timer_off</span>' +
-              '<h1 class="success-title" style="color:var(--c-secondary)">繳費代碼已失效</h1>' +
-              '<p class="success-sub">此代碼已超過 3 小時有效期限。<br>如需購買請重新下單，或透過 LINE 聯繫客服。</p>' +
-              '<a href="/index.html#shop" style="display:inline-block;margin-top:16px;padding:12px 32px;background:var(--c-primary);color:#fff;border-radius:var(--r-btn);font-size:14px;font-weight:700;text-decoration:none">重新下單</a>';
-            noticeEl.style.display = 'none';
-            return;
-          }
-          const h = Math.floor(remaining / 3600000);
-          const m = Math.floor((remaining % 3600000) / 60000);
-          const s = Math.floor((remaining % 60000) / 1000);
-          const urgent = remaining < 30 * 60 * 1000; // 剩不到 30 分鐘變紅
-          timerEl.textContent = `繳費期限剩餘：${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-          timerEl.style.color = urgent ? '#e74c3c' : 'var(--c-secondary)';
-        };
-        tick();
-        const codeTimer = setInterval(tick, 1000);
+          const tick = () => {
+            const remaining = expiresAt - Date.now();
+            if (remaining <= 0) {
+              clearInterval(codeTimer);
+              bannerEl.innerHTML =
+                '<span class="material-symbols-outlined" style="font-size:56px;color:#aaa">timer_off</span>' +
+                '<h1 class="success-title" style="color:var(--c-secondary)">繳費代碼已失效</h1>' +
+                '<p class="success-sub">此代碼已超過 3 小時有效期限。<br>如需購買請重新下單，或透過 LINE 聯繫客服。</p>' +
+                '<a href="/index.html#shop" style="display:inline-block;margin-top:16px;padding:12px 32px;background:var(--c-primary);color:#fff;border-radius:var(--r-btn);font-size:14px;font-weight:700;text-decoration:none">重新下單</a>';
+              noticeEl.style.display = 'none';
+              return;
+            }
+            const h = Math.floor(remaining / 3600000);
+            const m = Math.floor((remaining % 3600000) / 60000);
+            const s = Math.floor((remaining % 60000) / 1000);
+            const urgent = remaining < 30 * 60 * 1000;
+            timerEl.textContent = `繳費期限剩餘：${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+            timerEl.style.color = urgent ? '#e74c3c' : 'var(--c-secondary)';
+          };
+          tick();
+          const codeTimer = setInterval(tick, 1000);
+        }
       }
     } else if (payType === 'barcode') {
       document.getElementById('notice-icon').textContent  = 'barcode_scanner';
