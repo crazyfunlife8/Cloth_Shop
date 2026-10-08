@@ -244,7 +244,7 @@ document.querySelectorAll('.reveal').forEach(el => ro.observe(el));
     <div class="footer-grid">
 
       <div>
-        <div class="footer-brand-text">EMBER</div>
+        <div class="footer-brand-text">𝑩𝒂𝒊𝑩𝒂𝒊 𝑺𝒕𝒐𝒓𝒆 ღ</div>
         <p class="footer-blurb">溫暖日常的穿搭提案，精選每一件讓你感受溫度的衣物。</p>
 
         <div class="footer-social">
@@ -285,7 +285,7 @@ document.querySelectorAll('.reveal').forEach(el => ro.observe(el));
     </div>
 
     <div class="footer-bar">
-      <span class="ft-copy">© 2026 Ember</span>
+      <span class="ft-copy">© 2026 𝑩𝒂𝒊𝑩𝒂𝒊 𝑺𝒕𝒐𝒓𝒆 ღ</span>
       <span class="ft-tagline">Wear the Warmth</span>
     </div>
   </div>`;

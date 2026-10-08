@@ -187,7 +187,7 @@ async function paymentInitiate(request, env) {
   if (!sendType) return json({ ok: false, error: '無效的付款方式' }, 400, env);
 
   const items = JSON.parse(order.items || '[]');
-  const memo  = items.map(i => `${i.name}×${i.qty}`).join('、').slice(0, 490) || 'Ember 服飾訂單';
+  const memo  = items.map(i => `${i.name}×${i.qty}`).join('、').slice(0, 490) || '𝑩𝒂𝒊𝑩𝒂𝒊 𝑺𝒕𝒐𝒓𝒆 ღ 訂單';
 
   const GOMYPAY_URL = 'https://n.gomypay.asia/TestShuntClass.aspx';
   const frontendUrl = (env.ALLOWED_ORIGIN || 'https://cloth.nestdigitalai.com').replace(/\*$/, '').replace(/,$/, '');
@@ -571,7 +571,7 @@ async function cancelExpiredOrders(env) {
 //  Main router
 // ──────────────────────────────────────────────
 export default {
-  async scheduled(event, env, ctx) {
+  async scheduled(_event, env, ctx) {
     ctx.waitUntil(cancelExpiredOrders(env));
   },
 

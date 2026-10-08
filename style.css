@@ -825,12 +825,12 @@ footer::before {
 }
 .cart-item-remove .material-symbols-outlined { font-size: 13px; }
 
-.cart-foot { border-top: 1px solid rgba(192,128,122,.15); padding: 16px 24px 24px; flex-shrink: 0; }
+.cart-foot { border-top: 1px solid rgba(192,128,122,.15); padding: 16px 24px 24px; flex-shrink: 0; text-align: center; }
 .cart-total-box {
   border: 1px solid rgba(192,128,122,.28); border-radius: 16px;
   padding: 14px 16px; background: rgba(255,255,255,.45);
 }
-.cart-total-row { display: flex; justify-content: space-between; align-items: flex-end; }
+.cart-total-row { display: flex; justify-content: center; align-items: flex-end; gap: 12px; }
 .cart-total-label { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--c-secondary); }
 .cart-total-amt {
   font-family: 'Nunito', sans-serif; font-size: 24px; font-weight: 700;
@@ -852,7 +852,7 @@ footer::before {
 }
 .cart-btn-continue:hover { background: rgba(168,92,85,.05); }
 .cart-perks {
-  display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; justify-items: center;
   margin-top: 18px; text-align: center;
 }
 .cart-perk .material-symbols-outlined { font-size: 22px; color: var(--c-primary); }
