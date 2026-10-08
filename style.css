@@ -590,18 +590,15 @@ footer {
   position: relative; margin-top: 34px;
   background: linear-gradient(180deg, var(--c-ft-dark) 0%, var(--c-ft-darker) 100%);
 }
-/* footer::before {
-  content: ""; position: absolute; top: -12px; left: 0; right: 0; height: 13px;
-  background-image: radial-gradient(circle at 13px 14px, var(--c-ft-dark) 13px, transparent 13.6px);
-  background-size: 26px 13px; background-repeat: repeat-x;
-} */
+
 footer::before {
   content: "";
   position: absolute;
+  width: 100vw;
   left: 0; right: 0;
   top: -48px; height: 49px;
   background: var(--c-ft-dark);
-  clip-path: polygon(0 100%, 100% 0, 100% 100%);
+  clip-path: polygon(-10% 100%, 100% 0, 100% 100%);
 }
 
 .footer-wrap { max-width: 1152px; margin: 0 auto; padding: 64px 24px 40px; }
