@@ -373,7 +373,7 @@
             ${badge ? `<div class="product-badges">${badge}</div>` : ''}
           </div>
           <div class="product-info">
-            <p class="product-name">${p.name}</p>
+            <p class="product-name">${p.item_letter ? p.item_letter + String(p.id).padStart(3,'0') + '-' + p.name : p.name}</p>
             <p class="product-price">${price}</p>
           </div>
         </a>`;

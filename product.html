@@ -108,8 +108,7 @@
       color: var(--c-ft-dark);
     }
 
-    .product-item-no { font-size: 11px; letter-spacing: .14em; color: var(--c-secondary); margin-bottom: 6px; }
-    .product-price-row { display: flex; align-items: baseline; gap: 12px; }
+.product-price-row { display: flex; align-items: baseline; gap: 12px; }
     .price-now {
       font-size: 26px; font-weight: 700;
       color: var(--c-primary);
@@ -376,7 +375,6 @@
     <!-- Info -->
     <div class="product-info">
       <span id="product-badge" class="product-badge" style="display:none"></span>
-      <p class="product-item-no" id="product-item-no" style="display:none"></p>
       <h1 class="product-name" id="product-name">載入中…</h1>
       <div class="product-price-row">
         <span class="price-now" id="price-now"></span>
@@ -491,14 +489,11 @@
   function renderProduct() {
     const p = product;
 
-    document.title = `${p.name}｜𝑩𝒂𝒊𝑩𝒂𝒊 𝑺𝒕𝒐𝒓𝒆 ღ`;
-    document.getElementById('breadcrumb-name').textContent = p.name;
-    document.getElementById('product-name').textContent = p.name;
-    const itemNoEl = document.getElementById('product-item-no');
-    if (p.item_letter) {
-      itemNoEl.textContent = '貨號：' + p.item_letter + String(p.id).padStart(3, '0');
-      itemNoEl.style.display = '';
-    }
+    const itemNo      = p.item_letter ? p.item_letter + String(p.id).padStart(3, '0') : '';
+    const displayName = itemNo ? `${itemNo}-${p.name}` : p.name;
+    document.title = `${displayName}｜𝑩𝒂𝒊𝑩𝒂𝒊 𝑺𝒕𝒐𝒓𝒆 ღ`;
+    document.getElementById('breadcrumb-name').textContent = displayName;
+    document.getElementById('product-name').textContent = displayName;
     document.getElementById('price-now').textContent = `NT$${p.price.toLocaleString()}`;
     document.getElementById('product-desc').textContent = p.description;
     document.getElementById('tab-desc').textContent = p.description;
@@ -603,9 +598,10 @@
     if (!product) return;
     if (product.colors.length && !selectedColor) { Toast.show('請選擇顏色'); return; }
     if (product.sizes.length  && !selectedSize)  { Toast.show('請選擇尺寸'); return; }
+    const _itemNo = product.item_letter ? product.item_letter + String(product.id).padStart(3, '0') : '';
     Cart.add({
       id:    product.id,
-      name:  product.name,
+      name:  _itemNo ? `${_itemNo}-${product.name}` : product.name,
       price: product.price,
       color: selectedColor,
       size:  selectedSize,
