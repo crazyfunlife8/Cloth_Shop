@@ -688,6 +688,14 @@ footer::before {
   font-size: 12px; letter-spacing: .08em; color: var(--c-accent);
 }
 
+.footer-note {
+  margin-top: 12px; font-size: 10px; letter-spacing: .1em;
+  color: rgba(234,211,206,.6);
+  display: flex; 
+  flex-direction: column;
+  text-align: center;
+}
+
 /* ══════════════════════════════════════════
    CONTACT FAB + POPUP
 ══════════════════════════════════════════ */

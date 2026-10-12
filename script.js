@@ -304,6 +304,7 @@ document.querySelectorAll('.reveal').forEach(el => ro.observe(el));
       <span class="ft-copy">© 2026 創巢數位有限公司</span>
       <span class="ft-tagline">Wear the Warmth</span>
     </div>
+    <p class="footer-note">本店小本經營，以網路商城為主，無實體店面；設有實體倉庫，可供退換貨使用。</p>
   </div>`;
   document.body.appendChild(footer);
 })();
