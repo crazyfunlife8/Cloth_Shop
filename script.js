@@ -111,6 +111,15 @@ const Cart = {
     this._save();
     this._render();
     Toast.show('已加入購物車！');
+    if (typeof fbq !== 'undefined') {
+      fbq('track', 'AddToCart', {
+        content_ids: [String(item.id)],
+        content_type: 'product',
+        content_name: item.name,
+        value: item.price * (item.qty || 1),
+        currency: 'TWD',
+      });
+    }
   },
   remove(idx) { this._items.splice(idx, 1); this._save(); this._render(); },
   setQty(idx, delta) {
@@ -283,9 +292,16 @@ document.querySelectorAll('.reveal').forEach(el => ro.observe(el));
       </div>
 
     </div>
-
+    <div class="footer-info">
+      <a class="fs-map" href="https://maps.google.com/?q=桃園市中壢區中央西路二段268-1號5樓" target="_blank" rel="noopener">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="14" height="14" aria-hidden="true"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+        <span class="fs-map-addr">桃園市中壢區中央西路二段268-1號5樓</span>
+        <span class="fs-map-sep">·</span>
+        <span class="fs-map-cta">點我開地圖</span>
+      </a>
+    </div>
     <div class="footer-bar">
-      <span class="ft-copy">© 2026 𝑩𝒂𝒊𝑩𝒂𝒊 𝑺𝒕𝒐𝒓𝒆 ღ</span>
+      <span class="ft-copy">© 2026 創巢數位有限公司</span>
       <span class="ft-tagline">Wear the Warmth</span>
     </div>
   </div>`;

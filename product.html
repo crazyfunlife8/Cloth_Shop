@@ -263,6 +263,18 @@
     .skel { background: linear-gradient(90deg,#ece4d8 25%,#f5eee5 50%,#ece4d8 75%); background-size:200% 100%; animation:skel 1.4s infinite; border-radius:8px; }
     @keyframes skel { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
   </style>
+  <!-- Meta Pixel -->
+  <script>
+  !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+  n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+  document,'script','https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', '1105823902186663');
+  fbq('track', 'PageView');
+  </script>
+  <noscript><img height="1" width="1" style="display:none"
+  src="https://www.facebook.com/tr?id=1105823902186663&ev=PageView&noscript=1"/></noscript>
 </head>
 <body>
 
@@ -460,6 +472,15 @@
       if (!data.ok) { alert('商品不存在'); location.href = '/'; return; }
       product = data.product;
       renderProduct();
+      if (typeof fbq !== 'undefined') {
+        fbq('track', 'ViewContent', {
+          content_ids: [String(product.id)],
+          content_type: 'product',
+          content_name: product.name,
+          value: product.price,
+          currency: 'TWD',
+        });
+      }
     } catch {
       document.getElementById('product-name').textContent = '載入失敗，請重新整理';
     }

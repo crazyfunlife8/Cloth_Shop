@@ -129,6 +129,18 @@
     .cta-primary { background: var(--c-primary); color: #fff; }
     .cta-outline  { background: transparent; color: var(--c-primary); border: 2px solid var(--c-primary); }
   </style>
+  <!-- Meta Pixel -->
+  <script>
+  !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+  n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+  document,'script','https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', '1105823902186663');
+  fbq('track', 'PageView');
+  </script>
+  <noscript><img height="1" width="1" style="display:none"
+  src="https://www.facebook.com/tr?id=1105823902186663&ev=PageView&noscript=1"/></noscript>
 </head>
 <body>
 
@@ -331,6 +343,19 @@
       const data = await res.json();
       if (!data.ok) throw new Error('訂單不存在');
       renderOrder(data.order);
+      if (result === '1' && typeof fbq !== 'undefined') {
+        const key = 'fbq_pur_' + no;
+        if (!sessionStorage.getItem(key)) {
+          sessionStorage.setItem(key, '1');
+          fbq('track', 'Purchase', {
+            content_ids: data.order.items.map(i => String(i.id)),
+            content_type: 'product',
+            num_items: data.order.items.reduce((n, i) => n + i.qty, 0),
+            value: data.order.total,
+            currency: 'TWD',
+          }, { eventID: 'order_' + no });
+        }
+      }
     } catch {
       banner.innerHTML =
         '<span class="material-symbols-outlined" style="font-size:40px;color:var(--c-secondary)">error</span>' +
