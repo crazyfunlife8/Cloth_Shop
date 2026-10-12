@@ -778,7 +778,7 @@
           <td>${thumb}</td>
           <td>
             <p class="td-name">${p.name}</p>
-            <p class="td-cat">${p.item_letter ? `<b>${p.item_letter}${String(p.id).padStart(3,'0')}</b> · ` : ''}${p.cat || '—'}</p>
+            <p class="td-cat">${p.item_letter ? `<b>${p.item_letter}${String(p.sort_order).padStart(3,'0')}</b> · ` : ''}${p.cat || '—'}</p>
           </td>
           <td>NT$${p.price.toLocaleString()}</td>
           <td>${p.original_price ? 'NT$'+p.original_price.toLocaleString() : '—'}</td>
