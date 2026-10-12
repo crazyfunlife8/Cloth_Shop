@@ -472,19 +472,19 @@ async function adminCreateProduct(request, env) {
   const body = await request.json();
   const { name, description = '', price, original_price,
           images = [], cat = '', colors = [], sizes = [],
-          badge = '', sort_order = 0 } = body;
+          badge = '', sort_order = 0, item_letter = '' } = body;
 
   if (!name || !price)
     return json({ ok: false, error: '商品名稱和售價為必填' }, 400, env);
 
   const result = await env.DB.prepare(`
     INSERT INTO products
-      (name, description, price, original_price, images, cat, colors, sizes, badge, sort_order)
-    VALUES (?,?,?,?,?,?,?,?,?,?)
+      (name, description, price, original_price, images, cat, colors, sizes, badge, sort_order, item_letter)
+    VALUES (?,?,?,?,?,?,?,?,?,?,?)
   `).bind(name, description, price, original_price ?? null,
           JSON.stringify(images), cat,
           JSON.stringify(colors), JSON.stringify(sizes),
-          badge, sort_order).run();
+          badge, sort_order, item_letter).run();
 
   return json({ ok: true, id: result.meta.last_row_id }, 200, env);
 }
@@ -494,17 +494,17 @@ async function adminUpdateProduct(id, request, env) {
   const body = await request.json();
   const { name, description = '', price, original_price,
           images = [], cat = '', colors = [], sizes = [],
-          badge = '', active = 1, sort_order = 0 } = body;
+          badge = '', active = 1, sort_order = 0, item_letter = '' } = body;
 
   const info = await env.DB.prepare(`
     UPDATE products
     SET name=?, description=?, price=?, original_price=?,
-        images=?, cat=?, colors=?, sizes=?, badge=?, active=?, sort_order=?
+        images=?, cat=?, colors=?, sizes=?, badge=?, active=?, sort_order=?, item_letter=?
     WHERE id=?
   `).bind(name, description, price, original_price ?? null,
           JSON.stringify(images), cat,
           JSON.stringify(colors), JSON.stringify(sizes),
-          badge, active, sort_order, id).run();
+          badge, active, sort_order, item_letter, id).run();
 
   if (!info.meta.changes) return json({ ok: false, error: '商品不存在' }, 404, env);
   return json({ ok: true }, 200, env);

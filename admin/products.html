@@ -542,6 +542,15 @@
           </div>
         </div>
 
+        <!-- 貨號字母 -->
+        <div class="form-field">
+          <label class="form-label">貨號字母</label>
+          <select class="form-input" id="f-item-letter">
+            <option value="">— 不設定 —</option>
+          </select>
+          <p class="form-hint">貨號 = 字母 + 商品編號，例如 A004</p>
+        </div>
+
         <!-- Badge -->
         <div class="form-field">
           <label class="form-label">標籤徽章</label>
@@ -769,7 +778,7 @@
           <td>${thumb}</td>
           <td>
             <p class="td-name">${p.name}</p>
-            <p class="td-cat">${p.cat || '—'}</p>
+            <p class="td-cat">${p.item_letter ? `<b>${p.item_letter}${String(p.id).padStart(3,'0')}</b> · ` : ''}${p.cat || '—'}</p>
           </td>
           <td>NT$${p.price.toLocaleString()}</td>
           <td>${p.original_price ? 'NT$'+p.original_price.toLocaleString() : '—'}</td>
@@ -829,7 +838,7 @@
       name: p.name, description: p.description, price: p.price,
       original_price: p.original_price, images: p.images, cat: p.cat,
       colors: p.colors, sizes: p.sizes, badge: p.badge,
-      sort_order: p.sort_order, active: active ? 1 : 0,
+      sort_order: p.sort_order, item_letter: p.item_letter || '', active: active ? 1 : 0,
     };
     try {
       await fetch(`${API}/api/admin/products/${id}`, {
@@ -888,8 +897,9 @@
       document.getElementById('f-price').value = p.price;
       document.getElementById('f-original-price').value = p.original_price || '';
       setCatFromString(p.cat);
-      document.getElementById('f-badge').value = p.badge;
-      document.getElementById('f-sort').value  = p.sort_order;
+      document.getElementById('f-badge').value        = p.badge;
+      document.getElementById('f-sort').value         = p.sort_order;
+      document.getElementById('f-item-letter').value  = p.item_letter || '';
       document.getElementById('f-desc').value  = p.description;
       document.getElementById('f-active').checked = !!p.active;
       document.getElementById('active-label').textContent = p.active ? '上架中' : '已下架';
@@ -1087,6 +1097,7 @@
       cat:            getCatString(),
       badge:          document.getElementById('f-badge').value,
       sort_order:     Number(document.getElementById('f-sort').value),
+      item_letter:    document.getElementById('f-item-letter').value,
       active:         document.getElementById('f-active').checked ? 1 : 0,
       images:         uploadedImages.map(i => i.key),
       colors:         [...colorTags],
@@ -1133,6 +1144,16 @@
   // ─────────────────────────────────────
   //  Init
   // ─────────────────────────────────────
+  // 填入 A-Z 選項
+  (function() {
+    const sel = document.getElementById('f-item-letter');
+    for (let i = 0; i < 26; i++) {
+      const opt = document.createElement('option');
+      opt.value = opt.textContent = String.fromCharCode(65 + i);
+      sel.appendChild(opt);
+    }
+  })();
+
   loadProducts();
 </script>
 </body>
