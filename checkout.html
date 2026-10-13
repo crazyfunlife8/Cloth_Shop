@@ -286,8 +286,8 @@
         </div>
         <div class="form-row">
           <div class="form-field">
-            <label class="required">Email</label>
-            <input type="email" id="f-email" placeholder="example@email.com" required>
+            <label>Email</label>
+            <input type="email" id="f-email" placeholder="example@email.com">
             <p class="form-hint">填寫後自動加入會員，新品上架與專屬優惠第一時間通知</p>
           </div>
         </div>
@@ -590,8 +590,8 @@
       Toast.show('請填寫手機號碼', 'error'); btn.disabled = false;
       btn.innerHTML = '<span class="material-symbols-outlined">check_circle</span>確認訂單'; return;
     }
-    if (!emailVal || !/^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/.test(emailVal)) {
-      Toast.show('請填寫正確的 Email', 'error'); btn.disabled = false;
+    if (emailVal && !/^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/.test(emailVal)) {
+      Toast.show('Email 格式不正確', 'error'); btn.disabled = false;
       btn.innerHTML = '<span class="material-symbols-outlined">check_circle</span>確認訂單'; return;
     }
     if (!Cart._items.length) {
