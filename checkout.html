@@ -226,6 +226,57 @@
       cursor: pointer; font-weight: 600;
     }
     .store-msg { font-size: 13px; color: var(--c-secondary); padding: 12px 14px; display: none; }
+
+    /* ── 新會員歡迎 modal ── */
+    .member-modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.45);
+      z-index: 900;
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px;
+      opacity: 0; pointer-events: none;
+      transition: opacity .25s;
+    }
+    .member-modal-overlay.open { opacity: 1; pointer-events: auto; }
+    .member-modal {
+      background: #fff;
+      border-radius: 20px;
+      padding: 36px 32px 28px;
+      max-width: 400px; width: 100%;
+      text-align: center;
+      transform: translateY(16px);
+      transition: transform .25s;
+    }
+    .member-modal-overlay.open .member-modal { transform: translateY(0); }
+    .member-modal-icon {
+      width: 64px; height: 64px; border-radius: 50%;
+      background: rgba(143,89,53,.1);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 18px;
+    }
+    .member-modal-icon .material-symbols-outlined { font-size: 32px; color: var(--c-primary); }
+    .member-modal-title {
+      font-family: 'Noto Serif TC', serif;
+      font-size: 20px; font-weight: 600;
+      color: var(--c-ft-dark);
+      margin-bottom: 12px;
+    }
+    .member-modal-body {
+      font-size: 14px; color: var(--c-secondary);
+      line-height: 1.7; margin-bottom: 24px;
+    }
+    .member-modal-email {
+      font-weight: 700; color: var(--c-primary);
+    }
+    .btn-member-modal {
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      width: 100%; padding: 14px;
+      background: var(--c-primary); color: #fff;
+      border: none; border-radius: var(--r-btn);
+      font-family: inherit; font-size: 15px; font-weight: 700;
+      cursor: pointer; transition: background .2s;
+    }
+    .btn-member-modal:hover { background: var(--c-primary-dark); }
   </style>
   <!-- Meta Pixel -->
   <script>
@@ -647,11 +698,15 @@
       const payData = await payRes.json();
       if (!payData.ok) throw new Error(payData.error || '無法建立付款連結');
 
-      // 步驟三：轉跳 Gomypay
-      // Gomypay 會丟棄 Return_url 的 query params，用 localStorage 保留付款方式
+      // 步驟三：轉跳 Gomypay（新會員先顯示歡迎 modal）
       localStorage.setItem('ember_pending_pt', payMethod);
       localStorage.setItem('ember_pending_no', data.order_no);
-      window.location.href = payData.redirect_url;
+
+      if (data.new_member) {
+        showMemberModal(document.getElementById('f-email').value.trim(), payData.redirect_url);
+      } else {
+        window.location.href = payData.redirect_url;
+      }
 
     } catch (err) {
       Toast.show(err.message || '下單失敗，請稍後再試', 'error');
@@ -660,7 +715,34 @@
     }
   }
 
+  function showMemberModal(email, redirectUrl) {
+    document.getElementById('member-modal-email').textContent = email;
+    document.getElementById('member-modal-pay-btn').onclick = () => {
+      window.location.href = redirectUrl;
+    };
+    document.getElementById('member-modal-overlay').classList.add('open');
+  }
+
   renderSummary();
 </script>
+
+<!-- 新會員歡迎 modal -->
+<div class="member-modal-overlay" id="member-modal-overlay">
+  <div class="member-modal">
+    <div class="member-modal-icon">
+      <span class="material-symbols-outlined">card_membership</span>
+    </div>
+    <h2 class="member-modal-title">歡迎加入會員！</h2>
+    <p class="member-modal-body">
+      您的信箱<br>
+      <span class="member-modal-email" id="member-modal-email"></span><br>
+      已自動加入會員，新品上架與專屬優惠將第一時間通知您。
+    </p>
+    <button class="btn-member-modal" id="member-modal-pay-btn">
+      <span class="material-symbols-outlined">arrow_forward</span>前往付款
+    </button>
+  </div>
+</div>
+
 </body>
 </html>

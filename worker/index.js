@@ -174,8 +174,11 @@ async function createOrder(request, env) {
           JSON.stringify(items), subtotal, shipping_fee, total, note, shipping_method, payment_method).run();
 
   // 自動建立／更新會員（以 email 為唯一識別）
+  let new_member = false;
   if (email) {
     try {
+      const existing = await env.DB.prepare('SELECT id FROM members WHERE email = ?').bind(email).first();
+      new_member = !existing;
       await env.DB.prepare(`
         INSERT INTO members (email, name, phone) VALUES (?, ?, ?)
         ON CONFLICT(email) DO UPDATE SET
@@ -188,7 +191,7 @@ async function createOrder(request, env) {
     }
   }
 
-  return json({ ok: true, order_no, subtotal, shipping_fee, total }, 200, env);
+  return json({ ok: true, order_no, subtotal, shipping_fee, total, new_member }, 200, env);
 }
 
 /* POST /api/payment/initiate — 建立 Gomypay 付款連結 */
