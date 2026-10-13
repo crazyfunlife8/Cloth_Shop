@@ -164,6 +164,17 @@ async function createOrder(request, env) {
   `).bind(order_no, name, phone, email, address,
           JSON.stringify(items), subtotal, shipping_fee, total, note, shipping_method, payment_method).run();
 
+  // 自動建立／更新會員（以 email 為唯一識別）
+  if (email) {
+    await env.DB.prepare(`
+      INSERT INTO members (email, name, phone) VALUES (?, ?, ?)
+      ON CONFLICT(email) DO UPDATE SET
+        name     = CASE WHEN excluded.name  != '' THEN excluded.name  ELSE members.name  END,
+        phone    = CASE WHEN excluded.phone != '' THEN excluded.phone ELSE members.phone END,
+        updated_at = datetime('now')
+    `).bind(email, name, phone).run();
+  }
+
   return json({ ok: true, order_no, subtotal, shipping_fee, total }, 200, env);
 }
 
@@ -519,6 +530,21 @@ async function adminDeleteProduct(id, env) {
   return json({ ok: true }, 200, env);
 }
 
+/* GET /api/admin/members */
+async function adminListMembers(env) {
+  const rows = await env.DB.prepare(`
+    SELECT m.id, m.email, m.name, m.phone, m.created_at,
+           COUNT(o.id)              AS order_count,
+           COALESCE(SUM(o.total),0) AS total_spent,
+           MAX(o.created_at)        AS last_order_at
+    FROM members m
+    LEFT JOIN orders o ON o.email = m.email
+    GROUP BY m.id
+    ORDER BY m.created_at DESC
+  `).all();
+  return json({ ok: true, members: rows.results }, 200, env);
+}
+
 /* POST /api/admin/upload  (multipart/form-data, field: file) */
 async function adminUpload(request, env) {
   let formData;
@@ -662,6 +688,9 @@ export default {
 
         if (method === 'POST' && path === '/api/admin/upload')
           return adminUpload(request, env);
+
+        if (method === 'GET' && path === '/api/admin/members')
+          return adminListMembers(env);
       }
 
       return json({ ok: false, error: 'Not found' }, 404, env);

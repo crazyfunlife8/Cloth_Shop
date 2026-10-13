@@ -683,6 +683,10 @@ footer::before {
 }
 @media (min-width: 640px) { .footer-bar { flex-direction: row; justify-content: space-between; text-align: left; } }
 .footer-bar .ft-copy { font-size: 11px; letter-spacing: .14em; color: var(--c-accent); }
+.footer-note {
+  margin-top: 10px; font-size: 11px; color: rgba(234,211,206,.35);
+  letter-spacing: .04em; text-align: center;
+}
 .footer-bar .ft-tagline {
   font-family: 'Playfair Display', serif; font-style: italic;
   font-size: 12px; letter-spacing: .08em; color: var(--c-accent);
