@@ -546,6 +546,24 @@ async function adminDeleteProduct(id, env) {
   return json({ ok: true }, 200, env);
 }
 
+/* GET /api/members/me?email=xxx — 前台會員自助查詢 */
+async function getMemberByEmail(url, env) {
+  const email = url.searchParams.get('email')?.trim().toLowerCase();
+  if (!email) return json({ ok: false, error: '請提供信箱' }, 400, env);
+
+  const member = await env.DB
+    .prepare('SELECT id, email, name, phone, created_at FROM members WHERE email = ?')
+    .bind(email).first();
+  if (!member) return json({ ok: false, error: '此信箱尚未加入會員' }, 404, env);
+
+  const { results } = await env.DB
+    .prepare('SELECT * FROM orders WHERE email = ? ORDER BY created_at DESC LIMIT 50')
+    .bind(email).all();
+  const orders = results.map(r => ({ ...r, items: JSON.parse(r.items || '[]') }));
+
+  return json({ ok: true, member, orders }, 200, env);
+}
+
 /* GET /api/admin/members */
 async function adminListMembers(env) {
   const rows = await env.DB.prepare(`
@@ -664,6 +682,9 @@ export default {
 
       if (method === 'GET'  && path === '/api/stores')
         return searchStores(url, env);
+
+      if (method === 'GET'  && path === '/api/members/me')
+        return getMemberByEmail(url, env);
 
       if (method === 'POST' && path === '/api/payment/initiate')
         return paymentInitiate(request, env);

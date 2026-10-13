@@ -23,107 +23,32 @@
     }
     @media (min-width: 768px) { .account-page { padding: 140px 48px 100px; } }
 
-    /* ── Coming-soon banner ── */
-    .coming-banner {
-      text-align: center;
-      padding: 48px 24px 40px;
-      background: var(--c-surface);
-      border-radius: var(--r-card);
-      margin-bottom: 40px;
-    }
-    .coming-icon {
-      width: 72px; height: 72px;
-      margin: 0 auto 20px;
-      background: rgba(143,89,53,.1);
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-    }
-    .coming-icon .material-symbols-outlined {
-      font-size: 36px;
-      color: var(--c-primary);
-    }
-    .coming-title {
+    .page-title {
       font-family: 'Noto Serif TC', serif;
-      font-size: clamp(20px, 4vw, 26px);
+      font-size: clamp(22px, 4vw, 28px);
       font-weight: 600;
       color: var(--c-ft-dark);
-      margin-bottom: 12px;
-    }
-    .coming-sub {
-      font-size: 14px;
-      color: var(--c-secondary);
-      line-height: 1.85;
       margin-bottom: 28px;
     }
-    .coming-features {
-      display: flex;
-      justify-content: center;
-      gap: 24px;
-      flex-wrap: wrap;
-      margin-bottom: 28px;
-    }
-    .coming-feat {
-      display: flex; flex-direction: column; align-items: center; gap: 6px;
-      font-size: 12px; color: var(--c-secondary);
-    }
-    .coming-feat .material-symbols-outlined {
-      font-size: 22px;
-      color: rgba(143,89,53,.45);
-    }
-    .coming-badge {
-      display: inline-block;
-      padding: 5px 18px;
-      background: rgba(143,89,53,.1);
-      border-radius: var(--r-pill);
-      font-size: 12px; font-weight: 700;
-      color: var(--c-primary);
-      letter-spacing: .06em;
-    }
-    .coming-shop-link {
-      display: inline-flex; align-items: center; gap: 6px;
-      margin-top: 20px;
-      font-size: 13px; font-weight: 700;
-      color: var(--c-primary);
-      text-decoration: none;
-      transition: opacity .2s;
-    }
-    .coming-shop-link:hover { opacity: .75; }
 
-    /* ── Divider ── */
-    .section-divider {
-      display: flex; align-items: center; gap: 12px;
-      margin-bottom: 24px;
-    }
-    .section-divider::before,
-    .section-divider::after {
-      content: ''; flex: 1;
-      height: 1px; background: rgba(143,89,53,.15);
-    }
-    .section-divider span {
-      font-size: 12px; font-weight: 700;
-      color: var(--c-secondary); letter-spacing: .08em;
-      white-space: nowrap;
-    }
-
-    /* ── Query cards ── */
-    .query-card {
+    /* ── Form card ── */
+    .form-card {
       background: var(--c-surface);
       border-radius: var(--r-card);
       padding: 28px;
       margin-bottom: 16px;
     }
-    .query-card-title {
+    .form-card-title {
       font-weight: 700; font-size: 14px;
       color: var(--c-on-surface);
       margin-bottom: 14px;
       display: flex; align-items: center; gap: 8px;
     }
-    .query-card-title .material-symbols-outlined { color: var(--c-primary); font-size: 18px; }
+    .form-card-title .material-symbols-outlined { color: var(--c-primary); font-size: 18px; }
 
     .query-row { display: flex; gap: 10px; }
     .query-input {
-      flex: 1;
-      padding: 11px 14px;
+      flex: 1; padding: 11px 14px;
       border: 1.5px solid rgba(143,89,53,.2);
       border-radius: var(--r-input);
       background: #fff; font-family: inherit;
@@ -131,41 +56,106 @@
       outline: none; transition: border-color .2s;
     }
     .query-input:focus { border-color: var(--c-primary); }
-
     .btn-query {
       padding: 11px 20px;
       background: var(--c-primary); color: #fff;
       border: none; border-radius: var(--r-input);
       font-family: inherit; font-size: 14px; font-weight: 700;
-      cursor: pointer; white-space: nowrap;
-      transition: background .2s;
+      cursor: pointer; white-space: nowrap; transition: background .2s;
     }
     .btn-query:hover { background: var(--c-primary-dark); }
     .btn-query:disabled { opacity: .55; cursor: not-allowed; }
+    .input-error { font-size: 12px; color: #c0392b; margin-top: 6px; display: none; }
 
-    /* ── Order result cards ── */
+    /* ── Divider ── */
+    .section-divider {
+      display: flex; align-items: center; gap: 12px;
+      margin: 20px 0;
+    }
+    .section-divider::before, .section-divider::after {
+      content: ''; flex: 1; height: 1px; background: rgba(143,89,53,.15);
+    }
+    .section-divider span {
+      font-size: 12px; font-weight: 700;
+      color: var(--c-secondary); letter-spacing: .08em; white-space: nowrap;
+    }
+
+    /* ── Member view ── */
+    .member-profile-card {
+      background: var(--c-surface);
+      border-radius: var(--r-card);
+      padding: 28px;
+      margin-bottom: 16px;
+    }
+    .member-profile-head {
+      display: flex; align-items: center; gap: 16px;
+      margin-bottom: 20px;
+    }
+    .member-avatar {
+      width: 56px; height: 56px; border-radius: 50%;
+      background: rgba(143,89,53,.12);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .member-avatar .material-symbols-outlined { font-size: 28px; color: var(--c-primary); }
+    .member-greeting { flex: 1; min-width: 0; }
+    .member-greeting-name {
+      font-family: 'Noto Serif TC', serif;
+      font-size: 18px; font-weight: 600; color: var(--c-ft-dark);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .member-greeting-sub { font-size: 12px; color: var(--c-secondary); margin-top: 2px; }
+    .btn-logout {
+      padding: 7px 14px;
+      border: 1.5px solid rgba(143,89,53,.25);
+      border-radius: var(--r-pill);
+      background: #fff; font-family: inherit;
+      font-size: 12px; font-weight: 700;
+      color: var(--c-secondary); cursor: pointer;
+      white-space: nowrap; transition: all .2s; flex-shrink: 0;
+    }
+    .btn-logout:hover { border-color: var(--c-primary); color: var(--c-primary); }
+
+    .member-info-rows { display: flex; flex-direction: column; gap: 0; }
+    .member-info-row {
+      display: flex; justify-content: space-between;
+      padding: 10px 0; border-bottom: 1px solid rgba(143,89,53,.08);
+      font-size: 13px;
+    }
+    .member-info-row:last-child { border-bottom: none; }
+    .member-info-label { color: var(--c-secondary); }
+    .member-info-val { font-weight: 600; color: var(--c-on-surface); }
+
+    .stats-row {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 12px; margin-bottom: 16px;
+    }
+    .stat-card {
+      background: var(--c-surface); border-radius: var(--r-card);
+      padding: 18px 20px; text-align: center;
+    }
+    .stat-label { font-size: 11px; color: var(--c-secondary); font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+    .stat-val { font-size: 22px; font-weight: 800; color: var(--c-primary); margin-top: 6px; }
+
+    .orders-section-title {
+      font-weight: 700; font-size: 14px; color: var(--c-on-surface);
+      margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
+    }
+    .orders-section-title .material-symbols-outlined { font-size: 18px; color: var(--c-primary); }
+
+    /* ── Order cards ── */
     .order-card {
-      background: #fff;
-      border-radius: 12px;
-      padding: 16px 20px;
-      margin-top: 10px;
-      cursor: pointer;
-      transition: box-shadow .2s;
+      background: #fff; border-radius: 12px;
+      padding: 16px 20px; margin-bottom: 10px;
       text-decoration: none; display: block; color: inherit;
       border: 1px solid rgba(143,89,53,.1);
+      transition: box-shadow .2s;
     }
     .order-card:hover { box-shadow: 0 4px 20px rgba(74,43,39,.1); }
-    .order-card-head {
-      display: flex; justify-content: space-between; align-items: center;
-      margin-bottom: 4px;
-    }
+    .order-card-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
     .order-no { font-size: 13px; font-weight: 700; }
     .order-date { font-size: 12px; color: var(--c-secondary); margin-bottom: 4px; }
-    .status-pill {
-      display: inline-block; padding: 2px 10px;
-      border-radius: var(--r-pill);
-      font-size: 12px; font-weight: 700;
-    }
+    .status-pill { display: inline-block; padding: 2px 10px; border-radius: var(--r-pill); font-size: 12px; font-weight: 700; }
     .status-pending  { background: rgba(230,126,34,.15); color: #c0772a; }
     .status-paid     { background: rgba(39,174,96,.15);  color: #1e8449; }
     .status-shipped  { background: rgba(41,128,185,.15); color: #1a5e8a; }
@@ -261,72 +251,107 @@
 <div id="toast"></div>
 
 <main class="account-page">
+  <h1 class="page-title">會員中心</h1>
 
-  <!-- Coming Soon Banner -->
-  <div class="coming-banner">
-    <div class="coming-icon">
-      <span class="material-symbols-outlined">person</span>
+  <!-- ── 訪客視圖 ── -->
+  <div id="guest-view">
+
+    <!-- 信箱登入 -->
+    <div class="form-card">
+      <p class="form-card-title">
+        <span class="material-symbols-outlined">mail</span>以信箱登入
+      </p>
+      <div class="query-row">
+        <input class="query-input" type="email" id="input-email"
+               placeholder="輸入購物時填寫的信箱"
+               onkeydown="if(event.key==='Enter') loginByEmail()">
+        <button class="btn-query" id="btn-email" onclick="loginByEmail()">登入</button>
+      </div>
+      <p class="input-error" id="email-error"></p>
     </div>
-    <h1 class="coming-title">會員中心</h1>
-    <p class="coming-sub">
-      我們正在打造更完整的會員系統，<br>
-      未來將開放以下功能，敬請期待！
-    </p>
-    <div class="coming-features">
-      <div class="coming-feat">
-        <span class="material-symbols-outlined">receipt_long</span>
-        訂單管理
+
+    <div class="section-divider"><span>或以訪客身份查詢訂單</span></div>
+
+    <!-- 手機查詢 -->
+    <div class="form-card">
+      <p class="form-card-title">
+        <span class="material-symbols-outlined">phone</span>以手機號碼查詢
+      </p>
+      <div class="query-row">
+        <input class="query-input" type="tel" id="input-phone"
+               placeholder="09xx-xxxxxx"
+               onkeydown="if(event.key==='Enter') queryByPhone()">
+        <button class="btn-query" id="btn-phone" onclick="queryByPhone()">查詢</button>
       </div>
-      <div class="coming-feat">
-        <span class="material-symbols-outlined">favorite</span>
-        收藏清單
-      </div>
-      <div class="coming-feat">
-        <span class="material-symbols-outlined">redeem</span>
-        專屬優惠
-      </div>
-      <div class="coming-feat">
-        <span class="material-symbols-outlined">notifications</span>
-        新品通知
-      </div>
+      <div id="phone-results"></div>
     </div>
-    <span class="coming-badge">COMING SOON</span>
-    <br>
-    <a class="coming-shop-link" href="index.html#shop">
-      <span class="material-symbols-outlined" style="font-size:16px">arrow_back</span>
-      繼續逛逛
-    </a>
+
+    <!-- 訂單編號查詢 -->
+    <div class="form-card">
+      <p class="form-card-title">
+        <span class="material-symbols-outlined">receipt_long</span>以訂單編號查詢
+      </p>
+      <div class="query-row">
+        <input class="query-input" type="text" id="input-order-no"
+               placeholder="ORD-20260908-XXXX"
+               onkeydown="if(event.key==='Enter') queryByOrderNo()">
+        <button class="btn-query" id="btn-order-no" onclick="queryByOrderNo()">查詢</button>
+      </div>
+      <div id="orderno-results"></div>
+    </div>
+
   </div>
 
-  <!-- 訂單查詢 -->
-  <div class="section-divider"><span>訂單查詢</span></div>
+  <!-- ── 會員視圖 ── -->
+  <div id="member-view" hidden>
 
-  <div class="query-card">
-    <p class="query-card-title">
-      <span class="material-symbols-outlined">phone</span>以手機號碼查詢
-    </p>
-    <div class="query-row">
-      <input class="query-input" type="tel" id="input-phone"
-             placeholder="09xx-xxxxxx"
-             onkeydown="if(event.key==='Enter') queryByPhone()">
-      <button class="btn-query" id="btn-phone" onclick="queryByPhone()">查詢</button>
+    <!-- 個人資料 -->
+    <div class="member-profile-card">
+      <div class="member-profile-head">
+        <div class="member-avatar">
+          <span class="material-symbols-outlined">person</span>
+        </div>
+        <div class="member-greeting">
+          <p class="member-greeting-name" id="member-name">—</p>
+          <p class="member-greeting-sub">會員</p>
+        </div>
+        <button class="btn-logout" onclick="logout()">登出</button>
+      </div>
+      <div class="member-info-rows">
+        <div class="member-info-row">
+          <span class="member-info-label">信箱</span>
+          <span class="member-info-val" id="member-email">—</span>
+        </div>
+        <div class="member-info-row">
+          <span class="member-info-label">手機</span>
+          <span class="member-info-val" id="member-phone">—</span>
+        </div>
+        <div class="member-info-row">
+          <span class="member-info-label">加入時間</span>
+          <span class="member-info-val" id="member-since">—</span>
+        </div>
+      </div>
     </div>
-    <div id="phone-results"></div>
-  </div>
 
-  <div class="query-card">
-    <p class="query-card-title">
-      <span class="material-symbols-outlined">receipt_long</span>以訂單編號查詢
-    </p>
-    <div class="query-row">
-      <input class="query-input" type="text" id="input-order-no"
-             placeholder="ORD-20260908-XXXX"
-             onkeydown="if(event.key==='Enter') queryByOrderNo()">
-      <button class="btn-query" id="btn-order-no" onclick="queryByOrderNo()">查詢</button>
+    <!-- 統計 -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <p class="stat-label">訂單數</p>
+        <p class="stat-val" id="stat-order-count">—</p>
+      </div>
+      <div class="stat-card">
+        <p class="stat-label">累計消費</p>
+        <p class="stat-val" id="stat-total-spent">—</p>
+      </div>
     </div>
-    <div id="orderno-results"></div>
-  </div>
 
+    <!-- 歷史訂單 -->
+    <p class="orders-section-title">
+      <span class="material-symbols-outlined">receipt_long</span>歷史訂單
+    </p>
+    <div id="member-orders"></div>
+
+  </div>
 </main>
 
 <!-- footer 由 script.js renderFooter() 動態插入 -->
@@ -334,12 +359,78 @@
 <script src="script.js"></script>
 <script>
   const API = 'https://brand-api.crazyfunlife8.workers.dev';
+  const SESSION_KEY = 'ember_member';
 
   const STATUS_LABEL = {
     pending:'待付款', paid:'已付款',
     shipped:'已出貨', done:'已完成', cancelled:'已取消',
   };
 
+  // ── 登入 ──
+  async function loginByEmail() {
+    const email = document.getElementById('input-email').value.trim().toLowerCase();
+    const errEl = document.getElementById('email-error');
+    errEl.style.display = 'none';
+    if (!email) return;
+
+    const btn = document.getElementById('btn-email');
+    btn.disabled = true; btn.textContent = '查詢中…';
+
+    try {
+      const res  = await fetch(`${API}/api/members/me?email=${encodeURIComponent(email)}`);
+      const data = await res.json();
+      if (!data.ok) throw new Error(data.error || '查詢失敗');
+      sessionStorage.setItem(SESSION_KEY, JSON.stringify(data));
+      showMemberView(data);
+    } catch (err) {
+      errEl.textContent = err.message;
+      errEl.style.display = 'block';
+    } finally {
+      btn.disabled = false; btn.textContent = '登入';
+    }
+  }
+
+  // ── 登出 ──
+  function logout() {
+    sessionStorage.removeItem(SESSION_KEY);
+    document.getElementById('guest-view').hidden  = false;
+    document.getElementById('member-view').hidden = true;
+    document.getElementById('input-email').value  = '';
+  }
+
+  // ── 顯示會員資料 ──
+  function showMemberView({ member, orders }) {
+    document.getElementById('guest-view').hidden  = true;
+    document.getElementById('member-view').hidden = false;
+
+    document.getElementById('member-name').textContent  = member.name  || '會員';
+    document.getElementById('member-email').textContent = member.email;
+    document.getElementById('member-phone').textContent = member.phone || '—';
+    document.getElementById('member-since').textContent = member.created_at?.slice(0, 10) || '—';
+
+    const completedOrders = orders.filter(o => o.status !== 'cancelled');
+    const totalSpent = completedOrders.reduce((s, o) => s + Number(o.total), 0);
+    document.getElementById('stat-order-count').textContent  = completedOrders.length;
+    document.getElementById('stat-total-spent').textContent  = 'NT$' + totalSpent.toLocaleString();
+
+    const container = document.getElementById('member-orders');
+    if (!orders.length) {
+      container.innerHTML = '<p class="result-msg">目前尚無訂單紀錄。</p>';
+      return;
+    }
+    container.innerHTML = orders.map(o => `
+      <a class="order-card" href="order.html?no=${o.order_no}">
+        <div class="order-card-head">
+          <span class="order-no">${o.order_no}</span>
+          <span class="status-pill status-${o.status}">${STATUS_LABEL[o.status] || o.status}</span>
+        </div>
+        <p class="order-date">${o.created_at?.slice(0, 16) || ''}</p>
+        <p class="order-items">${o.items.map(i => i.name).join('、')}</p>
+        <p class="order-total">NT$${o.total.toLocaleString()}</p>
+      </a>`).join('');
+  }
+
+  // ── 訪客查詢（手機）──
   async function queryByPhone() {
     const phone = document.getElementById('input-phone').value.trim();
     if (!phone) return;
@@ -357,6 +448,7 @@
     }
   }
 
+  // ── 訪客查詢（訂單編號）──
   async function queryByOrderNo() {
     const no = document.getElementById('input-order-no').value.trim();
     if (!no) return;
@@ -394,11 +486,20 @@
       </a>`).join('');
   }
 
-  const urlNo = new URLSearchParams(location.search).get('no');
-  if (urlNo) {
-    document.getElementById('input-order-no').value = urlNo;
-    queryByOrderNo();
-  }
+  // ── 初始化 ──
+  (function init() {
+    // 還原 session
+    const stored = sessionStorage.getItem(SESSION_KEY);
+    if (stored) {
+      try { showMemberView(JSON.parse(stored)); return; } catch {}
+    }
+    // URL 帶訂單編號（從其他頁面跳來）
+    const urlNo = new URLSearchParams(location.search).get('no');
+    if (urlNo) {
+      document.getElementById('input-order-no').value = urlNo;
+      queryByOrderNo();
+    }
+  })();
 </script>
 </body>
 </html>
