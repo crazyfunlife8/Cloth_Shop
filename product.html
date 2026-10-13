@@ -664,9 +664,12 @@
 <script src="/tryon/data.js"></script>
 <script>
 function initTryon() {
-  if (typeof PRODUCTS === 'undefined' || !product) return;
-  const tryonId = String(product.id);
-  if (!PRODUCTS[tryonId]) return;
+  if (typeof PRODUCTS === 'undefined' || !product || !product.item_letter) return;
+  const itemCode = product.item_letter + String(product.sort_order).padStart(3, '0');
+  const entry = Object.entries(PRODUCTS).find(([, p]) => p.code === itemCode);
+  if (!entry) return;
+  const tryonId = entry[0];
+
   const $ = s => document.getElementById(s);
   $('tryon-btn').hidden = false;
 
