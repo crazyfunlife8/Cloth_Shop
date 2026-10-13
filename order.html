@@ -169,7 +169,7 @@
   <div class="success-banner">
     <span class="material-symbols-outlined success-icon">check_circle</span>
     <h1 class="success-title">訂單已建立！</h1>
-    <p class="success-sub">感謝您的訂購，我們收到訂單後將盡快安排出貨。<br>如有疑問請透過 LINE 聯繫客服。</p>
+    <p class="success-sub">感謝您的訂購！本商品為預購商品，預計下單後約 10 天安排出貨。<br>如有疑問請透過 LINE 聯繫客服。</p>
   </div>
 
   <!-- 訂單資訊 -->
@@ -302,7 +302,7 @@
       banner.innerHTML =
         '<span class="material-symbols-outlined success-icon" style="color:#e67e22">pin</span>' +
         '<h1 class="success-title">訂單已建立，請前往超商繳費</h1>' +
-        '<p class="success-sub">請持以下代碼至 <strong>7-ELEVEN ibon 機台</strong> 選擇「繳費」輸入代碼完成付款。</p>' +
+        '<p class="success-sub">請持以下代碼至 <strong>7-ELEVEN ibon 機台</strong> 選擇「繳費」輸入代碼完成付款。代碼有效期限為 3 小時，繳費後預計下單後約 10 天安排出貨。</p>' +
         pinHtml +
         '<p id="code-timer" style="margin-top:10px;font-size:13px;font-weight:600;color:var(--c-secondary)">計算剩餘時間…</p>';
     } else if (result === '1' && payType === 'barcode') {
@@ -312,12 +312,12 @@
       banner.innerHTML =
         '<span class="material-symbols-outlined success-icon" style="color:#e67e22">barcode_scanner</span>' +
         '<h1 class="success-title">訂單已建立，請前往超商繳費</h1>' +
-        `<p class="success-sub">繳費條碼已取得，請盡快前往 <strong>7-ELEVEN</strong> 掃碼繳費 <strong>${dateHtml}</strong>。<br>繳費確認後我們將安排出貨，如有疑問請透過 LINE 聯繫客服。</p>`;
+        `<p class="success-sub">繳費條碼已取得，請盡快前往 <strong>7-ELEVEN</strong> 掃碼繳費 <strong>${dateHtml}</strong>。<br>繳費確認後預計下單後約 10 天安排出貨，如有疑問請透過 LINE 聯繫客服。</p>`;
     } else if (result === '1' && payType === 'webatm') {
       banner.innerHTML =
         '<span class="material-symbols-outlined success-icon">check_circle</span>' +
         '<h1 class="success-title">付款成功！</h1>' +
-        '<p class="success-sub">網路 ATM 扣款成功，訂單已確認，我們將盡快安排出貨。<br>如有疑問請透過 LINE 聯繫客服。</p>';
+        '<p class="success-sub">網路 ATM 扣款成功，訂單已確認！本商品為預購商品，預計下單後約 10 天安排出貨。<br>如有疑問請透過 LINE 聯繫客服。</p>';
     } else if (result === '1' && payType === 'virtual') {
       const acctHtml = accountNo
         ? `<p class="success-sub" style="margin-top:10px">${bankInfo ? `${bankInfo}<br>` : ''}匯款帳號：<strong style="font-size:20px;letter-spacing:.1em;color:var(--c-primary)">${accountNo}</strong></p>`
@@ -334,7 +334,7 @@
       if (result === '1') {
         document.querySelector('.success-title').textContent = '付款成功！';
         document.querySelector('.success-sub').innerHTML =
-          '感謝您的付款，訂單已確認，我們將盡快安排出貨。<br>如有疑問請透過 LINE 聯繫客服。';
+          '感謝您的付款，訂單已確認！本商品為預購商品，預計下單後約 10 天安排出貨。<br>如有疑問請透過 LINE 聯繫客服。';
       }
     }
 
@@ -382,7 +382,7 @@
       const bannerEl = document.querySelector('.success-banner');
       const bannerCfg = {
         pending:   { icon: 'schedule',       color: '#e67e22', title: '待付款',   sub: '訂單已建立，尚未完成付款。如有疑問請透過 LINE 聯繫客服。' },
-        paid:      { icon: 'check_circle',   color: '#27ae60', title: '付款完成', sub: '款項已確認，我們將盡快安排出貨。' },
+        paid:      { icon: 'check_circle',   color: '#27ae60', title: '付款完成', sub: '款項已確認，本商品為預購商品，預計下單後約 10 天安排出貨。' },
         shipped:   { icon: 'local_shipping', color: '#2980b9', title: '已出貨',   sub: '商品已寄出，請留意物流通知。如有疑問請透過 LINE 聯繫客服。' },
         done:      { icon: 'done_all',       color: '#27ae60', title: '訂單完成', sub: '感謝您的購買，期待您再次光臨！' },
         cancelled: { icon: 'cancel',         color: '#c0392b', title: '訂單已取消', sub: '此訂單已取消。如有疑問請透過 LINE 聯繫客服。' },
@@ -435,7 +435,7 @@
       document.getElementById('notice-body').innerHTML =
         `${pinDisplay}請前往 <strong>7-ELEVEN ibon 機台</strong> 選擇「代碼繳費」輸入代碼完成付款。<br>
          代碼有效期限為取得後 <strong>3 小時</strong>，請盡快完成繳費。<br>
-         繳費確認後 <strong>2–3 個工作天</strong>安排出貨，如有疑問請透過 LINE 聯繫客服。`;
+         本商品為預購商品，繳費確認後預計 <strong>下單後約 10 天</strong>安排出貨，如有疑問請透過 LINE 聯繫客服。`;
 
       // 倒數計時器（僅限從 Gomypay 跳轉後的頁面，帳號頁進入時元素不存在故跳過）
       if (o.created_at) {
@@ -474,14 +474,14 @@
       document.getElementById('notice-body').innerHTML =
         `請前往 <strong>7-ELEVEN</strong> 讓店員掃描繳費條碼完成付款。<br>
          <strong>條碼限當日有效</strong>，請盡快完成繳費。<br>
-         繳費確認後 <strong>2–3 個工作天</strong>安排出貨，如有疑問請透過 LINE 聯繫客服。`;
+         本商品為預購商品，繳費確認後預計 <strong>下單後約 10 天</strong>安排出貨，如有疑問請透過 LINE 聯繫客服。`;
     } else if (payType === 'virtual') {
       document.getElementById('notice-icon').textContent  = 'account_balance';
       document.getElementById('notice-title').textContent = '虛擬帳戶匯款說明';
       const acctNote = accountNo ? `帳號：<strong>${accountNo}</strong><br>` : '';
       document.getElementById('notice-body').innerHTML =
         `${acctNote}請至 ATM 或網路銀行匯款，<strong>金額須與訂單完全相符，請勿多付或少付</strong>。<br>
-         匯款確認後 <strong>2–3 個工作天</strong>安排出貨，如有疑問請透過 LINE 聯繫客服。`;
+         本商品為預購商品，匯款確認後預計 <strong>下單後約 10 天</strong>安排出貨，如有疑問請透過 LINE 聯繫客服。`;
 
       // 倒數計時：到 LimitDate 當天 23:59:59（台灣時間 UTC+8）
       const timerEl  = document.getElementById('virtual-timer');
@@ -520,9 +520,9 @@
       document.getElementById('notice-icon').textContent  = isCvs ? 'storefront' : 'local_shipping';
       document.getElementById('notice-title').textContent = isCvs ? '超商取貨說明' : '宅配到府說明';
       document.getElementById('notice-body').innerHTML = isCvs
-        ? `確認訂單後 <strong>2–3 個工作天</strong>寄出，請留意手機簡訊取件通知。<br>
+        ? `本商品為預購商品，預計 <strong>下單後約 10 天</strong>寄出，請留意手機簡訊取件通知。<br>
            如有疑問請透過 LINE 聯繫客服。`
-        : `確認訂單後 <strong>2–3 個工作天</strong>安排出貨，宅配人員送達時現場簽收。<br>
+        : `本商品為預購商品，預計 <strong>下單後約 10 天</strong>安排出貨，宅配人員送達時現場簽收。<br>
            出貨後將提供貨運追蹤資訊，請留意手機通知。<br>
            如有疑問請透過 LINE 聯繫客服。`;
     }
