@@ -110,6 +110,12 @@
     #toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--c-text); color: #fff; padding: 12px 20px; border-radius: 12px; font-size: 14px; font-weight: 600; z-index: 999; transition: transform .3s, opacity .3s; opacity: 0; white-space: nowrap; }
     #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
     #toast.error { background: var(--c-danger); }
+
+    .pagination { display: flex; align-items: center; justify-content: center; gap: 12px; padding: 16px 0 4px; }
+    .pg-btn { display: flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 8px; border: 1.5px solid var(--c-border); background: #fff; color: var(--c-text); cursor: pointer; transition: background .15s; }
+    .pg-btn:hover:not(:disabled) { background: var(--c-body); }
+    .pg-btn:disabled { opacity: .35; cursor: default; }
+    .pg-info { font-size: 13px; font-weight: 600; color: var(--c-muted); }
   </style>
 </head>
 <body>
@@ -179,6 +185,7 @@
       </tbody>
     </table>
   </div>
+  <div class="pagination" id="pagination"></div>
 </main>
 
 <!-- Order detail drawer -->
@@ -195,41 +202,59 @@
 
 <script>
   const API = 'https://brand-api.crazyfunlife8.workers.dev';
+  const PAGE_SIZE = 20;
 
   const STATUS_LABEL = { pending:'待付款', paid:'已付款', shipped:'已出貨', done:'已完成', cancelled:'已取消' };
   let orders = [];
+  let filteredList = [];
+  let currentPage = 1;
   let _statusFilter = '';
   let _searchQuery  = '';
 
   async function loadOrders() {
     try {
-      const url = _statusFilter
-        ? `${API}/api/admin/orders?status=${_statusFilter}`
-        : `${API}/api/admin/orders`;
-      const res  = await fetch(url, { credentials: 'include' });
+      const res  = await fetch(`${API}/api/admin/orders`, { credentials: 'include' });
       const data = await res.json();
       orders = data.orders || [];
-      renderOrders(orders);
+      currentPage = 1;
+      renderPage();
     } catch {
       showToast('載入失敗', true);
     }
   }
 
-  function renderOrders(list) {
-    document.getElementById('order-count').textContent = `共 ${list.length} 筆`;
+  function renderPage() {
+    filteredList = orders.filter(o => {
+      const matchStatus = !_statusFilter || o.status === _statusFilter;
+      const matchSearch = !_searchQuery  ||
+        o.order_no.toLowerCase().includes(_searchQuery) ||
+        o.name.toLowerCase().includes(_searchQuery);
+      return matchStatus && matchSearch;
+    });
+
+    const total      = filteredList.length;
+    const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+    currentPage      = Math.min(currentPage, totalPages);
+    const start      = (currentPage - 1) * PAGE_SIZE;
+    const pageItems  = filteredList.slice(start, start + PAGE_SIZE);
+
+    document.getElementById('order-count').textContent = `共 ${total} 筆`;
+
     const tbody = document.getElementById('order-tbody');
-    if (!list.length) {
+    if (!total) {
       tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><span class="material-symbols-outlined">receipt_long</span>沒有符合的訂單</div></td></tr>`;
+      document.getElementById('pagination').innerHTML = '';
       return;
     }
-    tbody.innerHTML = list.map(o => {
+
+    tbody.innerHTML = pageItems.map(o => {
       const itemNames = o.items.map(i => i.name).join('、');
       const statusCls = `status-${o.status}`;
       const statusOpts = Object.entries(STATUS_LABEL).map(([val, label]) =>
         `<option value="${val}" ${o.status === val ? 'selected' : ''}>${label}</option>`
       ).join('');
       return `
-        <tr data-no="${o.order_no.toLowerCase()}" data-name="${o.name.toLowerCase()}">
+        <tr>
           <td style="font-weight:700;font-size:13px">${o.order_no}</td>
           <td>${o.name}<br><span style="font-size:12px;color:var(--c-muted)">${o.phone}</span></td>
           <td><div class="item-list">${itemNames}</div></td>
@@ -253,6 +278,21 @@
           </td>
         </tr>`;
     }).join('');
+
+    document.getElementById('pagination').innerHTML = totalPages <= 1 ? '' : `
+      <button class="pg-btn" onclick="goPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>
+        <span class="material-symbols-outlined">chevron_left</span>
+      </button>
+      <span class="pg-info">第 ${currentPage} / ${totalPages} 頁</span>
+      <button class="pg-btn" onclick="goPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>
+        <span class="material-symbols-outlined">chevron_right</span>
+      </button>
+    `;
+  }
+
+  function goPage(n) {
+    currentPage = n;
+    renderPage();
   }
 
   async function updateStatus(orderNo, select) {
@@ -268,6 +308,7 @@
       if (!data.ok) throw new Error(data.error);
       const o = orders.find(x => x.order_no === orderNo);
       if (o) o.status = status;
+      renderPage();
       showToast(`訂單 ${orderNo} 已更新為「${STATUS_LABEL[status]}」`);
     } catch (err) {
       showToast(err.message || '更新失敗', true);
@@ -276,15 +317,14 @@
 
   function filterByStatus(val) {
     _statusFilter = val;
-    loadOrders();
+    currentPage = 1;
+    renderPage();
   }
 
   function searchOrders(q) {
     _searchQuery = q.toLowerCase();
-    const rows = document.querySelectorAll('#order-tbody tr[data-no]');
-    rows.forEach(tr => {
-      tr.style.display = (tr.dataset.no.includes(_searchQuery) || tr.dataset.name.includes(_searchQuery)) ? '' : 'none';
-    });
+    currentPage = 1;
+    renderPage();
   }
 
   function openDrawer(orderNo) {
@@ -336,10 +376,7 @@
       const data = await res.json();
       if (!data.ok) throw new Error(data.error);
       orders = orders.filter(o => o.order_no !== orderNo);
-      renderOrders(orders.filter(o =>
-        (!_statusFilter || o.status === _statusFilter) &&
-        (!_searchQuery  || o.order_no.toLowerCase().includes(_searchQuery) || o.name.toLowerCase().includes(_searchQuery))
-      ));
+      renderPage();
       showToast(`訂單 ${orderNo} 已刪除`);
     } catch (err) {
       showToast(err.message || '刪除失敗', true);

@@ -606,12 +606,22 @@ async function cancelExpiredOrders(env) {
   console.log(`[cron] cancelled: code=${r1.meta.changes} virtual=${r2.meta.changes}`);
 }
 
+/* Cron：刪除 90 天前已完成或已取消的舊訂單 */
+async function deleteOldOrders(env) {
+  const r = await env.DB
+    .prepare("DELETE FROM orders WHERE status IN ('completed','cancelled') AND created_at < datetime('now','-90 days')")
+    .run();
+  console.log(`[cron] deleted old orders: ${r.meta.changes}`);
+}
+
 // ──────────────────────────────────────────────
 //  Main router
 // ──────────────────────────────────────────────
 export default {
   async scheduled(_event, env, ctx) {
-    ctx.waitUntil(cancelExpiredOrders(env));
+    ctx.waitUntil(
+      Promise.all([cancelExpiredOrders(env), deleteOldOrders(env)])
+    );
   },
 
   async fetch(request, env) {

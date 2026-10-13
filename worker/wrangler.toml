@@ -27,6 +27,10 @@ R2_PUBLIC_URL  = ""    # R2 custom domain（選填，空白則圖片走 Worker �
 # 在 Cloudflare Dashboard → Access → Applications 設定
 # Path: /api/admin/*  Policy: 公司 Email 或 Google 登入
 
+# ── Cron 觸發器 ──
+[triggers]
+crons = ["0 19 * * *"]   # 每天 03:00 台灣時間（UTC+8 → UTC 19:00）
+
 # ── 本地開發 ──
 [dev]
 port = 8787
