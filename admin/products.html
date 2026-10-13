@@ -869,7 +869,8 @@
       const data = await res.json();
       if (!data.ok) throw new Error(data.error);
       products = products.filter(p => p.id !== id);
-      renderProducts(products);
+      renderTable(products);
+      applyFilters();
       showToast(`「${name}」已刪除`);
     } catch (err) {
       showToast(err.message || '刪除失敗', true);
