@@ -359,7 +359,7 @@
 <script src="script.js"></script>
 <script>
   const API = 'https://brand-api.crazyfunlife8.workers.dev';
-  const SESSION_KEY = 'ember_member';
+  const STORAGE_KEY = 'ember_member_email';
 
   const STATUS_LABEL = {
     pending:'待付款', paid:'已付款',
@@ -380,7 +380,7 @@
       const res  = await fetch(`${API}/api/members/me?email=${encodeURIComponent(email)}`);
       const data = await res.json();
       if (!data.ok) throw new Error(data.error || '查詢失敗');
-      sessionStorage.setItem(SESSION_KEY, JSON.stringify(data));
+      localStorage.setItem(STORAGE_KEY, email);
       showMemberView(data);
     } catch (err) {
       errEl.textContent = err.message;
@@ -392,7 +392,7 @@
 
   // ── 登出 ──
   function logout() {
-    sessionStorage.removeItem(SESSION_KEY);
+    localStorage.removeItem(STORAGE_KEY);
     document.getElementById('guest-view').hidden  = false;
     document.getElementById('member-view').hidden = true;
     document.getElementById('input-email').value  = '';
@@ -487,11 +487,19 @@
   }
 
   // ── 初始化 ──
-  (function init() {
-    // 還原 session
-    const stored = sessionStorage.getItem(SESSION_KEY);
-    if (stored) {
-      try { showMemberView(JSON.parse(stored)); return; } catch {}
+  (async function init() {
+    const savedEmail = localStorage.getItem(STORAGE_KEY);
+    if (savedEmail) {
+      const btn = document.getElementById('btn-email');
+      btn.disabled = true;
+      try {
+        const res  = await fetch(`${API}/api/members/me?email=${encodeURIComponent(savedEmail)}`);
+        const data = await res.json();
+        if (data.ok) { showMemberView(data); return; }
+        // email 已失效（例如會員資料被刪），清除並顯示訪客頁
+        localStorage.removeItem(STORAGE_KEY);
+      } catch {}
+      btn.disabled = false;
     }
     // URL 帶訂單編號（從其他頁面跳來）
     const urlNo = new URLSearchParams(location.search).get('no');
