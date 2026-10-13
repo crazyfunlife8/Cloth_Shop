@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>自己動手穿穿看</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;700&family=Huninn&family=Playfair+Display:ital,wght@1,500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@400,0&display=swap" rel="stylesheet">
+<style>
+  /* 示範用的商品頁，樣式比照 cloth.nestdigitalai.com/product.html；真正上線時只需要「買之前穿穿看」按鈕＋底部視窗那段 */
+  :root{
+    color-scheme: light;
+    --c-primary:#8f5935; --c-primary-dark:#754122; --c-surface:#FBF7F4; --c-body:#FAF3E5;
+    --c-on-surface:#583d27; --c-secondary:#9E8B84; --c-accent:#D9A9A6; --line:#eadfd3; --soft:#f4e9e2;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--c-surface);color:var(--c-on-surface);font-family:"Huninn",sans-serif}
+  button{font-family:inherit}
+  .ms{font-family:"Material Symbols Outlined";font-weight:normal;font-style:normal;font-size:20px;line-height:1;display:inline-block;-webkit-font-smoothing:antialiased}
+  .demo-bar{background:#3A2E24;color:#f3e9df;font-size:12px;padding:8px 16px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .demo-bar b{font-weight:700;margin-right:4px}
+  .demo-bar button{border:1px solid rgba(255,255,255,.3);background:none;color:#f3e9df;border-radius:999px;padding:3px 10px;font-size:12px;cursor:pointer}
+  .demo-bar button.on{background:#f3e9df;color:#3A2E24}
+  .demo-bar select{background:#f3e9df;color:#3A2E24;border:none;border-radius:999px;padding:4px 10px;font-size:13px;font-family:inherit}
+  header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--line);background:var(--c-surface)}
+  .logo{font-family:"Playfair Display",serif;font-style:italic;font-size:22px;color:var(--c-primary)}
+  main{max-width:520px;margin:0 auto;padding:0 16px 48px}
+  .gallery{margin:16px 0;border-radius:22px;overflow:hidden;background:#efe7df}
+  .gallery{background:#fff}
+  .gallery img{width:100%;display:block;aspect-ratio:3/4;object-fit:contain}
+  .tag{font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--c-primary)}
+  h1{font-family:"Noto Serif TC",serif;font-size:21px;line-height:1.45;margin:6px 0 10px}
+  .price{font-family:"Huninn",sans-serif;font-size:26px;font-weight:800;color:var(--c-primary)}
+  .price s{font-size:15px;color:var(--c-secondary);font-weight:600;margin-left:6px}
+  .label{font-size:13px;font-weight:600;margin:20px 0 8px}
+  .label em{font-style:normal;color:var(--c-secondary);font-weight:400;margin-left:6px}
+  .swatches,.chips{display:flex;gap:8px;flex-wrap:wrap}
+  .sw{width:30px;height:30px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1.5px var(--line);cursor:pointer}
+  .sw.on{box-shadow:0 0 0 2px var(--c-primary)}
+  .chip{min-width:46px;border:1.5px solid var(--line);background:#fff;border-radius:12px;padding:8px 12px;font-size:13px;font-weight:600;color:var(--c-on-surface);cursor:pointer}
+  .chip.on{background:var(--c-primary);border-color:var(--c-primary);color:#fff}
+  .tryon{margin-top:22px;width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:13px;border:1.5px dashed var(--c-primary);border-radius:14px;background:#fff6f0;color:var(--c-primary);font-size:15px;font-weight:700;cursor:pointer}
+  .tryon small{font-weight:400;color:var(--c-secondary);font-size:12px}
+  .actions{display:grid;grid-template-columns:1fr;gap:10px;margin-top:10px}
+  .hint{font-size:12px;color:var(--c-secondary);text-align:center;margin:8px 0 0}
+  .hint b{color:var(--c-primary)}
+  .btn{padding:14px;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px}
+  .btn-buy{background:var(--c-primary);border:1.5px solid var(--c-primary);color:#fff}
+  .full{display:block;text-align:center;margin-top:28px;font-size:13px;color:var(--c-secondary)}
+  .full a{color:var(--c-primary);font-weight:700}
+
+  /* 試穿底部視窗 */
+  .t-bg{position:fixed;inset:0;background:rgba(58,46,36,.4);z-index:50;opacity:0;pointer-events:none;transition:opacity .2s}
+  .t-sheet{position:fixed;left:0;right:0;bottom:0;z-index:51;height:92%;max-width:560px;margin:0 auto;background:var(--c-body);border-radius:22px 22px 0 0;transform:translateY(102%);transition:transform .28s ease;display:flex;flex-direction:column;overflow:hidden}
+  .t-open .t-bg{opacity:1;pointer-events:auto}
+  .t-open .t-sheet{transform:none}
+  .t-head{display:flex;align-items:center;justify-content:space-between;padding:10px 12px 6px 18px}
+  .t-head span{font-size:13px;color:var(--c-secondary)}
+  .t-head button{border:none;background:var(--soft);border-radius:50%;width:34px;height:34px;cursor:pointer;color:var(--c-on-surface)}
+  .t-sheet iframe{flex:1;border:0;width:100%;background:var(--c-body)}
+  .toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:60;background:var(--c-on-surface);color:#fff;font-size:14px;padding:10px 16px;border-radius:999px;opacity:0;transition:opacity .2s;pointer-events:none;white-space:nowrap}
+  .toast.show{opacity:1}
+  @media (prefers-reduced-motion: reduce){ .t-sheet,.t-bg{transition:none} }
+</style>
+</head>
+<body>
+<div class="demo-bar"><b>示範商品頁</b>換一件看看：<span id="demo-switch"></span></div>
+<header>
+  <span class="logo">Ember</span>
+</header>
+
+<main>
+  <div class="gallery"><img id="g-img" alt=""></div>
+  <div class="tag" id="p-code"></div>
+  <h1 id="p-name"></h1>
+  <div class="price" id="p-price"></div>
+
+  <div class="label">顏色<em id="c-sel"></em></div>
+  <div class="swatches" id="swatches"></div>
+  <div class="label">尺寸<em id="s-sel"></em></div>
+  <div class="chips" id="chips"></div>
+
+  <button class="tryon" id="tryon"><span class="ms">checkroom</span>買之前穿穿看 <small>看你穿起來的樣子＋推薦尺寸</small></button>
+  <div class="actions">
+    <button class="btn btn-buy" id="buy"><span class="ms">storefront</span>去 7-11 賣貨便下單</button>
+  </div>
+  <p class="hint">賣貨便會開整個賣場，找商品編號 <b id="h-code"></b>，選好顏色和尺寸下單</p>
+
+  <p class="full">想一次試好幾件？<a href="tryon.html">自己動手穿穿看 →</a></p>
+</main>
+
+<div id="t-wrap">
+  <div class="t-bg" id="t-bg"></div>
+  <div class="t-sheet" role="dialog" aria-label="買之前穿穿看">
+    <div class="t-head"><span>試穿完可以直接去賣貨便下單</span><button id="t-close" aria-label="關閉"><span class="ms">close</span></button></div>
+    <iframe id="t-frame" title="買之前穿穿看"></iframe>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script src="data.js"></script>
+<script>
+// 示範用資料：跟試穿工具共用 data.js，商品、價格、顏色、尺寸都照 7-11 賣貨便賣場
+const STORE_URL = 'https://myship.7-11.com.tw/general/detail/GM2609146387915';
+const $ = id => document.getElementById(id);
+let cur = ORDER[0], color, size;
+
+function toast(m){ const t=$('toast'); t.textContent=m; t.classList.add('show'); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('show'),2800); }
+
+function show(id){
+  cur = id; const p = PRODUCTS[id]; color = p.bodyColor; size = p.stock[0];
+  $('demo-switch').innerHTML = `<select id="demo-sel" aria-label="換商品">${ORDER.map(k=>`<option value="${k}" ${k==id?'selected':''}>${PRODUCTS[k].code} ${PRODUCTS[k].short}</option>`).join('')}</select>`;
+  $('demo-sel').onchange = e => show(+e.target.value);
+  $('g-img').src = p.white || p.thumb; $('g-img').alt = p.short;
+  $('p-code').textContent = p.code; $('h-code').textContent = p.code;
+  $('p-name').textContent = p.name;
+  $('p-price').innerHTML = `NT$${p.price}${p.orig ? `<s>NT$${p.orig}</s>` : ''}`;
+  draw();
+}
+function draw(){
+  const p = PRODUCTS[cur];
+  $('swatches').innerHTML = p.colors.map(c=>`<button class="sw ${c.label===color?'on':''}" style="background:${c.hex}" data-c="${c.label}" aria-label="${c.label}"></button>`).join('');
+  $('swatches').querySelectorAll('.sw').forEach(b=>b.onclick=()=>{color=b.dataset.c; draw();});
+  $('chips').innerHTML = p.stock.map(s=>`<button class="chip ${s===size?'on':''}" data-s="${s}">${s}</button>`).join('');
+  $('chips').querySelectorAll('.chip').forEach(b=>b.onclick=()=>{size=b.dataset.s; draw();});
+  $('c-sel').textContent = color; $('s-sel').textContent = size;
+}
+
+// ===== 上線時要搬到商品頁的部分 =====
+function openTryon(){
+  $('t-frame').src = `tryon.html#embed-${cur}`;
+  document.body.classList.add('t-open');
+}
+function closeTryon(){ document.body.classList.remove('t-open'); setTimeout(()=>{ $('t-frame').src='about:blank'; }, 300); }
+$('tryon').onclick = openTryon;
+$('t-close').onclick = closeTryon;
+$('t-bg').onclick = closeTryon;
+// 試穿視窗裡按「就選這件 去賣貨便下單」：賣場已在新分頁打開，這邊關視窗、把選好的顏色尺寸帶回來
+window.addEventListener('message', e => {
+  if(e.origin !== location.origin) return;
+  if(!e.data || e.data.type !== 'tryon-picked') return;
+  const it = e.data.item;
+  if(String(it.id) === String(cur)){ color = it.color; size = it.size; draw(); }
+  closeTryon();
+  toast(`在賣貨便找 ${PRODUCTS[it.id].code}，選 ${it.color} / ${it.size}`);
+});
+// ===== 到這裡 =====
+
+$('buy').onclick = () => {
+  window.open(STORE_URL, '_blank', 'noopener');
+  toast(`在賣貨便找 ${PRODUCTS[cur].code}，選 ${color} / ${size}`);
+};
+
+show(cur);
+</script>
+</body>
+</html>

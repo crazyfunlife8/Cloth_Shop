@@ -1,0 +1,493 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>自己動手穿穿看</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;700&family=Huninn&display=swap" rel="stylesheet">
+<style>
+  /* 色票照抄商城 style.css */
+  :root{
+    color-scheme: light;
+    --c-primary:#8f5935; --c-primary-dark:#754122; --c-surface:#FBF7F4; --c-body:#FAF3E5;
+    --c-on-surface:#583d27; --c-secondary:#9E8B84; --c-accent:#D9A9A6; --c-accent-mid:#aa7a43;
+    --line:#eadfd3; --soft:#f4e9e2; --warn:#b9772f; --ok:#7a9a6e;
+    --r-card:22px; --r-btn:14px; --r-pill:9999px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--c-body);color:var(--c-on-surface);font-family:"Huninn",sans-serif;-webkit-font-smoothing:antialiased}
+  button{font-family:inherit}
+  .wrap{max-width:480px;margin:0 auto;padding:16px 16px 8px}
+  header{display:flex;align-items:center;gap:12px;padding:6px 0 16px}
+  header img{width:60px;height:60px;border-radius:50%;object-fit:cover;border:2px solid #fff;box-shadow:0 2px 8px rgba(88,61,39,.15)}
+  header h1{font-family:"Noto Serif TC",serif;font-size:21px;margin:0;color:var(--c-on-surface)}
+  header p{margin:2px 0 0;font-size:13px;color:var(--c-secondary)}
+  header .brand{margin-left:auto;font-family:"Huninn",sans-serif;font-weight:800;color:var(--c-primary);font-size:15px;letter-spacing:.04em}
+  .card{background:var(--c-surface);border-radius:var(--r-card);padding:18px 16px;margin-bottom:14px;box-shadow:0 2px 10px rgba(88,61,39,.06)}
+  .step{font-family:"Huninn",sans-serif;font-size:11px;color:var(--c-primary);font-weight:800;letter-spacing:.14em;margin-bottom:4px}
+  h2{font-family:"Noto Serif TC",serif;font-size:20px;letter-spacing:.08em;margin:0 0 12px}
+  .row{margin:14px 0}
+  .row label{display:flex;justify-content:space-between;align-items:baseline;font-size:14px;margin-bottom:6px}
+  .row label b{font-family:"Huninn",sans-serif;font-size:17px}
+  input[type=range]{width:100%;accent-color:var(--c-primary)}
+  .chips{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+  .chip{border:1.5px solid var(--line);border-radius:14px;background:#fff;padding:8px 2px 6px;text-align:center;font-size:12px;cursor:pointer;color:var(--c-on-surface)}
+  .chip svg{display:block;margin:0 auto 4px;height:46px}
+  .chip.on{border-color:var(--c-primary);background:var(--soft)}
+  .opt{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--c-secondary)}
+  .opt input{width:72px;padding:7px 8px;border:1.5px solid var(--line);border-radius:10px;font-size:15px;background:#fff;color:var(--c-on-surface)}
+  .cats{display:flex;gap:6px;overflow-x:auto;margin:0 -16px 12px;padding:0 16px 2px;scrollbar-width:none}
+  .cats::-webkit-scrollbar{display:none}
+  .cat{flex:none;border:1.5px solid var(--line);background:#fff;border-radius:var(--r-pill);padding:6px 14px;font-size:13px;cursor:pointer;color:var(--c-on-surface)}
+  .cat.on{background:var(--c-primary);border-color:var(--c-primary);color:#fff}
+  .cat small{opacity:.7;margin-left:3px}
+  .prods{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .prod{position:relative;border:1.5px solid var(--line);border-radius:16px;overflow:hidden;background:#fff;cursor:pointer;padding:0;text-align:left}
+  .prod img{width:100%;aspect-ratio:3/4;object-fit:cover;display:block;background:#f3eee9}
+  .prod span{display:block;font-size:12px;padding:6px 8px 2px;line-height:1.35;color:var(--c-on-surface)}
+  .prod em{display:block;font-style:normal;font-size:12px;padding:0 8px 7px;color:var(--c-primary);font-weight:700}
+  .prod .code{display:block;font-family:"Huninn",sans-serif;font-size:10px;font-weight:700;color:var(--c-secondary);letter-spacing:.04em}
+  .photo img.white{object-fit:contain;background:#fff}
+  .prod.on{border-color:var(--c-primary);box-shadow:0 0 0 2px var(--soft)}
+  .prod .in{position:absolute;right:6px;top:6px;background:var(--c-primary);color:#fff;font-size:11px;padding:2px 8px;border-radius:var(--r-pill)}
+  .result{display:none}
+  .result.show{display:block}
+  .tabs{display:flex;gap:6px;margin-bottom:10px}
+  .tab{flex:1;border:none;border-radius:var(--r-pill);padding:9px;background:var(--soft);font-size:13px;cursor:pointer;color:var(--c-on-surface)}
+  .tab.on{background:var(--c-primary);color:#fff}
+  .photo{position:relative;border-radius:18px;overflow:hidden;background:#efe7df;aspect-ratio:2/3}
+  .photo img{position:relative;z-index:1;width:100%;height:100%;object-fit:cover;display:block}
+  .photo .sprite{position:absolute;inset:0;z-index:1;background-size:100% 500%;background-repeat:no-repeat}
+  .photo .tag{position:absolute;z-index:2;left:10px;top:10px;background:rgba(58,46,36,.62);color:#fff;font-size:12px;padding:4px 10px;border-radius:var(--r-pill)}
+  .disclaim{display:flex;gap:8px;align-items:flex-start;margin:0 0 10px;padding:10px 12px;border-radius:12px;background:#fdf0e1;border:1.5px solid #ecc9a0;color:var(--c-on-surface);font-size:13px;line-height:1.6}
+  .disclaim b{flex:none;width:18px;height:18px;margin-top:2px;border-radius:50%;background:var(--warn);color:#fff;font-size:12px;line-height:18px;text-align:center;font-family:"Huninn",sans-serif}
+  .disclaim strong{color:var(--warn)}
+  .photo .empty{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--c-secondary);font-size:14px;text-align:center;padding:20px}
+  .rec-box{margin:4px 0 18px;padding:2px 14px 14px;background:#fff;border:1.5px solid var(--line);border-radius:16px}
+  .size{display:flex;align-items:baseline;gap:10px;margin:16px 0 4px}
+  .size .big{font-family:"Huninn",sans-serif;font-size:46px;font-weight:800;color:var(--c-primary);line-height:1}
+  .size .why{font-size:13px;color:var(--c-secondary)}
+  ul.fit{list-style:none;padding:0;margin:10px 0 0}
+  ul.fit li{position:relative;padding:8px 0 8px 22px;border-top:1px solid var(--line);font-size:14px;line-height:1.55}
+  ul.fit li:before{content:"";position:absolute;left:4px;top:15px;width:8px;height:8px;border-radius:50%;background:var(--ok)}
+  ul.fit li.warn:before{background:var(--warn)}
+  .bubble{display:flex;gap:10px;margin-top:16px;align-items:flex-start}
+  .bubble img{width:44px;height:44px;border-radius:50%;object-fit:cover;flex:none}
+  .bubble div{background:#f6e6e4;border-radius:4px 16px 16px 16px;padding:10px 12px;font-size:14px;line-height:1.65}
+  .look{margin-top:18px;padding-top:16px;border-top:1px dashed var(--line);scroll-margin-top:12px}
+  .pick{padding-top:0}
+  .pick p{margin:0 0 8px;font-size:13px;color:var(--c-secondary)}
+  .colors,.sizes{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+  .colors.under{margin:12px 0 0}
+  .cbtn{display:flex;align-items:center;gap:6px;border:1.5px solid var(--line);background:#fff;border-radius:var(--r-pill);padding:6px 12px 6px 8px;font-size:13px;cursor:pointer;color:var(--c-on-surface)}
+  .cbtn i{width:14px;height:14px;border-radius:50%;border:1px solid rgba(0,0,0,.12)}
+  .cbtn.on,.sbtn.on{border-color:var(--c-primary);background:var(--soft)}
+  .sbtn{min-width:44px;border:1.5px solid var(--line);background:#fff;border-radius:12px;padding:7px 10px;font-size:13px;font-weight:700;cursor:pointer;color:var(--c-on-surface)}
+  .sbtn.rec{position:relative}
+  .sbtn.rec:after{content:"推薦";position:absolute;top:-8px;right:-6px;background:var(--c-accent);color:#fff;font-size:9px;padding:1px 4px;border-radius:6px;font-weight:700}
+  .add{display:block;width:100%;margin-top:6px;padding:14px;border:none;border-radius:var(--r-btn);background:var(--c-primary);color:#fff;font-size:15px;font-weight:700;cursor:pointer}
+  .add:active{background:var(--c-primary-dark)}
+  .add,.go{letter-spacing:.12em}
+  .add:after,.go:after{content:"♡";margin-left:.7em;font-weight:400}
+  .sizetable{margin-top:16px;font-size:13px}
+  .sizetable h3{margin:0;font-size:13px;font-weight:600;color:var(--c-secondary)}
+  table{width:100%;border-collapse:collapse;margin-top:8px;font-size:13px}
+  th,td{border-bottom:1px solid var(--line);padding:6px 3px;text-align:center;white-space:nowrap}
+  th{font-size:12px;color:var(--c-secondary);font-weight:600}
+  tr.hit td{background:var(--soft);font-weight:700}
+  td .rec-tag{display:inline-block;margin-left:4px;padding:0 4px;border-radius:6px;background:var(--c-accent);color:#fff;font-size:9px;font-style:normal;font-weight:700;vertical-align:2px}
+  .note{font-size:12px;color:var(--c-secondary);margin-top:8px;line-height:1.6}
+
+  /* 試穿清單 */
+  .tray-bar{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--c-surface);border-top:1px solid var(--line);box-shadow:0 -4px 16px rgba(88,61,39,.08);padding:10px 16px calc(10px + env(safe-area-inset-bottom));display:none}
+  .tray-bar.show{display:block}
+  .tray-in{max-width:480px;margin:0 auto;display:flex;align-items:center;gap:10px}
+  .thumbs{display:flex;flex:1;min-width:0;gap:4px;cursor:pointer;align-items:center}
+  .thumbs img{width:36px;height:46px;object-fit:cover;border-radius:8px;border:1.5px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.12)}
+  .thumbs span{font-size:13px;margin-left:6px;white-space:nowrap}
+  .thumbs b{font-family:"Huninn",sans-serif}
+  .go{border:none;border-radius:var(--r-btn);background:var(--c-primary);color:#fff;font-size:14px;font-weight:700;padding:12px 14px;cursor:pointer;white-space:nowrap}
+  .sheet-bg{position:fixed;inset:0;z-index:30;background:rgba(58,46,36,.35);display:none}
+  .sheet{position:fixed;left:0;right:0;bottom:0;z-index:31;background:var(--c-surface);border-radius:22px 22px 0 0;max-height:80vh;overflow:auto;padding:18px 16px calc(18px + env(safe-area-inset-bottom));transform:translateY(105%);transition:transform .25s}
+  .sheet.open{transform:none}
+  .sheet-bg.open{display:block}
+  .sheet .in{max-width:480px;margin:0 auto}
+  .sheet h3{font-family:"Noto Serif TC",serif;margin:0 0 12px;font-size:18px}
+  .li{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);align-items:center}
+  .li img{width:56px;height:72px;object-fit:cover;border-radius:10px}
+  .li div{flex:1;font-size:14px;line-height:1.5}
+  .li small{display:block;color:var(--c-secondary);font-size:12px}
+  .li button{border:none;background:none;color:var(--c-secondary);font-size:13px;cursor:pointer;padding:6px}
+  .sum{display:flex;justify-content:space-between;margin:14px 0;font-size:15px}
+  .sum b{font-family:"Huninn",sans-serif;font-size:18px;color:var(--c-primary)}
+  .toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%);z-index:40;background:var(--c-on-surface);color:#fff;font-size:14px;padding:10px 16px;border-radius:var(--r-pill);opacity:0;transition:opacity .2s;pointer-events:none;max-width:90vw;text-align:center}
+  .toast.show{opacity:1}
+  .site-foot{position:relative;margin-top:28px;background:var(--c-primary);color:#f3e6dc;padding:40px 16px 48px}
+  .has-tray .site-foot{padding-bottom:110px}
+  .foot-in{max-width:480px;margin:0 auto}
+  .foot-who{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+  .foot-who img{width:54px;height:54px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,.6)}
+  .foot-who b{display:block;font-family:"Noto Serif TC",serif;font-size:16px;letter-spacing:.08em;color:#fff}
+  .foot-who span{font-size:13px;color:#e6d3c6}
+  .foot-row{display:flex;align-items:center;gap:10px;padding:14px 2px;border-top:1px solid rgba(255,255,255,.14);color:#fff;text-decoration:none}
+  .foot-row:last-child{border-bottom:1px solid rgba(255,255,255,.14)}
+  .foot-row svg{width:20px;height:20px;fill:none;stroke:#e6c9b8;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex:none}
+  .foot-row span{flex:1;font-family:"Noto Serif TC",serif;font-weight:700;font-size:15px;letter-spacing:.05em}
+  .foot-row small{font-family:"Huninn",sans-serif;font-size:10px;letter-spacing:.18em;color:#c9ad9d}
+  /* 嵌在商品頁時（#embed-商品id）：只試這一件，不顯示選商品和試穿清單 */
+  .embed #prods-card,.embed .tray-bar,.embed header .brand{display:none!important}
+  .embed .wrap{padding-bottom:8px}
+  .embed .site-foot{padding-bottom:40px}
+  .embed .step{display:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <img src="img/yian-avatar.jpg" alt="苡安">
+    <div>
+      <h1>自己動手穿穿看</h1>
+      <p>填好你的身材，看看穿起來的樣子</p>
+    </div>
+    <span class="brand">Ember</span>
+  </header>
+
+  <section class="card" id="prods-card">
+    <div class="step">STEP 1</div>
+    <h2>想試哪件？</h2>
+    <div class="cats" id="cats"></div>
+    <div class="prods" id="prods"></div>
+  </section>
+
+  <section class="card" id="me-card">
+    <div class="step">STEP 2</div>
+    <h2>你的身材</h2>
+    <div class="row">
+      <label>身高 <b><span id="hv">160</span> cm</b></label>
+      <input id="h" type="range" min="140" max="180" value="160">
+    </div>
+    <div class="row">
+      <label>體重 <b><span id="wv">50</span> kg</b></label>
+      <input id="w" type="range" min="35" max="95" value="50">
+    </div>
+    <div class="rec-box" id="rec" hidden>
+      <div class="size"><span class="big" id="size"></span><span class="why" id="why"></span></div>
+      <ul class="fit" id="fit"></ul>
+      <div class="bubble"><img src="img/yian-avatar.jpg" alt=""><div id="say"></div></div>
+    </div>
+    <div class="row">
+      <label>身形 <span style="color:var(--c-secondary);font-size:13px">照身高體重自動帶入，不像可以自己改</span></label>
+      <div class="chips" id="bodies"></div>
+    </div>
+    <div class="row opt">
+      胸圍（選填）<input id="bust" type="number" inputmode="numeric" placeholder="cm"> 有填會算得更準
+    </div>
+    <div class="look" id="look" hidden>
+      <div class="tabs">
+        <button class="tab on" data-v="body">像你的身形穿</button>
+        <button class="tab" data-v="yian">苡安穿</button>
+      </div>
+      <div class="disclaim"><b>!</b><span><strong>圖片僅供參考</strong>，商品穿上身的視覺效果會因人而異，請以收到的實物為主唷 (｡•ㅅ•｡)♡</span></div>
+      <div class="photo" id="photo"></div>
+      <div class="colors under" id="colors"></div>
+    </div>
+  </section>
+
+
+  <section class="card result" id="result">
+    <div class="pick">
+      <p>尺寸</p>
+      <div class="sizes" id="sizes"></div>
+      <button class="add" id="add">加進試穿清單</button>
+    </div>
+
+    <div class="sizetable">
+      <h3>尺寸表</h3>
+      <div style="overflow-x:auto"><table id="table"></table></div>
+      <div class="note" id="tnote"></div>
+    </div>
+    <div class="note">尺寸為手工平鋪測量，1–2 公分誤差屬於正常範圍，如有誤差請以實際商品為主。身形圖是依體型模擬的參考圖，不是本人照片。</div>
+  </section>
+</div>
+
+<footer class="site-foot">
+  <div class="foot-in">
+    <div class="foot-who">
+      <img src="img/yian-avatar.jpg" alt="苡安">
+      <div><b>苡安の女裝</b><span>有任何問題歡迎私訊苡安 (◍•ᴗ•◍)</span></div>
+    </div>
+    <a class="foot-row" href="https://www.instagram.com/yiann.9424/" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r=".6" fill="currentColor"/></svg>
+      <span>IG ＠yiann.9424</span><small>DM 私訊</small>
+    </a>
+    <a class="foot-row" href="https://myship.7-11.com.tw/general/detail/GM2609146387915" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5 5.5 4h13L20 9.5M4 9.5h16M4 9.5V20h16V9.5M9.5 20v-5h5v5"/></svg>
+      <span>7-11 賣貨便賣場</span><small>SHOP</small>
+    </a>
+  </div>
+</footer>
+
+<div class="tray-bar" id="tray-bar">
+  <div class="tray-in">
+    <div class="thumbs" id="thumbs"></div>
+    <button class="go" id="go">去賣貨便下單</button>
+  </div>
+</div>
+<div class="sheet-bg" id="sheet-bg"></div>
+<div class="sheet" id="sheet"><div class="in">
+  <h3>試穿清單</h3>
+  <p class="note" style="margin:-4px 0 6px">到 7-11 賣貨便照這張清單，找商品編號、選顏色和尺寸下單</p>
+  <div id="list"></div>
+  <div class="sum"><span>共 <span id="cnt"></span> 件</span><b id="total"></b></div>
+  <button class="add" id="go2">打開賣貨便下單</button>
+</div></div>
+<div class="toast" id="toast"></div>
+
+<script src="data.js"></script>
+<script>
+// ===== 下單 =====
+// 試穿完到 7-11 賣貨便下單。賣貨便沒有單品連結，一律開整個賣場，清單上標商品編號讓客人自己找。
+const STORE_URL = 'https://myship.7-11.com.tw/general/detail/GM2609146387915';
+const openStore = () => window.open(STORE_URL, '_blank', 'noopener');
+
+const BODIES = [
+  {k:'slim', n:'纖細', svg:'<svg viewBox="0 0 30 60"><circle cx="15" cy="6" r="4.5"/><path d="M10 12h10l1 16-1 1 0 30h-3.5l-1.5-22-1.5 22H10l0-30-1-1z"/></svg>'},
+  {k:'pear', n:'微肉', svg:'<svg viewBox="0 0 30 60"><circle cx="15" cy="7" r="4.5"/><path d="M10.5 13h9l1 9 4 12-1 1 0 24h-4.5l-2-20-2 20H10.5l0-24-1-1 4-12z"/></svg>'},
+  {k:'curvy', n:'肉肉', svg:'<svg viewBox="0 0 30 60"><circle cx="15" cy="7" r="5"/><path d="M6 14h18l2 10-1 11-1 1 0 23h-5l-2-19-2 19H8l0-23-1-1-1-11z"/></svg>'}
+];
+
+// 商品資料在 data.js（PRODUCTS）
+
+const $ = id => document.getElementById(id);
+const state = {h:160, w:50, body:'slim', bust:null, prod:null, view:'body', color:null, size:null, rec:null};
+let tray = [];
+try { tray = JSON.parse(localStorage.getItem('tryon-tray') || '[]').filter(t => { const p = PRODUCTS[t.id]; return p && p.colors.some(c => c.label === t.color) && p.stock.includes(t.size); }); } catch { tray = []; }   // 下架的款、改名的顏色或尺碼自動拿掉
+const saveTray = () => { try { localStorage.setItem('tryon-tray', JSON.stringify(tray)); } catch {} };
+
+function pick(p, jin){
+  const S = p.sizes;
+  let i = S.findIndex(z => jin <= z.w[1]);
+  let over = false;
+  if(i < 0){ i = S.length-1; over = true; }
+  const reasons = [];
+  const nearTop = !p.noUpsize && !over && jin >= S[i].w[1]-4 && i < S.length-1;   // noUpsize：評論說賣家體重表準，不因身形加大
+  if(p.kind==='top' && state.body==='curvy' && nearTop){ i++; reasons.push('胸口有料，上一號比較不會繃'); }
+  if(p.kind==='skirt' && ['pear','curvy'].includes(state.body) && nearTop){ i++; reasons.push('臀腿比較有份量，上一號坐下比較舒服'); }
+  if(p.kind==='top' && state.bust){
+    while(i < S.length-1 && S[i].chest - state.bust < p.minEase){ i++; if(!reasons.includes('照你的胸圍調大')) reasons.push('照你的胸圍調大'); }
+  }
+  // 賣貨便沒有的尺寸：退到最接近、有賣的那號
+  let outOfStock = null;
+  if(!p.stock.includes(S[i].s)){
+    outOfStock = S[i].s;
+    const idx = S.map((z,k)=>({k,d:Math.abs(k-i),ok:p.stock.includes(z.s)})).filter(x=>x.ok).sort((a,b)=>a.d-b.d)[0];
+    i = idx.k;
+  }
+  return {i, over, reasons, outOfStock};
+}
+
+function fitLines(p, z, r){
+  const H = state.h, L = [];
+  if(p.noTable){
+    L.push({t:p.fabric});
+    if(!p.sizeNote) L.push({t:'詳細尺寸（衣長、胸圍）還在補，推薦尺寸先用一般女裝尺碼估', warn:true});
+  } else if(p.kind==='top'){
+    const waist = Math.round(H*0.25), hip = Math.round(H*0.36);
+    if(p.lenNote) L.push({t:p.lenNote});
+    else if(z.len < waist-4) L.push({t:`短版，大約露出 ${waist - z.len} 公分的腰，配高腰褲剛好遮到一半`});
+    else if(z.len <= waist+4) L.push({t:'下襬剛好落在腰線上'});
+    else if(z.len < hip) L.push({t:'下襬在肚臍跟胯骨中間，紮一角或放著都可以'});
+    else L.push({t:'下襬會蓋過臀部'});
+    if(state.bust){
+      const ease = z.chest - state.bust;
+      if(ease < -8) L.push({t:`衣服胸圍 ${z.chest}，比你小 ${-ease} 公分，${p.fabric}會撐開貼身`});
+      else if(ease < 0) L.push({t:`衣服胸圍 ${z.chest}，會貼身`});
+      else if(ease <= 6) L.push({t:`衣服胸圍 ${z.chest}，合身不緊`});
+      else L.push({t:`衣服胸圍 ${z.chest}，偏寬鬆`});
+    } else L.push({t:`${p.fabric}，衣服胸圍 ${z.chest} 公分`});
+  } else if(p.kind==='dress'){
+    const ck = (p.colors.find(c=>c.label===state.color)||{}).key || '';
+    if(ck==='cardi'){ L.push({t:`開衫胸圍 ${z.cardi} 公分，短版剛好停在腰上`}); }
+    else {
+      const len = ck.includes('short') ? z.lenS : z.lenL;
+      const gap = Math.round(H*0.81 - len);
+      const where = gap > 42 ? '在膝蓋上面' : gap > 32 ? '在膝蓋附近' : gap > 18 ? '落在小腿' : gap > 8 ? '落在腳踝上面一點' : '快碰到地';
+      L.push({t:`洋裝長 ${len} 公分，裙襬${where}`, warn: gap <= 8});
+      if(ck.includes('cardi')) L.push({t:`外面那件開衫胸圍 ${z.cardi} 公分`});
+    }
+    L.push({t:`洋裝胸圍 ${z.chest} 公分`});
+  } else {
+    // 腰到地 ≈ 身高 × 0.61，腰到膝蓋 ≈ 身高 × 0.33
+    const knee = Math.round(H*0.33);
+    if(z.len < knee - 4){
+      L.push({t:`短裙，裙長 ${z.len} 公分，大約在膝蓋上 ${knee - z.len} 公分`});
+    } else {
+      const gap = Math.round(H*0.61 - z.len);
+      const where = gap < 6 ? '快碰到地，會蓋住腳背' : gap <= 12 ? '落在腳踝附近' : gap <= 22 ? '落在小腿下段' : '落在小腿肚';
+      L.push({t:`裙長 ${z.len} 公分，裙襬離地大約 ${Math.max(gap,0)} 公分，${where}`, warn: gap < 6});
+    }
+    L.push({t:`腰圍 ${z.waist} 公分${p.fabric.includes('鬆緊') ? '（鬆緊帶）' : ''}${z.hip ? `，臀圍 ${z.hip} 公分` : ''}`});
+  }
+  if(p.sizeNote) L.push({t:p.sizeNote});
+  if(r.outOfStock) L.push({t:`照身材其實是 ${r.outOfStock}，但這件目前只有 ${p.stock.join('/')}，先幫你配最接近的 ${z.s}`, warn:true});
+  if(r.over) L.push({t:'你的體重超過這件的建議上限，穿起來會比圖上更貼，介意的話先私訊苡安問（IG 在頁面最下面）', warn:true});
+  return L;
+}
+
+// 長圖每格的順序（嬌小、沙漏那兩格還在圖裡，只是不再提供選擇）
+const SPRITE_ROW = {petite:0, slim:1, hourglass:2, pear:3, curvy:4};
+
+// 拉身高體重時自動換身形：BMI 未滿 20 → 纖細；25 以上 → 肉肉；
+// 中間那段 → 微肉（代號仍是 pear）
+function autoBody(){
+  const bmi = state.w / Math.pow(state.h/100, 2);
+  if(bmi >= 25) return 'curvy';
+  if(bmi < 20) return 'slim';
+  return 'pear';
+}
+function renderBodies(){
+  $('bodies').innerHTML = BODIES.map(b => `<button class="chip ${b.k===state.body?'on':''}" data-k="${b.k}">${b.svg.replace('<svg','<svg fill="'+(b.k===state.body?'#8f5935':'#c9bab0')+'"')}${b.n}</button>`).join('');
+  $('bodies').querySelectorAll('.chip').forEach(c => c.onclick = () => { state.body = c.dataset.k; saveProfile(); renderBodies(); render(); });
+}
+let curCat = '全部';
+function renderProds(){
+  const n = c => c==='全部' ? ORDER.length : ORDER.filter(k=>PRODUCTS[k].cat===c).length;
+  $('cats').innerHTML = CATS.filter(c=>n(c)).map(c=>`<button class="cat ${c===curCat?'on':''}" data-c="${c}">${c}<small>${n(c)}</small></button>`).join('');
+  $('cats').querySelectorAll('.cat').forEach(b => b.onclick = () => { curCat = b.dataset.c; renderProds(); });
+  $('prods').innerHTML = ORDER.map(k => [k, PRODUCTS[k]]).filter(([k,p]) => curCat==='全部' || p.cat===curCat).map(([k,p]) => {
+    const n = tray.filter(t => t.id == k).length;
+    return `<button class="prod ${k==state.prod?'on':''}" data-k="${k}"><img src="${p.white || p.thumb}" alt="">${n?`<b class="in">已選 ${n}</b>`:''}<span><small class="code">${p.code}</small>${p.short}</span><em>NT$${p.price}</em></button>`;
+  }).join('');
+  $('prods').querySelectorAll('.prod').forEach(c => c.onclick = () => {
+    state.prod = c.dataset.k; state.view = 'body';
+    state.color = PRODUCTS[state.prod].bodyColor; state.size = null;
+    renderProds(); render(true);
+  });
+}
+
+function render(scroll){
+  if(!state.prod) return;
+  const p = PRODUCTS[state.prod];
+  const r = pick(p, state.w*2), z = p.sizes[r.i];
+  state.rec = z.s;
+  if(!state.size || !p.stock.includes(state.size)) state.size = z.s;
+  $('result').classList.add('show');
+  $('rec').hidden = false;
+  $('look').hidden = false;
+
+  if(!p.yian) state.view = 'body';
+  document.querySelector('.tab[data-v=yian]').hidden = !p.yian;
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('on', t.dataset.v===state.view));
+  const bodyName = BODIES.find(b=>b.k===state.body).n;
+  if(state.view==='body' && p.noSprite){
+    $('photo').innerHTML = `<img class="white" src="${p.white}" alt="${p.short}"><span class="tag">${bodyName}身形的試穿圖還在做・先看商品照</span>`;
+  } else if(state.view==='body'){
+    const ck = (p.colors.find(c=>c.label===state.color)||{}).key, dk = p.colors.find(c=>c.label===p.bodyColor).key;
+    const tag = `${bodyName}身形・穿 ${z.s}・`;
+    // 每款每色一張長圖（img/sprite/款-色.jpg），由上到下是 嬌小/纖細/沙漏/微肉(pear)/肉肉，用 background-position 切出要的那格
+    const row = SPRITE_ROW[state.body];
+    $('photo').innerHTML = `<div class="empty">這個身形的圖還在準備</div><div class="sprite" role="img" aria-label="${bodyName}身形穿${state.color}"></div><span class="tag">${tag}${state.color}</span>`;
+    const sp = $('photo').querySelector('.sprite');
+    const show = key => { sp.style.backgroundImage = `url(img/sprite/${p.code}-${key}.jpg)`; sp.style.backgroundPosition = `0 ${row*25}%`; };
+    const probe = new Image();
+    probe.onload = () => show(ck);
+    probe.onerror = () => { if(ck!==dk){ show(dk); $('photo').querySelector('.tag').textContent = `${tag}${p.bodyColor}（${state.color}的圖還在做）`; } else sp.remove(); };
+    probe.src = `img/sprite/${p.code}-${ck}.jpg`;
+  } else {
+    // 苡安有拍這個顏色就用那張，沒拍就用她穿的另一個顏色
+    const ck = (p.colors.find(c=>c.label===state.color)||{}).key;
+    const yk = p.yian[ck] ? ck : Object.keys(p.yian)[0];
+    const yl = (p.colors.find(c=>c.key===yk)||{}).label || '';
+    $('photo').innerHTML = `<img src="${p.yian[yk]}" alt=""><span class="tag">苡安穿・${yl}${yk!==ck?`（${state.color}苡安沒拍）`:''}</span>`;
+  }
+
+  $('size').textContent = z.s;
+  $('why').textContent = r.reasons.length ? r.reasons.join('，') : `${state.h} cm・${state.w} kg 穿這號`;
+  $('fit').innerHTML = fitLines(p, z, r).map(l => `<li class="${l.warn?'warn':''}">${l.t}</li>`).join('');
+  // 只有均碼的款，肉肉身形穿不下：苡安直接提醒，不講穿搭
+  const oneSizeTight = p.stock.length === 1 && state.body === 'curvy';
+  $('say').textContent = oneSizeTight ? '注意！雖然衣服好看，但廠商壞壞沒有適合寶寶的尺寸，穿上會有點勒ㄛ (´；ω；`)' : p.say[state.body];
+
+  $('colors').innerHTML = p.colors.map(c => `<button class="cbtn ${c.label===state.color?'on':''}" data-c="${c.label}"><i style="background:${c.hex}"></i>${c.label}</button>`).join('');
+  $('colors').querySelectorAll('.cbtn').forEach(b => b.onclick = () => { state.color = b.dataset.c; render(); });
+  $('sizes').innerHTML = p.stock.map(s => `<button class="sbtn ${s===state.size?'on':''} ${s===z.s?'rec':''}" data-s="${s}">${s}</button>`).join('');
+  $('sizes').querySelectorAll('.sbtn').forEach(b => b.onclick = () => { state.size = b.dataset.s; render(); });
+
+  const head = '<tr><th>尺碼</th>' + p.cols.map(c=>`<th>${c}</th>`).join('') + '<th>體重</th></tr>';
+  $('table').innerHTML = head + p.sizes.map((s,i) => {
+    const vals = s.cells;
+    const wt = s.w[1] >= 999 ? '均碼' : s.w[0] ? `${Math.round(s.w[0]/2)}–${Math.round(s.w[1]/2)}` : `≤${Math.round(s.w[1]/2)}`;
+    return `<tr class="${s.s===state.size?'hit':''}"><td>${s.s}${p.stock.includes(s.s)?'':'*'}${i===r.i?'<i class="rec-tag">推薦</i>':''}</td>${vals.map(v=>`<td>${v}</td>`).join('')}<td>${wt}</td></tr>`;
+  }).join('') + (p.sizes.some(s=>!p.stock.includes(s.s)) ? '<tr><td colspan="9" style="text-align:left;color:var(--c-secondary)">* 賣貨便目前沒有這個尺寸</td></tr>' : '');
+  $('tnote').textContent = p.wNote ? '單位公分。賣家沒給建議體重，體重欄是一般女裝尺碼的換算，僅供參考。' : '單位公分；體重是賣家建議的公斤數。';
+  if(scroll) $('me-card').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+// ===== 試穿清單 =====
+function toast(msg){ const t=$('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('show'),2200); }
+function renderTray(){
+  $('tray-bar').classList.toggle('show', tray.length > 0);
+  document.body.classList.toggle('has-tray', tray.length > 0);   // 底欄出現時，頁尾多留空間不被蓋住
+  const total = tray.reduce((s,t)=>s+t.price,0);
+  $('thumbs').innerHTML = tray.slice(-4).map(t=>`<img src="${PRODUCTS[t.id].white || PRODUCTS[t.id].thumb}" alt="">`).join('') + `<span>試穿清單 <b>${tray.length}</b> 件</span>`;
+  $('list').innerHTML = tray.map((t,i)=>`<div class="li"><img src="${PRODUCTS[t.id].white || PRODUCTS[t.id].thumb}" alt=""><div><b>${PRODUCTS[t.id].code}</b> ${PRODUCTS[t.id].short}<small>${t.color} / ${t.size}・NT$${t.price}</small></div><button data-i="${i}">移除</button></div>`).join('') || '<p class="note">清單是空的</p>';
+  $('list').querySelectorAll('button').forEach(b => b.onclick = () => { tray.splice(+b.dataset.i,1); saveTray(); renderTray(); renderProds(); });
+  $('cnt').textContent = tray.length; $('total').textContent = 'NT$' + total.toLocaleString();
+  if(!tray.length) closeSheet();
+}
+function openSheet(){ $('sheet').classList.add('open'); $('sheet-bg').classList.add('open'); }
+function closeSheet(){ $('sheet').classList.remove('open'); $('sheet-bg').classList.remove('open'); }
+
+$('add').onclick = () => {
+  const p = PRODUCTS[state.prod];
+  if(EMBED){
+    openStore();
+    // 通知外層商品頁：關掉視窗、把選好的顏色尺寸帶回去
+    try { parent.postMessage({type:'tryon-picked', item:{id:+state.prod, color:state.color, size:state.size}}, location.origin); } catch {}
+    toast(`在賣貨便找 ${p.code}，選 ${state.color} / ${state.size}`);
+    return;
+  }
+  if(tray.some(t => t.id == state.prod && t.color === state.color && t.size === state.size)){ toast('這套已經在清單裡了'); return; }
+  tray.push({id:+state.prod, color:state.color, size:state.size, price:p.price});
+  saveTray(); renderTray(); renderProds();
+  toast(`${p.short}（${state.color}/${state.size}）加進清單了，再試一件？`);
+};
+
+// 清單留著，客人在賣貨便下單時可以切回來對照
+$('go').onclick = openSheet;
+$('go2').onclick = openStore;
+$('thumbs').onclick = openSheet;
+$('sheet-bg').onclick = closeSheet;
+
+function saveProfile(){ try { localStorage.setItem('tryon-profile', JSON.stringify({h:state.h,w:state.w,body:state.body,bust:state.bust})); } catch {} }
+$('h').oninput = e => { state.h = +e.target.value; $('hv').textContent = state.h; state.body = autoBody(); saveProfile(); renderBodies(); render(); };
+$('w').oninput = e => { state.w = +e.target.value; $('wv').textContent = state.w; state.size = null; state.body = autoBody(); saveProfile(); renderBodies(); render(); };
+$('bust').oninput = e => { const v = +e.target.value; state.bust = v >= 60 && v <= 140 ? v : null; state.size = null; saveProfile(); render(); };
+document.querySelectorAll('.tab').forEach(t => t.onclick = () => { state.view = t.dataset.v; render(); });
+
+// 網址 #embed-25 = 嵌在商品頁、只試 25 號；#p-25 = 完整版但先選好 25 號
+const HASH = (location.hash.match(/^#(embed|p)-(\d+)$/) || []);
+const EMBED = HASH[1] === 'embed' && PRODUCTS[HASH[2]];
+try {
+  const pf = JSON.parse(localStorage.getItem('tryon-profile') || 'null');
+  if(pf){ Object.assign(state, {h:pf.h||160, w:pf.w||50, body:pf.body, bust:pf.bust||null});
+    if(!BODIES.some(b=>b.k===state.body)) state.body = autoBody();   // 存過已拿掉的身形（嬌小、沙漏）→ 照身高體重重選
+    $('h').value = state.h; $('hv').textContent = state.h; $('w').value = state.w; $('wv').textContent = state.w; if(state.bust) $('bust').value = state.bust; }
+} catch {}
+if(EMBED){
+  document.documentElement.classList.add('embed');
+  document.querySelector('header h1').textContent = '買之前穿穿看';
+  $('add').textContent = '就選這件 去賣貨便下單';
+}
+renderBodies(); renderProds(); renderTray();
+if(HASH[2] && PRODUCTS[HASH[2]]){
+  state.prod = HASH[2]; state.color = PRODUCTS[state.prod].bodyColor;
+  renderProds(); render();
+  // 身材填過了就直接看結果
+  if(EMBED && localStorage.getItem('tryon-profile')) setTimeout(() => $('rec').scrollIntoView({block:'start'}), 50);
+}
+</script>
+</body>
+</html>
