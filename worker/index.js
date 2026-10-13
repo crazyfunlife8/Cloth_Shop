@@ -166,13 +166,17 @@ async function createOrder(request, env) {
 
   // 自動建立／更新會員（以 email 為唯一識別）
   if (email) {
-    await env.DB.prepare(`
-      INSERT INTO members (email, name, phone) VALUES (?, ?, ?)
-      ON CONFLICT(email) DO UPDATE SET
-        name     = CASE WHEN excluded.name  != '' THEN excluded.name  ELSE members.name  END,
-        phone    = CASE WHEN excluded.phone != '' THEN excluded.phone ELSE members.phone END,
-        updated_at = datetime('now')
-    `).bind(email, name, phone).run();
+    try {
+      await env.DB.prepare(`
+        INSERT INTO members (email, name, phone) VALUES (?, ?, ?)
+        ON CONFLICT(email) DO UPDATE SET
+          name     = CASE WHEN excluded.name  != '' THEN excluded.name  ELSE members.name  END,
+          phone    = CASE WHEN excluded.phone != '' THEN excluded.phone ELSE members.phone END,
+          updated_at = datetime('now')
+      `).bind(email, name, phone).run();
+    } catch (e) {
+      console.error('[member upsert]', e.message);
+    }
   }
 
   return json({ ok: true, order_no, subtotal, shipping_fee, total }, 200, env);
