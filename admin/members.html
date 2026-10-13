@@ -85,6 +85,20 @@
     .empty-state { text-align: center; padding: 60px 20px; color: var(--c-muted); }
     .empty-state .material-symbols-outlined { font-size: 40px; display: block; margin-bottom: 10px; }
 
+    .pagination {
+      display: flex; align-items: center; justify-content: center;
+      gap: 12px; padding: 16px 0 4px;
+    }
+    .pg-btn {
+      display: flex; align-items: center; justify-content: center;
+      width: 34px; height: 34px; border-radius: 8px;
+      border: 1.5px solid var(--c-border); background: #fff;
+      color: var(--c-text); cursor: pointer; transition: background .15s;
+    }
+    .pg-btn:hover:not(:disabled) { background: var(--c-body); }
+    .pg-btn:disabled { opacity: .35; cursor: default; }
+    .pg-info { font-size: 13px; font-weight: 600; color: var(--c-muted); }
+
     .toast {
       position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
       background: var(--c-text); color: #fff; border-radius: 10px;
@@ -155,19 +169,17 @@
       </tbody>
     </table>
   </div>
+  <div class="pagination" id="pagination"></div>
 </main>
 
 <div class="toast" id="toast"></div>
 
 <script>
   const API = 'https://brand-api.crazyfunlife8.workers.dev';
+  const PAGE_SIZE = 10;
   let members = [];
-
-  function showToast(msg) {
-    const t = document.getElementById('toast');
-    t.textContent = msg; t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), 2500);
-  }
+  let filteredList = [];
+  let currentPage = 1;
 
   function fmtDate(str) {
     if (!str) return '—';
@@ -175,14 +187,24 @@
     return d.toLocaleDateString('zh-TW', { timeZone: 'Asia/Taipei', year: 'numeric', month: '2-digit', day: '2-digit' });
   }
 
-  function renderMembers(list) {
-    const tbody = document.getElementById('members-tbody');
-    document.getElementById('page-count').textContent = `共 ${list.length} 筆`;
-    if (!list.length) {
+  function renderPage() {
+    const tbody      = document.getElementById('members-tbody');
+    const pagination = document.getElementById('pagination');
+    const total      = filteredList.length;
+    const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+    currentPage      = Math.min(currentPage, totalPages);
+    const start      = (currentPage - 1) * PAGE_SIZE;
+    const pageItems  = filteredList.slice(start, start + PAGE_SIZE);
+
+    document.getElementById('page-count').textContent = `共 ${total} 筆`;
+
+    if (!total) {
       tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><span class="material-symbols-outlined">group</span>尚無符合的會員</div></td></tr>`;
+      pagination.innerHTML = '';
       return;
     }
-    tbody.innerHTML = list.map(m => `
+
+    tbody.innerHTML = pageItems.map(m => `
       <tr>
         <td>
           <div class="member-name">${m.name || '—'}</div>
@@ -195,6 +217,27 @@
         <td class="date-cell">${fmtDate(m.created_at)}</td>
       </tr>
     `).join('');
+
+    pagination.innerHTML = totalPages <= 1 ? '' : `
+      <button class="pg-btn" onclick="goPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>
+        <span class="material-symbols-outlined">chevron_left</span>
+      </button>
+      <span class="pg-info">第 ${currentPage} / ${totalPages} 頁</span>
+      <button class="pg-btn" onclick="goPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>
+        <span class="material-symbols-outlined">chevron_right</span>
+      </button>
+    `;
+  }
+
+  function goPage(n) {
+    currentPage = n;
+    renderPage();
+  }
+
+  function renderMembers(list) {
+    filteredList = list;
+    currentPage  = 1;
+    renderPage();
   }
 
   async function loadMembers() {
@@ -204,7 +247,6 @@
       if (!data.ok) throw new Error(data.error);
       members = data.members;
 
-      // 統計
       const repeat  = members.filter(m => m.order_count > 1).length;
       const revenue = members.reduce((s, m) => s + Number(m.total_spent), 0);
       document.getElementById('stat-total').textContent   = members.length;
