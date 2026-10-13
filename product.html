@@ -500,7 +500,8 @@
   function renderProduct() {
     const p = product;
 
-    const itemNo      = p.item_letter ? p.item_letter + String(p.id).padStart(3, '0') : '';
+    const itemNo      = p.item_letter ? p.item_letter + String(p.sort_order).padStart(3, '0') : '';
+    initTryon();
     const displayName = itemNo ? `${itemNo}-${p.name}` : p.name;
     document.title = `${displayName}｜𝑩𝒂𝒊𝑩𝒂𝒊 𝑺𝒕𝒐𝒓𝒆 ღ`;
     document.getElementById('breadcrumb-name').textContent = displayName;
@@ -609,7 +610,7 @@
     if (!product) return;
     if (product.colors.length && !selectedColor) { Toast.show('請選擇顏色'); return; }
     if (product.sizes.length  && !selectedSize)  { Toast.show('請選擇尺寸'); return; }
-    const _itemNo = product.item_letter ? product.item_letter + String(product.id).padStart(3, '0') : '';
+    const _itemNo = product.item_letter ? product.item_letter + String(product.sort_order).padStart(3, '0') : '';
     Cart.add({
       id:    product.id,
       name:  _itemNo ? `${_itemNo}-${product.name}` : product.name,
@@ -662,23 +663,24 @@
 
 <script src="/tryon/data.js"></script>
 <script>
-(() => {
-  const id = String(productId);
-  if (typeof PRODUCTS === 'undefined' || !PRODUCTS[id]) return;
+function initTryon() {
+  if (typeof PRODUCTS === 'undefined' || !product) return;
+  const tryonId = String(product.id);
+  if (!PRODUCTS[tryonId]) return;
   const $ = s => document.getElementById(s);
   $('tryon-btn').hidden = false;
 
-  const open  = () => { $('tryon-frame').src = `/tryon/tryon.html#embed-${id}`; document.body.classList.add('tryon-open'); };
+  const open  = () => { $('tryon-frame').src = `/tryon/tryon.html#embed-${tryonId}`; document.body.classList.add('tryon-open'); };
   const close = () => { document.body.classList.remove('tryon-open'); setTimeout(() => { $('tryon-frame').src = 'about:blank'; }, 300); };
-  $('tryon-btn').onclick  = open;
+  $('tryon-btn').onclick   = open;
   $('tryon-close').onclick = close;
-  $('tryon-bg').onclick   = close;
+  $('tryon-bg').onclick    = close;
 
   window.addEventListener('message', e => {
     if (e.origin !== location.origin || !e.data || e.data.type !== 'tryon-picked') return;
     close();
   });
-})();
+}
 </script>
 </body>
 </html>

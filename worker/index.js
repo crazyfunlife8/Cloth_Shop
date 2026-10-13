@@ -132,11 +132,20 @@ async function listProducts(url, env) {
   return json({ ok: true, products }, 200, env);
 }
 
-/* GET /api/products/:id */
+/* GET /api/products/:id  — 支援數字 id 或貨號格式（如 A010） */
 async function getProduct(id, env) {
-  const row = await env.DB
-    .prepare('SELECT * FROM products WHERE id = ? AND active = 1')
-    .bind(id).first();
+  let row;
+  if (/^[A-Za-z]\d+$/.test(id)) {
+    const letter = id[0].toUpperCase();
+    const num    = parseInt(id.slice(1), 10);
+    row = await env.DB
+      .prepare('SELECT * FROM products WHERE item_letter = ? AND sort_order = ? AND active = 1')
+      .bind(letter, num).first();
+  } else {
+    row = await env.DB
+      .prepare('SELECT * FROM products WHERE id = ? AND active = 1')
+      .bind(id).first();
+  }
   if (!row) return json({ ok: false, error: '商品不存在' }, 404, env);
   return json({ ok: true, product: parseProduct(row) }, 200, env);
 }
@@ -625,7 +634,7 @@ export default {
       if (method === 'GET'  && path === '/api/products')
         return listProducts(url, env);
 
-      if (method === 'GET'  && /^\/api\/products\/\d+$/.test(path))
+      if (method === 'GET'  && /^\/api\/products\/([A-Za-z]\d+|\d+)$/.test(path))
         return getProduct(path.split('/').pop(), env);
 
       if (method === 'POST' && path === '/api/orders')

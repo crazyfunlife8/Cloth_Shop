@@ -367,13 +367,13 @@
         ? `NT$${p.price.toLocaleString()} <span class="product-price-original">NT$${p.original_price.toLocaleString()}</span>`
         : `NT$${p.price.toLocaleString()}`;
       return `
-        <a class="product-card" href="product.html?id=${p.id}" data-cat="${[p.cat, p.badge === 'new' ? 'new' : ''].filter(Boolean).join(' ')}">
+        <a class="product-card" href="product.html?id=${p.item_letter ? p.item_letter + String(p.sort_order).padStart(3,'0') : p.id}" data-cat="${[p.cat, p.badge === 'new' ? 'new' : ''].filter(Boolean).join(' ')}">
           <div class="product-img-wrap">
             ${img}
             ${badge ? `<div class="product-badges">${badge}</div>` : ''}
           </div>
           <div class="product-info">
-            <p class="product-name">${p.item_letter ? p.item_letter + String(p.id).padStart(3,'0') + '-' + p.name : p.name}</p>
+            <p class="product-name">${p.item_letter ? p.item_letter + String(p.sort_order).padStart(3,'0') + '-' + p.name : p.name}</p>
             <p class="product-price">${price}</p>
           </div>
         </a>`;
