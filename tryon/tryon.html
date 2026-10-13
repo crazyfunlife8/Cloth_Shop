@@ -232,16 +232,16 @@
 <div class="tray-bar" id="tray-bar">
   <div class="tray-in">
     <div class="thumbs" id="thumbs"></div>
-    <button class="go" id="go">去賣貨便下單</button>
+    <button class="go" id="go">查看試穿清單</button>
   </div>
 </div>
 <div class="sheet-bg" id="sheet-bg"></div>
 <div class="sheet" id="sheet"><div class="in">
   <h3>試穿清單</h3>
-  <p class="note" style="margin:-4px 0 6px">到 7-11 賣貨便照這張清單，找商品編號、選顏色和尺寸下單</p>
+  <p class="note" style="margin:-4px 0 6px">照這張清單，到網站找商品編號、選好顏色和尺寸下單</p>
   <div id="list"></div>
   <div class="sum"><span>共 <span id="cnt"></span> 件</span><b id="total"></b></div>
-  <button class="add" id="go2">打開賣貨便下單</button>
+  <button class="add" id="go2">前往網站下單</button>
 </div></div>
 <div class="toast" id="toast"></div>
 
@@ -420,7 +420,7 @@ function render(scroll){
     const vals = s.cells;
     const wt = s.w[1] >= 999 ? '均碼' : s.w[0] ? `${Math.round(s.w[0]/2)}–${Math.round(s.w[1]/2)}` : `≤${Math.round(s.w[1]/2)}`;
     return `<tr class="${s.s===state.size?'hit':''}"><td>${s.s}${p.stock.includes(s.s)?'':'*'}${i===r.i?'<i class="rec-tag">推薦</i>':''}</td>${vals.map(v=>`<td>${v}</td>`).join('')}<td>${wt}</td></tr>`;
-  }).join('') + (p.sizes.some(s=>!p.stock.includes(s.s)) ? '<tr><td colspan="9" style="text-align:left;color:var(--c-secondary)">* 賣貨便目前沒有這個尺寸</td></tr>' : '');
+  }).join('') + (p.sizes.some(s=>!p.stock.includes(s.s)) ? '<tr><td colspan="9" style="text-align:left;color:var(--c-secondary)">* 目前缺貨</td></tr>' : '');
   $('tnote').textContent = p.wNote ? '單位公分。賣家沒給建議體重，體重欄是一般女裝尺碼的換算，僅供參考。' : '單位公分；體重是賣家建議的公斤數。';
   if(scroll) $('me-card').scrollIntoView({behavior:'smooth', block:'start'});
 }
@@ -443,10 +443,8 @@ function closeSheet(){ $('sheet').classList.remove('open'); $('sheet-bg').classL
 $('add').onclick = () => {
   const p = PRODUCTS[state.prod];
   if(EMBED){
-    openStore();
     // 通知外層商品頁：關掉視窗、把選好的顏色尺寸帶回去
     try { parent.postMessage({type:'tryon-picked', item:{id:+state.prod, color:state.color, size:state.size}}, location.origin); } catch {}
-    toast(`在賣貨便找 ${p.code}，選 ${state.color} / ${state.size}`);
     return;
   }
   if(tray.some(t => t.id == state.prod && t.color === state.color && t.size === state.size)){ toast('這套已經在清單裡了'); return; }
@@ -457,7 +455,7 @@ $('add').onclick = () => {
 
 // 清單留著，客人在賣貨便下單時可以切回來對照
 $('go').onclick = openSheet;
-$('go2').onclick = openStore;
+$('go2').onclick = () => window.open('/', '_blank', 'noopener');
 $('thumbs').onclick = openSheet;
 $('sheet-bg').onclick = closeSheet;
 
@@ -479,7 +477,7 @@ try {
 if(EMBED){
   document.documentElement.classList.add('embed');
   document.querySelector('header h1').textContent = '買之前穿穿看';
-  $('add').textContent = '就選這件 去賣貨便下單';
+  $('add').textContent = '就選這件，回商品頁下單';
 }
 renderBodies(); renderProds(); renderTray();
 if(HASH[2] && PRODUCTS[HASH[2]]){
