@@ -263,6 +263,54 @@
     .tryon-full-link a { color: var(--c-primary); font-weight: 700; text-decoration: none; }
     .tryon-full-link a:hover { text-decoration: underline; }
 
+    /* ── Rating summary (near price) ── */
+    .rating-summary { display: flex; align-items: center; gap: 8px; margin: 4px 0 14px; }
+    .rating-stars-sm { color: #e8a838; font-size: 15px; letter-spacing: 1px; line-height: 1; }
+    .rating-avg-sm { font-weight: 700; font-size: 14px; color: var(--c-ft-dark); }
+    .rating-count-sm { font-size: 13px; color: var(--c-secondary); }
+
+    /* ── Review section ── */
+    .reviews-section { margin-top: 56px; padding-top: 40px; border-top: 1px solid rgba(143,89,53,.12); }
+    .reviews-head { display: flex; align-items: center; gap: 12px; margin-bottom: 28px; }
+    .reviews-title { font-family: 'Noto Serif TC', serif; font-size: clamp(18px,4vw,22px); font-weight: 600; color: var(--c-ft-dark); }
+    .reviews-count-tag { font-size: 13px; font-weight: 700; background: rgba(143,89,53,.08); color: var(--c-primary); padding: 3px 10px; border-radius: 20px; }
+
+    .btn-write-review { display: inline-flex; align-items: center; gap: 8px; padding: 11px 22px; border: 1.5px solid var(--c-primary); border-radius: 30px; background: transparent; color: var(--c-primary); font-size: 14px; font-weight: 700; cursor: pointer; margin-bottom: 28px; transition: background .2s, color .2s; }
+    .btn-write-review:hover { background: var(--c-primary); color: #fff; }
+
+    .review-form-card { background: var(--c-surface); border-radius: var(--r-card); padding: 24px 28px; margin-bottom: 32px; }
+    .review-form-title { font-family: 'Noto Serif TC', serif; font-size: 15px; font-weight: 600; color: var(--c-ft-dark); margin-bottom: 20px; }
+    .review-form-row { margin-bottom: 16px; }
+    .review-form-label { font-size: 12px; font-weight: 700; letter-spacing: .08em; color: var(--c-secondary); text-transform: uppercase; margin-bottom: 8px; display: block; }
+    .review-form-input, .review-form-textarea { width: 100%; border: 1.5px solid rgba(143,89,53,.2); border-radius: 10px; padding: 11px 14px; font-family: inherit; font-size: 14px; color: var(--c-ft-dark); background: #fff; outline: none; transition: border-color .2s; }
+    .review-form-input:focus, .review-form-textarea:focus { border-color: var(--c-primary); }
+    .review-form-textarea { resize: vertical; min-height: 100px; line-height: 1.75; }
+    .review-char-count { font-size: 12px; color: var(--c-secondary); text-align: right; margin-top: 4px; }
+    .review-form-error { font-size: 13px; color: #c0392b; margin-top: 10px; display: none; }
+    .review-form-error.show { display: block; }
+    .review-form-note { font-size: 12px; color: var(--c-secondary); margin-top: 10px; line-height: 1.65; text-align: center; }
+
+    .star-picker { display: flex; gap: 2px; }
+    .star-picker button { background: none; border: none; cursor: pointer; font-size: 30px; line-height: 1; padding: 2px 3px; color: #d5c5b5; transition: color .1s, transform .1s; }
+    .star-picker button.lit { color: #e8a838; }
+    .star-picker button:hover { transform: scale(1.15); }
+
+    .btn-submit-review { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 14px; background: var(--c-primary); color: #fff; border: none; border-radius: var(--r-btn); font-size: 15px; font-weight: 700; cursor: pointer; margin-top: 20px; transition: background .2s; }
+    .btn-submit-review:hover { background: var(--c-primary-dark, #754122); }
+    .btn-submit-review:disabled { opacity: .6; cursor: default; }
+
+    .reviews-list { display: flex; flex-direction: column; gap: 18px; }
+    .review-card { background: var(--c-surface); border-radius: var(--r-card); padding: 20px 24px; }
+    .review-card-head { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 10px; }
+    .review-card-stars { color: #e8a838; font-size: 17px; letter-spacing: 1px; line-height: 1.2; }
+    .review-card-meta { font-size: 12px; color: var(--c-secondary); text-align: right; line-height: 1.7; }
+    .review-card-size { font-size: 12px; color: var(--c-secondary); margin-bottom: 8px; }
+    .review-card-body { font-size: 14px; line-height: 1.85; color: var(--c-on-surface); }
+
+    .reviews-empty { text-align: center; padding: 48px 20px; color: var(--c-secondary); }
+    .reviews-empty .material-symbols-outlined { font-size: 40px; margin-bottom: 12px; display: block; }
+    .reviews-empty p { font-size: 14px; }
+
     /* ── Loading skeleton ── */
     .skel { background: linear-gradient(90deg,#ece4d8 25%,#f5eee5 50%,#ece4d8 75%); background-size:200% 100%; animation:skel 1.4s infinite; border-radius:8px; }
     @keyframes skel { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
@@ -379,6 +427,7 @@
         <span class="price-now" id="price-now"></span>
         <span class="price-orig" id="price-orig" style="display:none"></span>
       </div>
+      <div class="rating-summary" id="rating-summary" style="display:none"></div>
       <p class="product-desc" id="product-desc"></p>
 
       <!-- Color -->
@@ -447,6 +496,68 @@
       </div>
     </div>
   </div>
+
+  <!-- ── Review Section ── -->
+  <section class="reviews-section" id="reviews-section" style="display:none">
+    <div class="reviews-head">
+      <h2 class="reviews-title">買家評論</h2>
+      <span class="reviews-count-tag" id="reviews-count-tag">0 則</span>
+    </div>
+
+    <button class="btn-write-review" id="btn-write-review" onclick="toggleReviewForm()">
+      <span class="material-symbols-outlined">rate_review</span>留下評論
+    </button>
+
+    <div class="review-form-card" id="review-form-card" style="display:none">
+      <p class="review-form-title">分享你的購買心得</p>
+
+      <div class="review-form-row">
+        <label class="review-form-label">整體評分 <span style="color:#c0392b;font-weight:400;text-transform:none">必填</span></label>
+        <div class="star-picker" id="star-picker">
+          <button type="button" data-star="1">★</button>
+          <button type="button" data-star="2">★</button>
+          <button type="button" data-star="3">★</button>
+          <button type="button" data-star="4">★</button>
+          <button type="button" data-star="5">★</button>
+        </div>
+      </div>
+
+      <div class="review-form-row">
+        <label class="review-form-label" for="review-email">信箱 <span style="color:#c0392b;font-weight:400;text-transform:none">必填</span></label>
+        <input type="email" id="review-email" class="review-form-input" placeholder="your@email.com">
+      </div>
+
+      <div class="review-form-row">
+        <label class="review-form-label" for="review-order">訂單編號 <span style="color:#c0392b;font-weight:400;text-transform:none">必填</span></label>
+        <input type="text" id="review-order" class="review-form-input" placeholder="ORD-YYYYMMDD-XXXX" autocomplete="off" style="text-transform:uppercase">
+      </div>
+
+      <div class="review-form-row">
+        <label class="review-form-label" for="review-size">購買尺寸</label>
+        <input type="text" id="review-size" class="review-form-input" placeholder="例如：M、L、XL">
+      </div>
+
+      <div class="review-form-row">
+        <label class="review-form-label" for="review-body">評論內容 <span style="color:#c0392b;font-weight:400;text-transform:none">必填，10–300 字</span></label>
+        <textarea id="review-body" class="review-form-textarea" maxlength="300" placeholder="分享穿搭心得、尺寸建議或商品質感…" oninput="document.getElementById('review-char-count').textContent=this.value.length+'/300'"></textarea>
+        <p class="review-char-count" id="review-char-count">0/300</p>
+      </div>
+
+      <p class="review-form-error" id="review-error"></p>
+
+      <button class="btn-submit-review" id="btn-submit-review" onclick="submitReview()">
+        <span class="material-symbols-outlined">send</span>送出評論
+      </button>
+      <p class="review-form-note">需通過訂單驗證。每件商品可留一則評論，重新送出將覆蓋舊評論。</p>
+    </div>
+
+    <div class="reviews-list" id="reviews-list"></div>
+
+    <div class="reviews-empty" id="reviews-empty" style="display:none">
+      <span class="material-symbols-outlined">chat_bubble_outline</span>
+      <p>還沒有評論，成為第一個分享心得的人吧！</p>
+    </div>
+  </section>
 </main>
 
 <!-- footer 由 script.js renderFooter() 動態插入 -->
@@ -573,6 +684,8 @@
       document.getElementById('color-group').style.display = 'none';
     }
 
+    loadReviews(p.id);
+
     // Sizes
     const sizeEl = document.getElementById('size-chips');
     if (p.sizes.length) {
@@ -632,6 +745,134 @@
   }
 
   loadProduct();
+
+  // ── Reviews ──
+  let reviewRating = 0;
+
+  function starsHtml(rating) {
+    return '★'.repeat(rating) + '☆'.repeat(5 - rating);
+  }
+
+  async function loadReviews(productId) {
+    try {
+      const res  = await fetch(`${API}/api/reviews?product_id=${productId}`);
+      const data = await res.json();
+      if (!data.ok) return;
+
+      // Rating summary near price
+      if (data.count > 0) {
+        document.getElementById('rating-summary').innerHTML =
+          `<span class="rating-stars-sm">${starsHtml(Math.round(data.avg))}</span>` +
+          `<span class="rating-avg-sm">${data.avg}</span>` +
+          `<span class="rating-count-sm">(${data.count} 則評論)</span>`;
+        document.getElementById('rating-summary').style.display = 'flex';
+      }
+
+      // Reviews section
+      document.getElementById('reviews-section').style.display = '';
+      document.getElementById('reviews-count-tag').textContent = `${data.count} 則`;
+
+      if (data.count === 0) {
+        document.getElementById('reviews-empty').style.display = '';
+      } else {
+        const listEl = document.getElementById('reviews-list');
+        listEl.innerHTML = data.reviews.map(r => `
+          <div class="review-card">
+            <div class="review-card-head">
+              <span class="review-card-stars">${starsHtml(r.rating)}</span>
+              <div class="review-card-meta">
+                <div>${r.email}</div>
+                <div>${new Date(r.created_at + 'Z').toLocaleDateString('zh-TW')}</div>
+              </div>
+            </div>
+            ${r.size_bought ? `<p class="review-card-size">購買尺寸：${r.size_bought}</p>` : ''}
+            <p class="review-card-body">${r.body.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</p>
+          </div>
+        `).join('');
+      }
+    } catch { /* reviews are non-critical */ }
+  }
+
+  function toggleReviewForm() {
+    const card = document.getElementById('review-form-card');
+    const btn  = document.getElementById('btn-write-review');
+    const open = card.style.display === 'none' || card.style.display === '';
+    if (card.style.display !== 'none' && card.style.display !== '') {
+      card.style.display = 'none';
+      btn.innerHTML = '<span class="material-symbols-outlined">rate_review</span>留下評論';
+    } else {
+      card.style.display = '';
+      btn.innerHTML = '<span class="material-symbols-outlined">close</span>取消';
+      card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      const saved = localStorage.getItem('ember_member_email');
+      if (saved) document.getElementById('review-email').value = saved;
+    }
+  }
+
+  (function initStarPicker() {
+    const buttons = document.querySelectorAll('#star-picker button');
+    function repaint(hovered) {
+      buttons.forEach((b, j) => {
+        b.classList.toggle('lit', j < (hovered ?? reviewRating));
+      });
+    }
+    buttons.forEach((btn, i) => {
+      btn.addEventListener('mouseenter', () => repaint(i + 1));
+      btn.addEventListener('mouseleave', () => repaint());
+      btn.addEventListener('click', () => { reviewRating = i + 1; repaint(); });
+    });
+  })();
+
+  async function submitReview() {
+    const emailEl = document.getElementById('review-email');
+    const orderEl = document.getElementById('review-order');
+    const bodyEl  = document.getElementById('review-body');
+    const sizeEl  = document.getElementById('review-size');
+    const errEl   = document.getElementById('review-error');
+    const btnEl   = document.getElementById('btn-submit-review');
+
+    errEl.className = 'review-form-error';
+
+    if (!reviewRating || !emailEl.value.trim() || !orderEl.value.trim() || !bodyEl.value.trim()) {
+      errEl.textContent = '請填寫所有必填欄位，並選擇評分星數';
+      errEl.className = 'review-form-error show';
+      return;
+    }
+
+    btnEl.disabled = true;
+    btnEl.innerHTML = '<span class="material-symbols-outlined">hourglass_empty</span>送出中…';
+
+    try {
+      const res  = await fetch(`${API}/api/reviews`, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({
+          product_id:  product.id,
+          order_no:    orderEl.value.trim().toUpperCase(),
+          email:       emailEl.value.trim(),
+          rating:      reviewRating,
+          body:        bodyEl.value.trim(),
+          size_bought: sizeEl.value.trim() || null,
+        }),
+      });
+      const data = await res.json();
+      if (!data.ok) {
+        errEl.textContent = data.error || '送出失敗，請稍後再試';
+        errEl.className = 'review-form-error show';
+        btnEl.disabled = false;
+        btnEl.innerHTML = '<span class="material-symbols-outlined">send</span>送出評論';
+        return;
+      }
+      toggleReviewForm();
+      Toast.show('評論已送出，感謝你的回饋！');
+      loadReviews(product.id);
+    } catch {
+      errEl.textContent = '網路錯誤，請稍後再試';
+      errEl.className = 'review-form-error show';
+      btnEl.disabled = false;
+      btnEl.innerHTML = '<span class="material-symbols-outlined">send</span>送出評論';
+    }
+  }
 </script>
 
 <!-- 試穿小工具：底部視窗 -->

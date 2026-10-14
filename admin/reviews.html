@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>評論管理｜後台</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@300,0&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --c-primary: #8f5935; --c-primary-dk: #754122;
+      --c-surface: #FBF7F4; --c-body: #F5EFE6;
+      --c-border: rgba(143,89,53,.18); --c-text: #3a2e24; --c-muted: #9E8B84;
+      --c-danger: #c0392b; --c-success: #27ae60;
+      --sidebar-w: 220px; --header-h: 60px;
+    }
+    html, body { height: 100%; }
+    body { font-family: 'Nunito','Noto Sans TC',sans-serif; background: var(--c-body); color: var(--c-text); font-size: 14px; -webkit-font-smoothing: antialiased; }
+    a { color: inherit; text-decoration: none; }
+    button { font-family: inherit; cursor: pointer; }
+    .material-symbols-outlined { font-variation-settings:'FILL' 0,'wght' 300,'GRAD' 0,'opsz' 24; vertical-align: middle; font-size: 20px; }
+
+    .admin-header { position: fixed; top: 0; left: 0; right: 0; height: var(--header-h); background: #fff; border-bottom: 1px solid var(--c-border); display: flex; align-items: center; padding: 0 24px; gap: 16px; z-index: 100; }
+    .admin-brand { font-weight: 800; font-size: 18px; color: var(--c-primary); display: flex; align-items: center; }
+    .admin-brand span { font-weight: 400; font-size: 13px; color: var(--c-muted); }
+
+    .admin-sidebar { position: fixed; top: var(--header-h); left: 0; bottom: 0; width: var(--sidebar-w); background: #fff; border-right: 1px solid var(--c-border); padding: 20px 12px; display: flex; flex-direction: column; gap: 4px; }
+    .sidebar-label { font-size: 11px; font-weight: 700; letter-spacing: .08em; color: var(--c-muted); text-transform: uppercase; padding: 8px 12px 4px; }
+    .sidebar-link { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; font-weight: 600; color: var(--c-text); transition: background .15s; }
+    .sidebar-link:hover { background: var(--c-body); }
+    .sidebar-link.active { background: rgba(143,89,53,.1); color: var(--c-primary); }
+
+    .admin-main { margin-top: var(--header-h); margin-left: var(--sidebar-w); padding: 28px; }
+    .page-head { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; }
+    .page-title { font-size: 20px; font-weight: 800; }
+
+    .toolbar { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+    .filter-select { padding: 9px 12px; border: 1.5px solid var(--c-border); border-radius: 10px; background: #fff; font-family: inherit; font-size: 14px; color: var(--c-text); outline: none; cursor: pointer; }
+    .filter-select:focus { border-color: var(--c-primary); }
+
+    .table-wrap { background: #fff; border-radius: 16px; border: 1px solid var(--c-border); overflow: hidden; }
+    table { width: 100%; border-collapse: collapse; }
+    thead tr { background: var(--c-body); }
+    th { text-align: left; padding: 12px 16px; font-size: 12px; font-weight: 700; letter-spacing: .05em; color: var(--c-muted); text-transform: uppercase; border-bottom: 1px solid var(--c-border); }
+    td { padding: 12px 16px; border-bottom: 1px solid rgba(143,89,53,.07); vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--c-body); }
+
+    .stars { color: #e8a838; font-size: 14px; letter-spacing: 1px; white-space: nowrap; }
+    .review-excerpt { font-size: 13px; color: var(--c-text); max-width: 260px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .review-email { font-size: 13px; color: var(--c-muted); }
+    .review-size-tag { display: inline-block; font-size: 11px; font-weight: 700; background: rgba(143,89,53,.08); color: var(--c-primary); padding: 2px 8px; border-radius: 8px; }
+
+    .badge { display: inline-block; font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 20px; white-space: nowrap; }
+    .badge-visible { background: rgba(39,174,96,.12); color: #1e8449; }
+    .badge-hidden  { background: rgba(192,57,43,.12); color: #922b21; }
+
+    .btn { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 8px; font-size: 13px; font-weight: 700; border: none; transition: opacity .15s; cursor: pointer; }
+    .btn:hover { opacity: .8; }
+    .btn-hide   { background: rgba(192,57,43,.1); color: var(--c-danger); border: 1.5px solid rgba(192,57,43,.25); }
+    .btn-show   { background: rgba(39,174,96,.1);  color: #1e8449;         border: 1.5px solid rgba(39,174,96,.3); }
+    .btn-delete { background: rgba(192,57,43,.08); color: var(--c-danger); border: 1.5px solid rgba(192,57,43,.2); }
+
+    .empty-state { text-align: center; padding: 60px 20px; color: var(--c-muted); }
+    .empty-state .material-symbols-outlined { font-size: 48px; display: block; margin-bottom: 12px; }
+
+    #toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--c-text); color: #fff; padding: 12px 20px; border-radius: 12px; font-size: 14px; font-weight: 600; z-index: 999; transition: transform .3s, opacity .3s; opacity: 0; white-space: nowrap; }
+    #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+    #toast.error { background: var(--c-danger); }
+
+    .pagination { display: flex; align-items: center; justify-content: center; gap: 12px; padding: 16px 0 4px; }
+    .pg-btn { display: flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 8px; border: 1.5px solid var(--c-border); background: #fff; color: var(--c-text); cursor: pointer; transition: background .15s; }
+    .pg-btn:hover:not(:disabled) { background: var(--c-body); }
+    .pg-btn:disabled { opacity: .35; cursor: default; }
+    .pg-info { font-size: 13px; font-weight: 600; color: var(--c-muted); }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="admin-header">
+  <div class="admin-brand"><img src="../image/cloth_logo.png" alt="品牌" style="height:48px;width:auto;vertical-align:middle;"><span>後台管理</span></div>
+  <div style="flex:1"></div>
+  <a href="../index.html" target="_blank" style="display:flex;align-items:center;gap:6px;color:var(--c-muted);font-size:13px">
+    <span class="material-symbols-outlined" style="font-size:16px">open_in_new</span>前台預覽
+  </a>
+</header>
+
+<!-- SIDEBAR -->
+<nav class="admin-sidebar">
+  <span class="sidebar-label">管理</span>
+  <a class="sidebar-link" href="products.html">
+    <span class="material-symbols-outlined">checkroom</span>商品管理
+  </a>
+  <a class="sidebar-link" href="orders.html">
+    <span class="material-symbols-outlined">receipt_long</span>訂單管理
+  </a>
+  <a class="sidebar-link" href="members.html">
+    <span class="material-symbols-outlined">group</span>會員管理
+  </a>
+  <a class="sidebar-link active" href="reviews.html">
+    <span class="material-symbols-outlined">star_rate</span>評論管理
+  </a>
+</nav>
+
+<!-- MAIN -->
+<main class="admin-main">
+  <div class="page-head">
+    <h1 class="page-title">評論管理</h1>
+  </div>
+
+  <div class="toolbar">
+    <select class="filter-select" id="filter-hidden" onchange="applyFilter()">
+      <option value="">全部評論</option>
+      <option value="0">顯示中</option>
+      <option value="1">已隱藏</option>
+    </select>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>商品</th>
+          <th>用戶</th>
+          <th>評分</th>
+          <th>評論內容</th>
+          <th>尺寸</th>
+          <th>日期</th>
+          <th>狀態</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody id="reviews-tbody">
+        <tr><td colspan="8" class="empty-state"><span class="material-symbols-outlined">hourglass_empty</span>載入中…</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="pagination" id="pagination"></div>
+</main>
+
+<div id="toast"></div>
+
+<script>
+  const API = 'https://brand-api.crazyfunlife8.workers.dev';
+
+  let allReviews = [];
+  let currentPage = 1;
+  let hasMore = false;
+
+  function toast(msg, isErr = false) {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.className = 'show' + (isErr ? ' error' : '');
+    clearTimeout(el._t);
+    el._t = setTimeout(() => el.className = '', 2800);
+  }
+
+  async function loadReviews(page = 1) {
+    try {
+      const res  = await fetch(`${API}/api/admin/reviews?page=${page}`);
+      const data = await res.json();
+      if (!data.ok) { toast('載入失敗', true); return; }
+      allReviews  = data.reviews;
+      currentPage = data.page;
+      hasMore     = data.hasMore;
+      applyFilter();
+    } catch { toast('網路錯誤', true); }
+  }
+
+  function applyFilter() {
+    const hidden = document.getElementById('filter-hidden').value;
+    const filtered = hidden === ''
+      ? allReviews
+      : allReviews.filter(r => String(r.hidden) === hidden);
+    renderTable(filtered);
+    renderPagination();
+  }
+
+  function renderTable(reviews) {
+    const tbody = document.getElementById('reviews-tbody');
+    if (!reviews.length) {
+      tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><span class="material-symbols-outlined">star_border</span>沒有符合的評論</div></td></tr>`;
+      return;
+    }
+    tbody.innerHTML = reviews.map(r => `
+      <tr id="row-${r.id}">
+        <td style="font-size:13px;font-weight:700;max-width:140px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.product_name || `#${r.product_id}`}</td>
+        <td class="review-email">${r.email}</td>
+        <td><span class="stars">${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}</span></td>
+        <td><span class="review-excerpt" title="${r.body.replace(/"/g,'&quot;')}">${r.body}</span></td>
+        <td>${r.size_bought ? `<span class="review-size-tag">${r.size_bought}</span>` : '<span style="color:var(--c-muted)">—</span>'}</td>
+        <td style="font-size:13px;color:var(--c-muted);white-space:nowrap">${new Date(r.created_at + 'Z').toLocaleDateString('zh-TW')}</td>
+        <td><span class="badge ${r.hidden ? 'badge-hidden' : 'badge-visible'}">${r.hidden ? '已隱藏' : '顯示中'}</span></td>
+        <td>
+          <button class="btn ${r.hidden ? 'btn-show' : 'btn-hide'}" onclick="toggleHidden(${r.id}, ${r.hidden})">
+            <span class="material-symbols-outlined" style="font-size:15px">${r.hidden ? 'visibility' : 'visibility_off'}</span>
+            ${r.hidden ? '恢復顯示' : '隱藏'}
+          </button>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  function renderPagination() {
+    const el = document.getElementById('pagination');
+    el.innerHTML = `
+      <button class="pg-btn" onclick="loadReviews(${currentPage - 1})" ${currentPage <= 1 ? 'disabled' : ''}>
+        <span class="material-symbols-outlined">chevron_left</span>
+      </button>
+      <span class="pg-info">第 ${currentPage} 頁</span>
+      <button class="pg-btn" onclick="loadReviews(${currentPage + 1})" ${!hasMore ? 'disabled' : ''}>
+        <span class="material-symbols-outlined">chevron_right</span>
+      </button>
+    `;
+  }
+
+  async function toggleHidden(id, currentHidden) {
+    try {
+      const res  = await fetch(`${API}/api/admin/reviews/${id}`, { method: 'PATCH' });
+      const data = await res.json();
+      if (!data.ok) { toast('操作失敗', true); return; }
+      const r = allReviews.find(r => r.id === id);
+      if (r) r.hidden = data.hidden ? 1 : 0;
+      applyFilter();
+      toast(data.hidden ? '已隱藏該評論' : '已恢復顯示');
+    } catch { toast('網路錯誤', true); }
+  }
+
+  loadReviews();
+</script>
+</body>
+</html>

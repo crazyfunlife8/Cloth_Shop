@@ -60,6 +60,25 @@ function genOrderNo() {
   return `ORD-${d}-${r}`;
 }
 
+function maskEmail(email) {
+  const [local] = (email || '').split('@');
+  if (!local) return '***';
+  if (local.length <= 2) return local + '***';
+  if (local.length <= 4) return local[0] + '**' + local[local.length - 1];
+  return local.slice(0, 2) + '*'.repeat(local.length - 4) + local.slice(-2);
+}
+
+const SENSITIVE_WORDS = [
+  '幹你', '操你', '婊子', '賤人', '妓女', '雞巴', '屌你', '王八蛋',
+  '混蛋他媽', '去死', '死你全家', '廢物滾', 'fuck', 'shit', 'bitch',
+  'bastard', 'slut', 'whore',
+];
+
+function hasSensitiveWord(text) {
+  const t = text.toLowerCase();
+  return SENSITIVE_WORDS.some(w => t.includes(w.toLowerCase()));
+}
+
 /* GET /api/stores?brand=711|family&q=keyword — 超商門市搜尋（Proxy 避免 CORS） */
 async function searchStores(url, env) {
   const brand = url.searchParams.get('brand');
@@ -449,6 +468,81 @@ async function memberOrders(uid, request, env) {
 }
 
 // ──────────────────────────────────────────────
+//  Reviews
+// ──────────────────────────────────────────────
+
+/* GET /api/reviews?product_id=xxx */
+async function getReviews(url, env) {
+  const productId = url.searchParams.get('product_id');
+  if (!productId) return json({ ok: false, error: '缺少 product_id' }, 400, env);
+  const { results } = await env.DB.prepare(
+    'SELECT id, email, rating, body, size_bought, created_at FROM reviews WHERE product_id = ? AND hidden = 0 ORDER BY created_at DESC'
+  ).bind(productId).all();
+  const reviews = results.map(r => ({ ...r, email: maskEmail(r.email) }));
+  const avg = reviews.length ? reviews.reduce((s, r) => s + r.rating, 0) / reviews.length : 0;
+  return json({ ok: true, avg: Math.round(avg * 10) / 10, count: reviews.length, reviews }, 200, env);
+}
+
+/* POST /api/reviews */
+async function createReview(request, env) {
+  let payload;
+  try { payload = await request.json(); } catch { return json({ ok: false, error: '格式錯誤' }, 400, env); }
+  const { product_id, order_no, email, rating, body: reviewBody, size_bought } = payload || {};
+  if (!product_id || !order_no || !email || !rating || !reviewBody)
+    return json({ ok: false, error: '請填寫所有必填欄位' }, 400, env);
+  const r = Number(rating);
+  if (!Number.isInteger(r) || r < 1 || r > 5)
+    return json({ ok: false, error: '評分需在 1–5 之間' }, 400, env);
+  const text = String(reviewBody).trim();
+  if (text.length < 10 || text.length > 300)
+    return json({ ok: false, error: '評論字數需在 10–300 字之間' }, 400, env);
+  if (hasSensitiveWord(text))
+    return json({ ok: false, error: '評論內容包含不當文字，請修改後重新提交' }, 400, env);
+  const normEmail   = String(email).trim().toLowerCase();
+  const normOrderNo = String(order_no).trim().toUpperCase();
+  const order = await env.DB.prepare('SELECT items FROM orders WHERE order_no = ? AND email = ?')
+    .bind(normOrderNo, normEmail).first();
+  if (!order) return json({ ok: false, error: '查無此訂單，請確認訂單編號與信箱是否正確' }, 400, env);
+  let items = [];
+  try { items = JSON.parse(order.items || '[]'); } catch {}
+  if (!items.some(item => String(item.id) === String(product_id)))
+    return json({ ok: false, error: '此訂單未包含該商品' }, 400, env);
+  await env.DB.prepare(
+    `INSERT INTO reviews (product_id, order_no, email, rating, body, size_bought)
+     VALUES (?, ?, ?, ?, ?, ?)
+     ON CONFLICT(product_id, email) DO UPDATE SET
+       rating = excluded.rating, body = excluded.body,
+       size_bought = excluded.size_bought, order_no = excluded.order_no,
+       created_at = datetime('now')`
+  ).bind(Number(product_id), normOrderNo, normEmail, r, text, size_bought || null).run();
+  return json({ ok: true }, 200, env);
+}
+
+/* GET /api/admin/reviews?page=1 */
+async function adminListReviews(url, env) {
+  const page = Math.max(1, parseInt(url.searchParams.get('page') || '1', 10));
+  const PAGE = 20;
+  const offset = (page - 1) * PAGE;
+  const { results } = await env.DB.prepare(
+    `SELECT r.id, r.product_id, p.name as product_name, r.email, r.rating,
+            r.body, r.size_bought, r.hidden, r.created_at
+     FROM reviews r LEFT JOIN products p ON r.product_id = p.id
+     ORDER BY r.created_at DESC LIMIT ? OFFSET ?`
+  ).bind(PAGE + 1, offset).all();
+  const hasMore = results.length > PAGE;
+  return json({ ok: true, reviews: results.slice(0, PAGE), hasMore, page }, 200, env);
+}
+
+/* PATCH /api/admin/reviews/:id — toggle hidden */
+async function adminToggleReview(id, env) {
+  const row = await env.DB.prepare('SELECT hidden FROM reviews WHERE id = ?').bind(Number(id)).first();
+  if (!row) return json({ ok: false, error: '評論不存在' }, 404, env);
+  const newHidden = row.hidden ? 0 : 1;
+  await env.DB.prepare('UPDATE reviews SET hidden = ? WHERE id = ?').bind(newHidden, Number(id)).run();
+  return json({ ok: true, hidden: !!newHidden }, 200, env);
+}
+
+// ──────────────────────────────────────────────
 //  Admin handlers（Cloudflare Access 保護）
 // ──────────────────────────────────────────────
 
@@ -686,6 +780,12 @@ export default {
       if (method === 'GET'  && path === '/api/members/me')
         return getMemberByEmail(url, env);
 
+      if (method === 'GET'  && path === '/api/reviews')
+        return getReviews(url, env);
+
+      if (method === 'POST' && path === '/api/reviews')
+        return createReview(request, env);
+
       if (method === 'POST' && path === '/api/payment/initiate')
         return paymentInitiate(request, env);
 
@@ -738,6 +838,12 @@ export default {
 
         if (method === 'GET' && path === '/api/admin/members')
           return adminListMembers(env);
+
+        if (method === 'GET'  && path === '/api/admin/reviews')
+          return adminListReviews(url, env);
+
+        if (method === 'PATCH' && /^\/api\/admin\/reviews\/\d+$/.test(path))
+          return adminToggleReview(path.split('/').pop(), env);
       }
 
       return json({ ok: false, error: 'Not found' }, 404, env);
