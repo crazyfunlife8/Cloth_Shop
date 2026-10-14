@@ -301,11 +301,17 @@
 
     .reviews-list { display: flex; flex-direction: column; gap: 18px; }
     .review-card { background: var(--c-surface); border-radius: var(--r-card); padding: 20px 24px; }
+    .review-card--hidden { display: none; }
     .review-card-head { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 10px; }
     .review-card-stars { color: #e8a838; font-size: 17px; letter-spacing: 1px; line-height: 1.2; }
     .review-card-meta { font-size: 12px; color: var(--c-secondary); text-align: right; line-height: 1.7; }
     .review-card-size { font-size: 12px; color: var(--c-secondary); margin-bottom: 8px; }
     .review-card-body { font-size: 14px; line-height: 1.85; color: var(--c-on-surface); }
+
+    .btn-expand-reviews { display: none; width: 100%; margin-top: 16px; padding: 13px; background: #fff; border: 1.5px solid var(--c-border); border-radius: var(--r-btn); font-size: 14px; font-weight: 700; color: var(--c-primary); cursor: pointer; gap: 6px; align-items: center; justify-content: center; transition: background .15s; }
+    .btn-expand-reviews:hover { background: var(--c-surface); }
+    .btn-expand-reviews .material-symbols-outlined { font-size: 18px; transition: transform .25s; }
+    .btn-expand-reviews.expanded .material-symbols-outlined { transform: rotate(180deg); }
 
     .reviews-empty { text-align: center; padding: 48px 20px; color: var(--c-secondary); }
     .reviews-empty .material-symbols-outlined { font-size: 40px; margin-bottom: 12px; display: block; }
@@ -553,6 +559,11 @@
 
     <div class="reviews-list" id="reviews-list"></div>
 
+    <button class="btn-expand-reviews" id="btn-expand-reviews" onclick="toggleExpandReviews()">
+      <span class="material-symbols-outlined">expand_more</span>
+      <span id="expand-reviews-label"></span>
+    </button>
+
     <div class="reviews-empty" id="reviews-empty">
       <span class="material-symbols-outlined">chat_bubble_outline</span>
       <p>還沒有評論，成為第一個分享心得的人吧！</p>
@@ -753,27 +764,27 @@
     return '★'.repeat(rating) + '☆'.repeat(5 - rating);
   }
 
+  const REVIEWS_PREVIEW = 3;
+
   async function loadReviews(productId) {
     try {
       const res  = await fetch(`${API}/api/reviews?product_id=${productId}`);
       const data = await res.json();
-      if (!data.ok) return; // table might not exist yet; section stays visible with empty state
+      if (!data.ok) return;
 
       document.getElementById('reviews-count-tag').textContent = `${data.count} 則`;
 
       if (data.count > 0) {
-        // Rating summary near price
         document.getElementById('rating-summary').innerHTML =
           `<span class="rating-stars-sm">${starsHtml(Math.round(data.avg))}</span>` +
           `<span class="rating-avg-sm">${data.avg}</span>` +
           `<span class="rating-count-sm">(${data.count} 則評論)</span>`;
         document.getElementById('rating-summary').style.display = 'flex';
 
-        // Reviews list
         document.getElementById('reviews-empty').style.display = 'none';
         const listEl = document.getElementById('reviews-list');
-        listEl.innerHTML = data.reviews.map(r => `
-          <div class="review-card">
+        listEl.innerHTML = data.reviews.map((r, i) => `
+          <div class="review-card${i >= REVIEWS_PREVIEW ? ' review-card--hidden' : ''}">
             <div class="review-card-head">
               <span class="review-card-stars">${starsHtml(r.rating)}</span>
               <div class="review-card-meta">
@@ -785,8 +796,33 @@
             <p class="review-card-body">${r.body.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</p>
           </div>
         `).join('');
+
+        const expandBtn = document.getElementById('btn-expand-reviews');
+        if (data.count > REVIEWS_PREVIEW) {
+          document.getElementById('expand-reviews-label').textContent = `查看全部 ${data.count} 則評論`;
+          expandBtn.style.display = 'flex';
+        }
       }
     } catch { /* reviews are non-critical */ }
+  }
+
+  function toggleExpandReviews() {
+    const btn      = document.getElementById('btn-expand-reviews');
+    const hidden   = document.querySelectorAll('.review-card--hidden');
+    const expanded = btn.classList.contains('expanded');
+
+    if (!expanded) {
+      hidden.forEach(el => el.classList.remove('review-card--hidden'));
+      document.getElementById('expand-reviews-label').textContent = '收起評論';
+      btn.classList.add('expanded');
+    } else {
+      const cards = document.querySelectorAll('.review-card');
+      cards.forEach((el, i) => { if (i >= REVIEWS_PREVIEW) el.classList.add('review-card--hidden'); });
+      document.getElementById('expand-reviews-label').textContent =
+        `查看全部 ${cards.length} 則評論`;
+      btn.classList.remove('expanded');
+      document.getElementById('reviews-list').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
   }
 
   function toggleReviewForm() {

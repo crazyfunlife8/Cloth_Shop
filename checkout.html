@@ -641,6 +641,10 @@
       Toast.show('請填寫手機號碼', 'error'); btn.disabled = false;
       btn.innerHTML = '<span class="material-symbols-outlined">check_circle</span>確認訂單'; return;
     }
+    if (!/^09\d{8}$/.test(phoneVal.replace(/[-\s]/g, ''))) {
+      Toast.show('手機號碼格式不正確（09 開頭共 10 碼）', 'error'); btn.disabled = false;
+      btn.innerHTML = '<span class="material-symbols-outlined">check_circle</span>確認訂單'; return;
+    }
     if (emailVal && !/^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/.test(emailVal)) {
       Toast.show('Email 格式不正確', 'error'); btn.disabled = false;
       btn.innerHTML = '<span class="material-symbols-outlined">check_circle</span>確認訂單'; return;

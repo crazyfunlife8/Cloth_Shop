@@ -235,7 +235,7 @@ async function paymentInitiate(request, env) {
   const items = JSON.parse(order.items || '[]');
   const memo  = items.map(i => `${i.name}×${i.qty}`).join('、').slice(0, 490) || '𝑩𝒂𝒊𝑩𝒂𝒊 𝑺𝒕𝒐𝒓𝒆 ღ 訂單';
 
-  const GOMYPAY_URL = 'https://n.gomypay.asia/TestShuntClass.aspx';
+  const GOMYPAY_URL = env.GOMYPAY_URL || 'https://n.gomypay.asia/ShuntClass.aspx';
   const frontendUrl = (env.ALLOWED_ORIGIN || 'https://cloth.nestdigitalai.com').replace(/\*$/, '').replace(/,$/, '');
   const workerUrl   = 'https://brand-api.crazyfunlife8.workers.dev';
 
@@ -524,7 +524,7 @@ async function adminListReviews(url, env) {
   const PAGE = 20;
   const offset = (page - 1) * PAGE;
   const { results } = await env.DB.prepare(
-    `SELECT r.id, r.product_id, p.name as product_name, r.email, r.rating,
+    `SELECT r.id, r.product_id, p.name as product_name, p.cat as product_cat, r.email, r.rating,
             r.body, r.size_bought, r.hidden, r.created_at
      FROM reviews r LEFT JOIN products p ON r.product_id = p.id
      ORDER BY r.created_at DESC LIMIT ? OFFSET ?`

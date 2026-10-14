@@ -363,6 +363,9 @@
     }
   }
 
+  let codeTimer    = null;
+  let virtualTimer = null;
+
   function renderOrder(o) {
     document.title = `訂單 ${o.order_no}｜𝑩𝒂𝒊𝑩𝒂𝒊 𝑺𝒕𝒐𝒓𝒆 ღ`;
 
@@ -465,7 +468,8 @@
             timerEl.style.color = urgent ? '#e74c3c' : 'var(--c-secondary)';
           };
           tick();
-          const codeTimer = setInterval(tick, 1000);
+          clearInterval(codeTimer);
+          codeTimer = setInterval(tick, 1000);
         }
       }
     } else if (payType === 'barcode') {
@@ -514,7 +518,8 @@
           timerEl.style.color = urgent ? '#e74c3c' : 'var(--c-secondary)';
         };
         tickV();
-        const virtualTimer = setInterval(tickV, 1000);
+        clearInterval(virtualTimer);
+        virtualTimer = setInterval(tickV, 1000);
       }
     } else {
       document.getElementById('notice-icon').textContent  = isCvs ? 'storefront' : 'local_shipping';
