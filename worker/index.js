@@ -533,6 +533,14 @@ async function adminListReviews(url, env) {
   return json({ ok: true, reviews: results.slice(0, PAGE), hasMore, page }, 200, env);
 }
 
+/* DELETE /api/admin/reviews/:id */
+async function adminDeleteReview(id, env) {
+  const row = await env.DB.prepare('SELECT id FROM reviews WHERE id = ?').bind(Number(id)).first();
+  if (!row) return json({ ok: false, error: '評論不存在' }, 404, env);
+  await env.DB.prepare('DELETE FROM reviews WHERE id = ?').bind(Number(id)).run();
+  return json({ ok: true }, 200, env);
+}
+
 /* PATCH /api/admin/reviews/:id — toggle hidden */
 async function adminToggleReview(id, env) {
   const row = await env.DB.prepare('SELECT hidden FROM reviews WHERE id = ?').bind(Number(id)).first();
@@ -844,6 +852,9 @@ export default {
 
         if (method === 'PATCH' && /^\/api\/admin\/reviews\/\d+$/.test(path))
           return adminToggleReview(path.split('/').pop(), env);
+
+        if (method === 'DELETE' && /^\/api\/admin\/reviews\/\d+$/.test(path))
+          return adminDeleteReview(path.split('/').pop(), env);
       }
 
       return json({ ok: false, error: 'Not found' }, 404, env);

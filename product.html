@@ -792,16 +792,16 @@
   function toggleReviewForm() {
     const card = document.getElementById('review-form-card');
     const btn  = document.getElementById('btn-write-review');
-    const open = card.style.display === 'none' || card.style.display === '';
-    if (card.style.display !== 'none' && card.style.display !== '') {
-      card.style.display = 'none';
-      btn.innerHTML = '<span class="material-symbols-outlined">rate_review</span>留下評論';
-    } else {
+    if (card.style.display === 'none') {
       card.style.display = '';
       btn.innerHTML = '<span class="material-symbols-outlined">close</span>取消';
       card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       const saved = localStorage.getItem('ember_member_email');
-      if (saved) document.getElementById('review-email').value = saved;
+      if (saved && !document.getElementById('review-email').value)
+        document.getElementById('review-email').value = saved;
+    } else {
+      card.style.display = 'none';
+      btn.innerHTML = '<span class="material-symbols-outlined">rate_review</span>留下評論';
     }
   }
 
@@ -859,6 +859,14 @@
         btnEl.innerHTML = '<span class="material-symbols-outlined">send</span>送出評論';
         return;
       }
+      reviewRating = 0;
+      document.querySelectorAll('#star-picker button').forEach(b => b.classList.remove('lit'));
+      document.getElementById('review-body').value = '';
+      document.getElementById('review-size').value = '';
+      document.getElementById('review-char-count').textContent = '0/300';
+      document.getElementById('review-error').className = 'review-form-error';
+      btnEl.disabled = false;
+      btnEl.innerHTML = '<span class="material-symbols-outlined">send</span>送出評論';
       toggleReviewForm();
       Toast.show('評論已送出，感謝你的回饋！');
       loadReviews(product.id);
