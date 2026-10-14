@@ -70,8 +70,8 @@ function maskEmail(email) {
 
 const SENSITIVE_WORDS = [
   '幹你', '操你', '婊子', '賤人', '妓女', '雞巴', '屌你', '王八蛋',
-  '混蛋他媽', '去死', '死你全家', '廢物滾', 'fuck', 'shit', 'bitch',
-  'bastard', 'slut', 'whore',
+  '混蛋', '去死', '廢物', 'fuck', 'shit', 'bitch',
+  'bastard', 'slut', 'whore','賤','垃圾',
 ];
 
 function hasSensitiveWord(text) {

@@ -498,7 +498,7 @@
   </div>
 
   <!-- ── Review Section ── -->
-  <section class="reviews-section" id="reviews-section" style="display:none">
+  <section class="reviews-section" id="reviews-section">
     <div class="reviews-head">
       <h2 class="reviews-title">買家評論</h2>
       <span class="reviews-count-tag" id="reviews-count-tag">0 則</span>
@@ -553,7 +553,7 @@
 
     <div class="reviews-list" id="reviews-list"></div>
 
-    <div class="reviews-empty" id="reviews-empty" style="display:none">
+    <div class="reviews-empty" id="reviews-empty">
       <span class="material-symbols-outlined">chat_bubble_outline</span>
       <p>還沒有評論，成為第一個分享心得的人吧！</p>
     </div>
@@ -757,24 +757,20 @@
     try {
       const res  = await fetch(`${API}/api/reviews?product_id=${productId}`);
       const data = await res.json();
-      if (!data.ok) return;
+      if (!data.ok) return; // table might not exist yet; section stays visible with empty state
 
-      // Rating summary near price
+      document.getElementById('reviews-count-tag').textContent = `${data.count} 則`;
+
       if (data.count > 0) {
+        // Rating summary near price
         document.getElementById('rating-summary').innerHTML =
           `<span class="rating-stars-sm">${starsHtml(Math.round(data.avg))}</span>` +
           `<span class="rating-avg-sm">${data.avg}</span>` +
           `<span class="rating-count-sm">(${data.count} 則評論)</span>`;
         document.getElementById('rating-summary').style.display = 'flex';
-      }
 
-      // Reviews section
-      document.getElementById('reviews-section').style.display = '';
-      document.getElementById('reviews-count-tag').textContent = `${data.count} 則`;
-
-      if (data.count === 0) {
-        document.getElementById('reviews-empty').style.display = '';
-      } else {
+        // Reviews list
+        document.getElementById('reviews-empty').style.display = 'none';
         const listEl = document.getElementById('reviews-list');
         listEl.innerHTML = data.reviews.map(r => `
           <div class="review-card">
