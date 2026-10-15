@@ -45,10 +45,10 @@
     .result-count { font-size: 13px; color: var(--c-muted); font-weight: 600; margin-left: auto; white-space: nowrap; }
 
     .table-wrap { background: #fff; border-radius: 16px; border: 1px solid var(--c-border); overflow: hidden; }
-    table { width: 100%; border-collapse: collapse; }
+    table { width: 100%; table-layout: fixed; border-collapse: collapse; }
     thead tr { background: var(--c-body); }
     th { text-align: left; padding: 12px 16px; font-size: 12px; font-weight: 700; letter-spacing: .05em; color: var(--c-muted); text-transform: uppercase; border-bottom: 1px solid var(--c-border); }
-    td { padding: 12px 16px; border-bottom: 1px solid rgba(143,89,53,.07); vertical-align: middle; }
+    td { padding: 12px 16px; border-bottom: 1px solid rgba(143,89,53,.07); vertical-align: middle; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
     tr:last-child td { border-bottom: none; }
     tr:hover td { background: var(--c-body); }
 
@@ -152,6 +152,16 @@
 
   <div class="table-wrap">
     <table>
+      <colgroup>
+        <col style="width:15%">
+        <col style="width:12%">
+        <col style="width:76px">
+        <col>
+        <col style="width:52px">
+        <col style="width:80px">
+        <col style="width:92px">
+        <col style="width:68px">
+      </colgroup>
       <thead>
         <tr>
           <th>商品</th>
@@ -177,10 +187,11 @@
 
 <script>
   const API = 'https://brand-api.crazyfunlife8.workers.dev';
+  const PAGE_SIZE = 20;
 
-  let allReviews = [];
-  let currentPage = 1;
-  let hasMore = false;
+  let allReviews      = [];
+  let filteredReviews = [];
+  let currentPage     = 1;
 
   function toast(msg, isErr = false) {
     const el = document.getElementById('toast');
@@ -190,15 +201,12 @@
     el._t = setTimeout(() => el.className = '', 2800);
   }
 
-  async function loadReviews(page = 1) {
+  async function loadReviews() {
     try {
-      const res  = await fetch(`${API}/api/admin/reviews?page=${page}`);
+      const res  = await fetch(`${API}/api/admin/reviews`);
       const data = await res.json();
       if (!data.ok) { toast('載入失敗', true); return; }
-      allReviews  = data.reviews;
-      currentPage = data.page;
-      hasMore     = data.hasMore;
-      document.getElementById('result-count').textContent = `共 ${allReviews.length} 則`;
+      allReviews = data.reviews;
       applyFilter();
     } catch { toast('網路錯誤', true); }
   }
@@ -208,34 +216,42 @@
     const cat     = document.getElementById('filter-cat').value;
     const product = document.getElementById('filter-product').value.trim().toLowerCase();
 
-    const filtered = allReviews.filter(r => {
-      if (hidden  !== '' && String(r.hidden)       !== hidden)                         return false;
-      if (cat     !== '' && !(r.product_cat || '').split(/\s+/).includes(cat))         return false;
-      if (product !== '' && !(r.product_id || '').toLowerCase().includes(product))   return false;
+    filteredReviews = allReviews.filter(r => {
+      if (hidden  !== '' && String(r.hidden) !== hidden)                              return false;
+      if (cat     !== '' && !(r.product_cat || '').split(/\s+/).includes(cat))       return false;
+      if (product !== '' && !(r.product_name || '').toLowerCase().includes(product)) return false;
       return true;
     });
 
     document.getElementById('result-count').textContent =
-      filtered.length !== allReviews.length ? `篩選結果：${filtered.length} 則` : `共 ${allReviews.length} 則`;
+      filteredReviews.length !== allReviews.length
+        ? `篩選結果：${filteredReviews.length} 則`
+        : `共 ${allReviews.length} 則`;
 
-    renderTable(filtered);
+    currentPage = 1;
+    renderTable();
     renderPagination();
   }
 
-  function renderTable(reviews) {
-    const tbody = document.getElementById('reviews-tbody');
-    if (!reviews.length) {
+  function renderTable() {
+    const tbody      = document.getElementById('reviews-tbody');
+    const totalPages = Math.max(1, Math.ceil(filteredReviews.length / PAGE_SIZE));
+    currentPage      = Math.min(currentPage, totalPages);
+    const start      = (currentPage - 1) * PAGE_SIZE;
+    const pageItems  = filteredReviews.slice(start, start + PAGE_SIZE);
+
+    if (!filteredReviews.length) {
       tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><span class="material-symbols-outlined">star_border</span>沒有符合的評論</div></td></tr>`;
       return;
     }
-    tbody.innerHTML = reviews.map(r => `
+    tbody.innerHTML = pageItems.map(r => `
       <tr id="row-${r.id}">
-        <td style="font-size:13px;font-weight:700;max-width:140px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.product_id || `#${r.product_id}`}</td>
-        <td class="review-email">${r.email}</td>
+        <td style="font-size:13px;font-weight:700" title="${r.product_name || ''}">${r.product_name || `#${r.product_id}`}</td>
+        <td class="review-email" title="${r.email}">${r.email}</td>
         <td><span class="stars">${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}</span></td>
-        <td><span class="review-excerpt" title="${r.body.replace(/"/g,'&quot;')}">${r.body}</span></td>
+        <td title="${r.body.replace(/"/g,'&quot;')}">${r.body}</td>
         <td>${r.size_bought ? `<span class="review-size-tag">${r.size_bought}</span>` : '<span style="color:var(--c-muted)">—</span>'}</td>
-        <td style="font-size:13px;color:var(--c-muted);white-space:nowrap">${new Date(r.created_at + 'Z').toLocaleDateString('zh-TW')}</td>
+        <td style="font-size:13px;color:var(--c-muted)">${new Date(r.created_at + 'Z').toLocaleDateString('zh-TW')}</td>
         <td>
           <label class="toggle">
             <input type="checkbox" ${r.hidden ? '' : 'checked'} onchange="toggleHidden(${r.id}, ${r.hidden})">
@@ -253,16 +269,24 @@
   }
 
   function renderPagination() {
-    const el = document.getElementById('pagination');
+    const el         = document.getElementById('pagination');
+    const totalPages = Math.max(1, Math.ceil(filteredReviews.length / PAGE_SIZE));
+    if (totalPages <= 1) { el.innerHTML = ''; return; }
     el.innerHTML = `
-      <button class="pg-btn" onclick="loadReviews(${currentPage - 1})" ${currentPage <= 1 ? 'disabled' : ''}>
+      <button class="pg-btn" onclick="goPage(${currentPage - 1})" ${currentPage <= 1 ? 'disabled' : ''}>
         <span class="material-symbols-outlined">chevron_left</span>
       </button>
-      <span class="pg-info">第 ${currentPage} 頁</span>
-      <button class="pg-btn" onclick="loadReviews(${currentPage + 1})" ${!hasMore ? 'disabled' : ''}>
+      <span class="pg-info">第 ${currentPage} / ${totalPages} 頁</span>
+      <button class="pg-btn" onclick="goPage(${currentPage + 1})" ${currentPage >= totalPages ? 'disabled' : ''}>
         <span class="material-symbols-outlined">chevron_right</span>
       </button>
     `;
+  }
+
+  function goPage(n) {
+    currentPage = n;
+    renderTable();
+    renderPagination();
   }
 
   async function deleteReview(id) {

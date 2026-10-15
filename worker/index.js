@@ -518,19 +518,15 @@ async function createReview(request, env) {
   return json({ ok: true }, 200, env);
 }
 
-/* GET /api/admin/reviews?page=1 */
+/* GET /api/admin/reviews */
 async function adminListReviews(url, env) {
-  const page = Math.max(1, parseInt(url.searchParams.get('page') || '1', 10));
-  const PAGE = 20;
-  const offset = (page - 1) * PAGE;
   const { results } = await env.DB.prepare(
     `SELECT r.id, r.product_id, p.name as product_name, p.cat as product_cat, r.email, r.rating,
             r.body, r.size_bought, r.hidden, r.created_at
      FROM reviews r LEFT JOIN products p ON r.product_id = p.id
-     ORDER BY r.created_at DESC LIMIT ? OFFSET ?`
-  ).bind(PAGE + 1, offset).all();
-  const hasMore = results.length > PAGE;
-  return json({ ok: true, reviews: results.slice(0, PAGE), hasMore, page }, 200, env);
+     ORDER BY r.created_at DESC`
+  ).all();
+  return json({ ok: true, reviews: results }, 200, env);
 }
 
 /* DELETE /api/admin/reviews/:id */
