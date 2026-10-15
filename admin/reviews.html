@@ -220,7 +220,10 @@
     filteredReviews = allReviews.filter(r => {
       if (hidden  !== '' && String(r.hidden) !== hidden)                              return false;
       if (cat     !== '' && !(r.product_cat || '').split(/\s+/).includes(cat))       return false;
-      if (product !== '' && !String(r.sort_order ?? '').includes(product)) return false;
+      if (product !== '') {
+        const sku = ((r.item_letter || '') + String(r.sort_order ?? '').padStart(3, '0')).toLowerCase();
+        if (!sku.includes(product)) return false;
+      }
       return true;
     });
 
@@ -247,7 +250,7 @@
     }
     tbody.innerHTML = pageItems.map(r => `
       <tr id="row-${r.id}">
-        <td style="font-size:13px;font-weight:700">${r.sort_order ?? '—'}</td>
+        <td style="font-size:13px;font-weight:700">${r.sort_order != null ? (r.item_letter || '') + String(r.sort_order).padStart(3, '0') : '—'}</td>
         <td class="review-email" title="${r.email}">${r.email}</td>
         <td style="font-size:13px;color:var(--c-muted)">${r.rating}/5</td>
         <td title="${r.body.replace(/"/g,'&quot;')}">${r.body}</td>
