@@ -353,11 +353,11 @@ img { display: block; max-width: 100%; }
 @media (min-width: 768px) {
   .shop-sidebar {
     display: block;
-    width: 172px;
+    width: 196px;
     flex-shrink: 0;
     position: sticky;
     top: 108px;
-    padding-right: 28px;
+    padding-right: 8px;
     margin-right: 40px;
     border-right: 1px solid rgba(192,128,122,.15);
   }
@@ -379,7 +379,7 @@ img { display: block; max-width: 100%; }
 
 .sidebar-btn {
   display: block; width: 100%;
-  padding: 9px 12px 9px 14px;
+  padding: 9px 2px 9px 14px;
   background: none;
   border: none;
   border-left: 2.5px solid transparent;
