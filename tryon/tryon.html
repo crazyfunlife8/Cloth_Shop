@@ -40,6 +40,9 @@
   .opt input{width:72px;padding:7px 8px;border:1.5px solid var(--line);border-radius:10px;font-size:15px;background:#fff;color:var(--c-on-surface)}
   .cats{display:flex;gap:6px;overflow-x:auto;margin:0 -16px 12px;padding:0 16px 2px;scrollbar-width:none}
   .cats::-webkit-scrollbar{display:none}
+  @media(min-width:540px){
+    .cats{flex-wrap:wrap;overflow-x:visible;margin:0 0 12px;padding:0}
+  }
   .cat{flex:none;border:1.5px solid var(--line);background:#fff;border-radius:var(--r-pill);padding:6px 14px;font-size:13px;cursor:pointer;color:var(--c-on-surface)}
   .cat.on{background:var(--c-primary);border-color:var(--c-primary);color:#fff}
   .cat small{opacity:.7;margin-left:3px}
@@ -151,7 +154,7 @@
       <h1>自己動手穿穿看</h1>
       <p>填好你的身材，看看穿起來的樣子</p>
     </div>
-    <span class="brand">Ember</span>
+    <span class="brand">Bai Bai</span>
   </header>
 
   <section class="card" id="prods-card">
