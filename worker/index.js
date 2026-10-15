@@ -521,7 +521,7 @@ async function createReview(request, env) {
 /* GET /api/admin/reviews */
 async function adminListReviews(url, env) {
   const { results } = await env.DB.prepare(
-    `SELECT r.id, r.product_id, p.name as product_name, p.cat as product_cat, r.email, r.rating,
+    `SELECT r.id, r.product_id, p.sort_order, p.name as product_name, p.cat as product_cat, r.email, r.rating,
             r.body, r.size_bought, r.hidden, r.created_at
      FROM reviews r LEFT JOIN products p ON r.product_id = p.id
      ORDER BY r.created_at DESC`
