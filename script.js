@@ -276,17 +276,17 @@ document.querySelectorAll('.reveal').forEach(el => ro.observe(el));
       <div class="footer-cols">
         <div class="footer-col">
           <h5>Shop · 逛逛</h5>
-          <a href="index.html#new-zone">新品專區</a>
+          <a href="/?cat=new">新品專區</a>
           <a href="index.html#shop">全部商品</a>
         </div>
         <div class="footer-col">
           <h5>About · 品牌</h5>
-          <a href="/notice#brand">品牌理念</a>
+          <a href="/notice">品牌理念</a>
           <a href="https://www.instagram.com/yiann.9424/" target="_blank" rel="noopener">聯絡我們</a>
         </div>
         <div class="footer-col">
           <h5>Care · 服務</h5>
-          <a href="/notice">購物須知</a>
+          <a href="/notice#guide">購物須知</a>
           <a href="/privacy">隱私權政策</a>
         </div>
       </div>

@@ -97,7 +97,7 @@
     <nav class="drawer-nav">
       <span class="drawer-eyebrow">Menu</span>
 
-      <a class="drawer-link" href="#new-zone">
+      <a class="drawer-link" href="#shop" onclick="filterCat('new')">
         <span class="drawer-zh">新品專區</span>
         <span class="drawer-en">New In</span>
       </a>
@@ -357,6 +357,7 @@
       grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;padding:60px 0;color:var(--c-secondary);font-size:14px">目前沒有商品</p>';
       return;
     }
+    const _catParam = new URLSearchParams(location.search).get('cat');
     grid.innerHTML = data.products.map(p => {
       const img    = p.images?.[0]
         ? `<img src="${API}/images/${p.images[0]}" alt="${p.name}" loading="lazy">`
@@ -378,6 +379,11 @@
           </div>
         </a>`;
     }).join('');
+
+    if (_catParam) {
+      filterCat(_catParam);
+      document.getElementById('shop')?.scrollIntoView({ behavior: 'smooth' });
+    }
   } catch {
     grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;padding:60px 0;color:var(--c-secondary);font-size:14px">商品載入失敗，請稍後再試</p>';
   }
