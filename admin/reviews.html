@@ -211,7 +211,7 @@
     const filtered = allReviews.filter(r => {
       if (hidden  !== '' && String(r.hidden)       !== hidden)                         return false;
       if (cat     !== '' && !(r.product_cat || '').split(/\s+/).includes(cat))         return false;
-      if (product !== '' && !(r.product_name || '').toLowerCase().includes(product))   return false;
+      if (product !== '' && !(r.product_id || '').toLowerCase().includes(product))   return false;
       return true;
     });
 
@@ -230,7 +230,7 @@
     }
     tbody.innerHTML = reviews.map(r => `
       <tr id="row-${r.id}">
-        <td style="font-size:13px;font-weight:700;max-width:140px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.product_name || `#${r.product_id}`}</td>
+        <td style="font-size:13px;font-weight:700;max-width:140px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.product_id || `#${r.product_id}`}</td>
         <td class="review-email">${r.email}</td>
         <td><span class="stars">${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}</span></td>
         <td><span class="review-excerpt" title="${r.body.replace(/"/g,'&quot;')}">${r.body}</span></td>
