@@ -281,8 +281,8 @@ document.querySelectorAll('.reveal').forEach(el => ro.observe(el));
         </div>
         <div class="footer-col">
           <h5>About · 品牌</h5>
-          <a href="#">品牌理念</a>
-          <a href="#">聯絡我們</a>
+          <a href="/notice#brand">品牌理念</a>
+          <a href="https://www.instagram.com/yiann.9424/" target="_blank" rel="noopener">聯絡我們</a>
         </div>
         <div class="footer-col">
           <h5>Care · 服務</h5>
