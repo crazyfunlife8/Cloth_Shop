@@ -207,7 +207,7 @@
 
     const filtered = allReviews.filter(r => {
       if (hidden  !== '' && String(r.hidden)       !== hidden)                         return false;
-      if (cat     !== '' && r.product_cat          !== cat)                            return false;
+      if (cat     !== '' && !(r.product_cat || '').split(/\s+/).includes(cat))         return false;
       if (product !== '' && !(r.product_name || '').toLowerCase().includes(product))   return false;
       return true;
     });
