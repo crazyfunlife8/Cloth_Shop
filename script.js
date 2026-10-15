@@ -276,7 +276,7 @@ document.querySelectorAll('.reveal').forEach(el => ro.observe(el));
       <div class="footer-cols">
         <div class="footer-col">
           <h5>Shop · 逛逛</h5>
-          <a href="/?cat=new">新品專區</a>
+          <a href="/?cat=new" onclick="if(location.pathname==='/'){event.preventDefault();filterCat('new');document.getElementById('shop')?.scrollIntoView({behavior:'smooth'});}">新品專區</a>
           <a href="index.html#shop">全部商品</a>
         </div>
         <div class="footer-col">
