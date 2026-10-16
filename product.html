@@ -957,7 +957,11 @@ function initTryon() {
 
   window.addEventListener('message', e => {
     if (e.origin !== location.origin || !e.data || e.data.type !== 'tryon-picked') return;
+    const { color, size } = e.data.item || {};
+    if (color) selectedColor = color;
+    if (size)  selectedSize  = size;
     close();
+    addToCart();
   });
 }
 </script>
