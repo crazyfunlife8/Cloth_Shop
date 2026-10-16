@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>𝑩𝒂𝒊𝑩𝒂𝒊 𝑺𝒕𝒐𝒓𝒆 ღ｜服飾選物 ♥</title>
+  <meta name="description" content="𝑩𝒂𝒊𝑩𝒂𝒊 𝑺𝒕𝒐𝒓𝒆 ღ — 溫暖日常的穿搭提案，精選每一件讓你感受溫度的衣物。">
+  <meta name="theme-color" content="#FBF7F4">
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="BaiBai Store">
+  <meta property="og:title" content="BaiBai Store｜服飾選物">
+  <meta property="og:description" content="溫暖日常的穿搭提案，精選每一件讓你感受溫度的衣物。">
+  <meta property="og:url" content="https://cloth.nestdigitalai.com/">
+  <meta property="og:image" content="https://cloth.nestdigitalai.com/image/og-cover.jpg">
+  <meta property="og:locale" content="zh_TW">
+  <link rel="icon" type="image/x-icon" href="/image/favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/image/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/image/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/image/apple-touch-icon.png">
+  <link rel="manifest" href="/image/site.webmanifest">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,500;1,600&family=Noto+Serif+TC:wght@500;600;700&family=Nunito:ital,wght@0,300..800;1,400..700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <!-- Meta Pixel -->
+  <script>
+  !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+  n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+  document,'script','https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', '1105823902186663');
+  fbq('track', 'PageView');
+  </script>
+  <noscript><img height="1" width="1" style="display:none"
+  src="https://www.facebook.com/tr?id=1105823902186663&ev=PageView&noscript=1"/></noscript>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════
+     HEADER
+══════════════════════════════════════════ -->
+<header id="site-header">
+  <nav class="header-nav">
+
+    <!-- Logo ─ 替換成 <img src="/brand/logo.png" alt="品牌名稱" class="…"> -->
+    <a href="/" class="header-logo" aria-label="品牌首頁">
+      <img src="/image/cloth_logo.png" alt="Wear the Warmth">
+      <p class="logo-text">𝑩𝒂𝒊𝑩𝒂𝒊 𝑺𝒕𝒐𝒓𝒆 ღ</p>
+    </a>
+
+    <!-- Right actions -->
+    <div class="header-actions">
+      <button type="button" class="icon-btn" aria-label="搜尋" onclick="Search.toggle()">
+        <span class="material-symbols-outlined">search</span>
+      </button>
+      <a href="/account.html" class="icon-btn" aria-label="會員中心">
+        <span class="material-symbols-outlined">person</span>
+      </a>
+      <button type="button" class="icon-btn" aria-label="購物車" onclick="Cart.open()">
+        <span class="material-symbols-outlined">shopping_cart</span>
+        <span id="cart-badge"></span>
+      </button>
+      <button type="button" class="icon-btn" aria-label="開啟選單" onclick="Drawer.open()"
+              style="font-size:0">
+        <span class="material-symbols-outlined" style="font-size:27px">menu</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Search bar (toggle) -->
+  <div id="search-bar">
+    <input id="search-input" type="search" placeholder="搜尋商品…"
+           oninput="Search.run(this.value)" autocomplete="off"
+           onkeydown="if(event.key==='Escape')Search.toggle()">
+  </div>
+</header>
+
+
+<!-- ══════════════════════════════════════════
+     NAVIGATION DRAWER
+══════════════════════════════════════════ -->
+<div id="drawer-overlay" onclick="Drawer.close()"></div>
+
+<aside id="nav-drawer" aria-label="主選單">
+  <div class="drawer-inner">
+
+    <div class="drawer-topbar">
+      <div class="drawer-spacer"></div>
+      <!-- Logo (drawer 中央) -->
+      <div class="drawer-logo">
+        <img src="/image/cloth_logo.png" alt="Wear the Warmth">
+        <p class="logo-text">𝑩𝒂𝒊𝑩𝒂𝒊 𝑺𝒕𝒐𝒓𝒆 ღ</p>
+        <span class="logo-text-span">Wear the Warmth</span>
+      </div>
+      <button class="drawer-close" onclick="Drawer.close()" aria-label="關閉選單">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+
+    <nav class="drawer-nav">
+      <span class="drawer-eyebrow">Menu</span>
+
+      <a class="drawer-link" href="#shop" onclick="filterCat('new')">
+        <span class="drawer-zh">新品專區</span>
+        <span class="drawer-en">New In</span>
+      </a>
+      <span class="drawer-sep"></span>
+      <a class="drawer-link" href="#shop" onclick="filterCat('all')">
+        <span class="drawer-zh">全部商品</span>
+        <span class="drawer-en">Shop All</span>
+      </a>
+      <span class="drawer-sep"></span>
+      <a class="drawer-link" href="/notice">
+        <span class="drawer-zh">購物須知</span>
+        <span class="drawer-en">Care Guide</span>
+      </a>
+      <span class="drawer-sep"></span>
+      <a class="drawer-link" href="/account.html">
+        <span class="drawer-zh">會員中心</span>
+        <span class="drawer-en">My Account</span>
+      </a>
+    </nav>
+
+    <div class="drawer-foot">
+      <div class="drawer-tagline">
+        <span class="drawer-tagline-line"></span>
+        <span class="drawer-tagline-text">Wear the Warmth</span>
+        <span class="drawer-tagline-line"></span>
+      </div>
+      <div class="drawer-socials">
+        <a class="drawer-social-link" href="#" target="_blank" rel="noopener">Instagram</a>
+        <a class="drawer-social-link" href="/contact">Contact Us</a>
+      </div>
+    </div>
+
+  </div>
+</aside>
+
+
+<!-- ══════════════════════════════════════════
+     MAIN
+══════════════════════════════════════════ -->
+<main>
+
+  <!-- ── Hero ── -->
+  <section class="hero" id="home">
+    <div class="hero-deco d1"><img src="/image/leaf01.png" alt=""></div>
+    <div class="hero-deco d2"><img src="/image/leaf02.png" alt=""></div>
+    <span class="hero-spark" style="left:16%;top:24%">✦</span>
+    <span class="hero-spark" style="right:14%;top:36%;animation-delay:1.2s">♥︎</span>
+    <span class="hero-spark" style="left:24%;bottom:28%;animation-delay:.6s;font-size:11px">♥︎</span>
+
+    <div class="hero-inner">
+      <!-- Logo 區：替換成 <img> -->
+      <div class="hero-logo">
+        <img src="/image/cloth_logo.png" alt="Wear the Warmth">
+      </div>
+      <p class="hero-tagline">Wear the Warmth</p>
+      <a class="hero-cta" href="#shop" onclick="filterCat('new')">
+        逛當週新品
+        <span class="material-symbols-outlined">favorite</span>
+      </a>
+    </div>
+  </section>
+
+
+  <!-- ── Product Grid ── -->
+  <section id="shop" class="shop-section">
+    <div class="shop-layout">
+
+      <!-- 左側分類欄 (桌機顯示) -->
+      <aside class="shop-sidebar">
+        <div class="sidebar-group">
+          <span class="sidebar-group-title">分 類</span>
+          <ul class="sidebar-list">
+
+            <li><button class="sidebar-btn active" data-cat="all" onclick="filterCat('all')">全部商品</button></li>
+            <li><button class="sidebar-btn" data-cat="new" onclick="filterCat('new')" style="font-weight: 800;">新品 .ᐟ.ᐟ</button></li>
+
+            <!-- TOP 上衣 -->
+            <li>
+              <button class="sidebar-btn sidebar-btn--parent" data-cat="top" onclick="filterCat('top')">
+                <span class="sb-en">TOP</span> ♥ 上衣
+              </button>
+              <ul class="sidebar-sub">
+                <li><button class="sidebar-btn sidebar-btn--sub" data-cat="tshirt" onclick="filterCat('tshirt')">短袖上衣</button></li>
+                <li><button class="sidebar-btn sidebar-btn--sub" data-cat="blouse" onclick="filterCat('blouse')">小吊帶</button></li>
+                <li><button class="sidebar-btn sidebar-btn--sub" data-cat="shortsleeve" onclick="filterCat('shortsleeve')">短版上衣</button></li>
+                <li><button class="sidebar-btn sidebar-btn--sub" data-cat="longsleeve" onclick="filterCat('longsleeve')">長袖上衣</button></li>
+              </ul>
+            </li>
+
+            <!-- BOTTOM 下著 -->
+            <li>
+              <button class="sidebar-btn sidebar-btn--parent" data-cat="bottom" onclick="filterCat('bottom')">
+                <span class="sb-en">BOTTOM</span> ♥ 下著
+              </button>
+              <ul class="sidebar-sub">
+                <li><button class="sidebar-btn sidebar-btn--sub" data-cat="pants" onclick="filterCat('pants')">長褲</button></li>
+                <li><button class="sidebar-btn sidebar-btn--sub" data-cat="shorts" onclick="filterCat('shorts')">短褲</button></li>
+                <li><button class="sidebar-btn sidebar-btn--sub" data-cat="skirt" onclick="filterCat('skirt')">短裙</button></li>
+                <li><button class="sidebar-btn sidebar-btn--sub" data-cat="longskirt" onclick="filterCat('longskirt')">長裙</button></li>
+              </ul>
+            </li>
+
+            <!-- ACCESSORIES 配件 -->
+            <li>
+              <button class="sidebar-btn sidebar-btn--parent" data-cat="accessories" onclick="filterCat('accessories')">
+                <span class="sb-en">ACCESSORIES</span> ♥ 配件
+              </button>
+              <ul class="sidebar-sub">
+                <li><button class="sidebar-btn sidebar-btn--sub" data-cat="cap" onclick="filterCat('cap')">帽子</button></li>
+                <li><button class="sidebar-btn sidebar-btn--sub" data-cat="shoes" onclick="filterCat('shoes')">鞋子</button></li>
+                <li><button class="sidebar-btn sidebar-btn--sub" data-cat="necklace" onclick="filterCat('necklace')">項鍊</button></li>
+                <li><button class="sidebar-btn sidebar-btn--sub" data-cat="bracelet" onclick="filterCat('bracelet')">手鍊</button></li>
+                <li><button class="sidebar-btn sidebar-btn--sub" data-cat="accessory" onclick="filterCat('accessory')">小物</button></li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+      </aside>
+
+      <!-- 右側商品區 -->
+      <div class="shop-main">
+        <div class="section-head">
+          <h2 class="section-title">所有商品</h2>
+          <p class="section-subtitle">大家都在買的人氣商品</p>
+        </div>
+
+        <!-- 手機版橫向篩選 (桌機隱藏) -->
+        <div class="mobile-filter">
+          <button class="mobile-filter-btn active" data-cat="all" onclick="filterCat('all')">全部</button>
+          <button class="mobile-filter-btn" data-cat="new" onclick="filterCat('new')">新品</button>
+          <button class="mobile-filter-btn" data-cat="top" onclick="filterCat('top')">上衣</button>
+          <button class="mobile-filter-btn" data-cat="bottom" onclick="filterCat('bottom')">下著</button>
+          <button class="mobile-filter-btn" data-cat="accessories" onclick="filterCat('accessories')">配件</button>
+        </div>
+
+        <div class="product-grid" id="product-grid">
+          <p id="products-loading" style="grid-column:1/-1;text-align:center;padding:60px 0;color:var(--c-secondary);font-size:14px">載入中…</p>
+        </div><!-- /product-grid -->
+      </div><!-- /shop-main -->
+
+    </div><!-- /shop-layout -->
+  </section>
+
+
+  <!-- ── Social Follow ── -->
+  <section class="social-section">
+    <div class="social-inner">
+      <span class="social-eyebrow reveal">FOLLOW US</span>
+      <h2 class="social-title reveal">穿搭日常・新品快訊</h2>
+      <p class="social-desc reveal">從選品到搭配，跟著我們的 Instagram 感受每件衣服的溫度。</p>
+      <div class="social-btns reveal">
+        <a href="https://www.instagram.com/yiann.9424/" target="_blank" rel="noopener" class="btn-solid">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>追蹤我的IG
+        </a>
+        <a href="https://www.tiktok.com/@yiann.9424_" target="_blank" rel="noopener" class="btn-outline">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.73a4.85 4.85 0 01-1.01-.04z"/></svg>我的Tik Tok
+        </a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+
+<!-- footer 由 script.js renderFooter() 動態插入 -->
+
+
+<!-- ══════════════════════════════════════════
+     CONTACT FAB + POPUP
+══════════════════════════════════════════ -->
+<button class="fab-contact" id="fab-btn" aria-label="聯絡客服" aria-expanded="false"
+        onclick="Contact.toggle()">
+  <span class="material-symbols-outlined">chat</span>
+</button>
+
+<div class="contact-pop" id="contact-pop" role="dialog" aria-label="聯絡我們">
+  <div class="cp-head">
+    <span>聯絡我們</span>
+    <button onclick="Contact.close()" aria-label="關閉">×</button>
+  </div>
+  <a class="cp-link" href="https://www.instagram.com/yiann.9424/" target="_blank" rel="noopener">
+    <div class="cp-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></div>
+    <span class="cp-text"><b>Instagram 私訊</b><i>@yiann.9424</i></span>
+    <span class="cp-arrow">→</span>
+  </a>
+  <a class="cp-link" href="https://www.threads.com/@yiann.9424" target="_blank" rel="noopener">
+    <div class="cp-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M12.186 24h-.007c-3.581-.024-6.334-1.205-8.184-3.509C2.35 18.44 1.5 15.586 1.472 12.01v-.017c.03-3.579.879-6.43 2.525-8.482C5.868 1.206 8.602.016 12.18 0h.014c2.746.02 5.043.725 6.826 2.098 1.677 1.29 2.858 3.13 3.509 5.467l-2.04.569c-1.104-3.96-3.898-5.984-8.304-6.015-2.91.022-5.11.936-6.54 2.717C4.307 6.504 3.616 8.914 3.589 12c.027 3.086.718 5.496 2.057 7.164 1.43 1.783 3.631 2.698 6.54 2.717 2.623-.02 4.358-.631 5.8-2.045 1.647-1.613 1.618-3.593 1.09-4.798-.31-.71-.873-1.3-1.634-1.75-.192 1.352-.622 2.446-1.284 3.272-.886 1.102-2.14 1.704-3.73 1.79-1.202.065-2.361-.218-3.259-.801-1.063-.689-1.685-1.74-1.752-2.964-.065-1.19.408-2.285 1.33-3.082.88-.76 2.119-1.207 3.583-1.291a13.853 13.853 0 013.02.142c-.126-.742-.375-1.332-.75-1.757-.513-.586-1.298-.883-2.363-.886h-.018c-.882 0-1.952.25-2.857 1.446l-1.644-1.18C7.863 3.354 9.429 2.986 11.07 2.986h.03c3.873.04 6.027 2.274 6.27 6.324.47.117.917.262 1.338.433 1.357.555 2.387 1.438 2.985 2.556.811 1.513.776 3.662-.09 5.533-1.26 2.742-3.656 4.131-7.417 4.168h-.003z"/></svg></div>
+    <span class="cp-text"><b>Threads</b><i>@yiann.9424</i></span>
+    <span class="cp-arrow">→</span>
+  </a>
+  <div class="cp-note">依來訊順序盡快回覆，感謝耐心等候 ♡</div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     CART DRAWER
+══════════════════════════════════════════ -->
+<div id="cart-overlay" onclick="Cart.close()"></div>
+
+<aside id="cart-drawer" aria-label="購物車">
+  <div class="cart-head">
+    <button class="cart-close" onclick="Cart.close()" aria-label="關閉購物車">
+      <span class="material-symbols-outlined">close</span>
+    </button>
+    <p class="cart-title">SHOPPING CART <span style="color:#A85C55">♥</span></p>
+    <span class="cart-subtitle">購 物 車</span>
+  </div>
+
+  <div class="cart-body" id="cart-body">
+    <div class="cart-empty-state">
+      <span class="material-symbols-outlined">shopping_cart</span>
+      <p>購物車還空著</p>
+      <a href="#shop" onclick="Cart.close()">去逛逛 →</a>
+    </div>
+  </div>
+
+  <div class="cart-foot">
+    <div class="cart-total-box">
+      <div class="cart-total-row">
+        <span class="cart-total-label">小計</span>
+        <span class="cart-total-amt" id="cart-total">NT$0</span>
+      </div>
+      <p class="cart-total-note">運費將於結帳時計算</p>
+    </div>
+    <a href="/checkout.html" class="cart-btn-checkout">前往結帳</a>
+    <button class="cart-btn-continue" onclick="Cart.close()">繼續購物</button>
+    <div class="cart-perks">
+      <div class="cart-perk">
+        <span class="material-symbols-outlined">local_shipping</span>
+        <p class="cart-perk-title">滿額免運</p>
+        <p class="cart-perk-desc">消費滿 NT$5,000<br>享免運優惠</p>
+      </div>
+      <div class="cart-perk">
+        <span class="material-symbols-outlined">favorite</span>
+        <p class="cart-perk-title">貼心服務</p>
+        <p class="cart-perk-desc">有問題歡迎<br>聯繫客服</p>
+      </div>
+    </div>
+  </div>
+</aside>
+
+
+<!-- ══════════════════════════════════════════
+     TOAST
+══════════════════════════════════════════ -->
+<div id="toast"></div>
+
+<script src="script.js"></script>
+<script>
+(async () => {
+  const API  = 'https://brand-api.crazyfunlife8.workers.dev';
+  const grid = document.getElementById('product-grid');
+  try {
+    const res  = await fetch(`${API}/api/products`);
+    const data = await res.json();
+    if (!data.ok || !data.products.length) {
+      grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;padding:60px 0;color:var(--c-secondary);font-size:14px">目前沒有商品</p>';
+      return;
+    }
+    const _catParam = new URLSearchParams(location.search).get('cat');
+    grid.innerHTML = data.products.map(p => {
+      const img    = p.images?.[0]
+        ? `<img src="${API}/images/${p.images[0]}" alt="${p.name}" loading="lazy">`
+        : `<div class="product-img-placeholder"><span class="material-symbols-outlined">checkroom</span></div>`;
+      const badge  = p.badge === 'new' ? '<span class="badge badge-new">NEW</span>'
+                   : p.badge === 'hot' ? '<span class="badge badge-hot">HOT</span>' : '';
+      const price  = p.original_price && p.original_price > p.price
+        ? `NT$${p.price.toLocaleString()} <span class="product-price-original">NT$${p.original_price.toLocaleString()}</span>`
+        : `NT$${p.price.toLocaleString()}`;
+      return `
+        <a class="product-card" href="product.html?id=${p.item_letter ? p.item_letter + String(p.sort_order).padStart(3,'0') : p.id}" data-cat="${[p.cat, p.badge === 'new' ? 'new' : ''].filter(Boolean).join(' ')}">
+          <div class="product-img-wrap">
+            ${img}
+            ${badge ? `<div class="product-badges">${badge}</div>` : ''}
+          </div>
+          <div class="product-info">
+            <p class="product-name">${p.item_letter ? p.item_letter + String(p.sort_order).padStart(3,'0') + '-' + p.name : p.name}</p>
+            <p class="product-price">${price}</p>
+          </div>
+        </a>`;
+    }).join('');
+
+    if (_catParam) {
+      filterCat(_catParam);
+      document.getElementById('shop')?.scrollIntoView({ behavior: 'smooth' });
+    }
+  } catch {
+    grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;padding:60px 0;color:var(--c-secondary);font-size:14px">商品載入失敗，請稍後再試</p>';
+  }
+})();
+</script>
+</body>
+</html>
