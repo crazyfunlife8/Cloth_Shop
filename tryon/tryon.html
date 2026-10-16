@@ -452,7 +452,7 @@ $('go2').onclick = () => {
     const ex = cart.find(i => i.id === t.id && i.color === t.color && i.size === t.size);
     if (ex) { ex.qty += 1; }
     else cart.push({ id: t.id, name: p.name, price: t.price, color: t.color, size: t.size,
-      image: p.image ? location.origin + '/images/' + p.image.split('/').pop() : '', qty: 1 });
+      image: p.image ? location.origin + '/images/' + p.image : '', qty: 1 });
   });
   localStorage.setItem('cart', JSON.stringify(cart));
   location.href = '/checkout.html';
