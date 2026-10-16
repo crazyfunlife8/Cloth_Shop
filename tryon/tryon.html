@@ -225,10 +225,10 @@
 <div class="sheet-bg" id="sheet-bg"></div>
 <div class="sheet" id="sheet"><div class="in">
   <h3>試穿清單</h3>
-  <p class="note" style="margin:-4px 0 6px">照這張清單，到網站找商品編號、選好顏色和尺寸下單</p>
+  <p class="note" style="margin:-4px 0 6px">點擊下方按鈕將清單加入購物車並前往結帳</p>
   <div id="list"></div>
   <div class="sum"><span>共 <span id="cnt"></span> 件</span><b id="total"></b></div>
-  <button class="add" id="go2">前往網站下單</button>
+  <button class="add" id="go2">加入購物車並結帳</button>
 </div></div>
 <div class="toast" id="toast"></div>
 
@@ -442,7 +442,21 @@ $('add').onclick = () => {
 
 // 清單留著，客人在賣貨便下單時可以切回來對照
 $('go').onclick = openSheet;
-$('go2').onclick = () => window.open('/', '_blank', 'noopener');
+$('go2').onclick = () => {
+  if (!tray.length) return;
+  let cart = [];
+  try { cart = JSON.parse(localStorage.getItem('cart') || '[]'); } catch {}
+  tray.forEach(t => {
+    const p = PRODUCTS[t.id];
+    if (!p) return;
+    const ex = cart.find(i => i.id === t.id && i.color === t.color && i.size === t.size);
+    if (ex) { ex.qty += 1; }
+    else cart.push({ id: t.id, name: p.name, price: t.price, color: t.color, size: t.size,
+      image: location.origin + '/images/' + p.image.split('/').pop(), qty: 1 });
+  });
+  localStorage.setItem('cart', JSON.stringify(cart));
+  location.href = '/checkout.html';
+};
 $('thumbs').onclick = openSheet;
 $('sheet-bg').onclick = closeSheet;
 
