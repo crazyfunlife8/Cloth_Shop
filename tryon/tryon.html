@@ -236,6 +236,7 @@
 <script>
 // ===== 下單 =====
 // 試穿完到 7-11 賣貨便下單。賣貨便沒有單品連結，一律開整個賣場，清單上標商品編號讓客人自己找。
+const API = 'https://brand-api.crazyfunlife8.workers.dev';
 const STORE_URL = 'https://myship.7-11.com.tw/general/detail/GM2609146387915';
 const openStore = () => window.open(STORE_URL, '_blank', 'noopener');
 
@@ -452,7 +453,7 @@ $('go2').onclick = () => {
     const ex = cart.find(i => i.id === t.id && i.color === t.color && i.size === t.size);
     if (ex) { ex.qty += 1; }
     else cart.push({ id: t.id, name: p.name, price: t.price, color: t.color, size: t.size,
-      image: p.image ? location.origin + '/images/' + p.image : '', qty: 1 });
+      image: p.image ? API + '/images/' + p.image : '', qty: 1 });
   });
   localStorage.setItem('cart', JSON.stringify(cart));
   location.href = '/checkout.html';
