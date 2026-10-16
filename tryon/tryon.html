@@ -250,9 +250,28 @@ const BODIES = [
 
 const $ = id => document.getElementById(id);
 const state = {h:160, w:50, body:'slim', bust:null, prod:null, view:'body', color:null, size:null, rec:null};
-let tray = [];
-try { tray = JSON.parse(localStorage.getItem('tryon-tray') || '[]').filter(t => { const p = PRODUCTS[t.id]; return p && p.colors.some(c => c.label === t.color) && p.stock.includes(t.size); }); } catch { tray = []; }   // 下架的款、改名的顏色或尺碼自動拿掉
-const saveTray = () => { try { localStorage.setItem('tryon-tray', JSON.stringify(tray)); } catch {} };
+function loadTray() {
+  try {
+    return JSON.parse(localStorage.getItem('cart') || '[]')
+      .filter(i => { const p = PRODUCTS[i.id]; return p && p.colors.some(c => c.label === i.color) && p.stock.includes(i.size); });
+  } catch { return []; }
+}
+let tray = loadTray();
+const saveTray = () => {
+  try {
+    let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+    cart = cart.filter(i => !PRODUCTS[i.id]);   // 先移除所有試穿商品
+    tray.forEach(t => {
+      const p = PRODUCTS[t.id];
+      cart.push({ id: t.id, name: p.name, price: t.price, color: t.color, size: t.size,
+        image: p.image ? API + '/images/' + p.image : '', qty: t.qty || 1 });
+    });
+    localStorage.setItem('cart', JSON.stringify(cart));
+  } catch {}
+};
+window.addEventListener('storage', e => {
+  if (e.key === 'cart') { tray = loadTray(); renderTray(); renderProds(); }
+});
 
 function pick(p, jin){
   const S = p.sizes;
@@ -436,7 +455,8 @@ $('add').onclick = () => {
     return;
   }
   if(tray.some(t => t.id == state.prod && t.color === state.color && t.size === state.size)){ toast('這套已經在清單裡了'); return; }
-  tray.push({id:+state.prod, color:state.color, size:state.size, price:p.price});
+  tray.push({ id:+state.prod, name:p.name, price:p.price, color:state.color, size:state.size,
+    image: p.image ? API + '/images/' + p.image : '', qty:1 });
   saveTray(); renderTray(); renderProds();
   toast(`${p.short}（${state.color}/${state.size}）加進清單了，再試一件？`);
 };
@@ -445,17 +465,6 @@ $('add').onclick = () => {
 $('go').onclick = openSheet;
 $('go2').onclick = () => {
   if (!tray.length) return;
-  let cart = [];
-  try { cart = JSON.parse(localStorage.getItem('cart') || '[]'); } catch {}
-  tray.forEach(t => {
-    const p = PRODUCTS[t.id];
-    if (!p) return;
-    const ex = cart.find(i => i.id === t.id && i.color === t.color && i.size === t.size);
-    if (ex) { ex.qty += 1; }
-    else cart.push({ id: t.id, name: p.name, price: t.price, color: t.color, size: t.size,
-      image: p.image ? API + '/images/' + p.image : '', qty: 1 });
-  });
-  localStorage.setItem('cart', JSON.stringify(cart));
   location.href = '/checkout.html';
 };
 $('thumbs').onclick = openSheet;
