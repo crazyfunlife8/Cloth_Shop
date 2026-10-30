@@ -75,8 +75,8 @@ img { display: block; max-width: 100%; }
 .header-logo {
   display: flex; align-items: center; text-decoration: none; flex-shrink: 0;
 }
-.header-logo img { height: 44px; max-width: 120px; width: auto; object-fit: contain; }
-@media (min-width: 768px) { .header-logo img { height: 56px; max-width: none; } }
+.header-logo img { height: 52px; max-width: 120px; width: auto; object-fit: contain; }
+@media (min-width: 768px) { .header-logo img { height: 64px; max-width: none; } }
 /* 文字 logo 備用 (沒有圖時顯示) */
 .logo-text {
   font-family: 'Playfair Display', serif;
